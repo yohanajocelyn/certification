@@ -47,7 +47,7 @@ class VehicleControllerTest extends TestCase
 
         $response = $this->actingAs($this->tenant)->get(route('vehicles.index'));
 
-        $response->assertSeeTextInOrder(['Di garasi C007', 's.d. 25 Nov 2026']);
+        $response->assertSeeTextInOrder(['Garasi C007', 's.d. 25 Nov 2026']);
     }
 
     public function test_index_does_not_count_a_future_booking_as_parked_today(): void
@@ -58,7 +58,7 @@ class VehicleControllerTest extends TestCase
         $response = $this->actingAs($this->tenant)->get(route('vehicles.index'));
 
         $response->assertSee('Tidak di garasi');
-        $response->assertDontSee('Di garasi');
+        $response->assertDontSee('s.d.');
     }
 
     public function test_index_shows_battery_only_for_electric_cars_and_no_plate_for_bicycles(): void
@@ -71,12 +71,14 @@ class VehicleControllerTest extends TestCase
         $this->assertNull($vehicles->firstWhere('brand_model', 'Polygon')->plate_number);
     }
 
-    public function test_index_links_each_vehicle_to_a_new_rental_with_it_selected(): void
+    public function test_index_has_no_rental_count_or_action_column(): void
     {
-        $car = Vehicle::factory()->for($this->tenant)->create();
+        Vehicle::factory()->for($this->tenant)->create();
 
-        $this->actingAs($this->tenant)->get(route('vehicles.index'))
-            ->assertSee(route('rentals.create', ['vehicle_id' => $car->id]), false);
+        $response = $this->actingAs($this->tenant)->get(route('vehicles.index'));
+
+        $response->assertDontSee('Jumlah Sewa');
+        $response->assertDontSee('Aksi');
     }
 
     public function test_index_without_vehicles_explains_how_to_add_one(): void

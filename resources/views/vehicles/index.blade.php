@@ -14,9 +14,7 @@
                 <th scope="col">Kendaraan</th>
                 <th scope="col">Nomor Plat</th>
                 <th scope="col">Kapasitas Baterai</th>
-                <th scope="col">Hari Ini</th>
-                <th scope="col" class="text-right">Jumlah Sewa</th>
-                <th scope="col" class="text-right">Aksi</th>
+                <th scope="col">Garasi</th>
             </x-slot:head>
 
             @foreach ($vehicles as $vehicle)
@@ -32,22 +30,13 @@
                     <td data-label="Kapasitas Baterai" class="text-primary-700 whitespace-nowrap">
                         {{ $vehicle->hasBattery() ? ($vehicle->battery_capacity_kwh + 0).' kWh' : '—' }}
                     </td>
-                    <td data-label="Hari Ini">
+                    <td data-label="Garasi">
                         @if ($rentalToday)
-                            <x-status tone="success">
-                                Di garasi {{ $rentalToday->garage->code }}
-                                <span class="font-normal text-primary-600 whitespace-nowrap">s.d. {{ $rentalToday->end_date->translatedFormat('d M Y') }}</span>
-                            </x-status>
+                            <b>Garasi {{ $rentalToday->garage->code }}</b>
+                            <span class="font-normal text-primary-600 whitespace-nowrap">s.d. {{ $rentalToday->end_date->translatedFormat('d M Y') }}</span>
                         @else
                             <x-status tone="neutral">Tidak di garasi</x-status>
                         @endif
-                    </td>
-                    <td data-label="Jumlah Sewa" class="text-right">{{ $vehicle->rentals_count }}</td>
-                    <td data-label="" class="text-right">
-                        <x-link-button :href="route('rentals.create', ['vehicle_id' => $vehicle->id])" variant="row">
-                            <x-heroicon-o-plus class="w-3.5 h-3.5 text-secondary" />
-                            Sewa Garasi
-                        </x-link-button>
                     </td>
                 </tr>
             @endforeach
