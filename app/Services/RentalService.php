@@ -10,11 +10,11 @@ use App\Models\Rental;
 use App\Models\RentalExtension;
 use App\Models\User;
 use App\Models\Vehicle;
-use App\Services\Results\RentalQuote;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -52,13 +52,15 @@ class RentalService
 
     /**
      * Everything shown before paying: the period, and an unsaved rental with its total for every
-     * garage free for the whole period, per garage type the vehicle fits.
+     * garage free for the whole period, per garage type the vehicle fits (offers: garage type value
+     * => draft rentals). The keys are the preview page's variables.
      *
      * @param  array<string, mixed>  $details  validated step 1 (vehicle, rental_type, start_date, days, battery)
+     * @return array{vehicle: Vehicle, rentalType: RentalType, start: CarbonImmutable, end: CarbonImmutable, durationDays: int, offers: array<string, Collection<int, Rental>>}
      *
      * @throws ValidationException when the vehicle already has a garage in that period (vehicle_id)
      */
-    public function quote(User $tenant, array $details): RentalQuote
+    public function quote(User $tenant, array $details): array
     {
         $vehicle = $this->vehicleFor($tenant, $details);
         $start = $this->startDate($details);
@@ -75,14 +77,14 @@ class RentalService
                 ->map(fn (Garage $garage) => $this->draftRental($garage, $vehicle, $details));
         }
 
-        return new RentalQuote(
-            $vehicle,
-            RentalType::from($details['rental_type']),
-            $start,
-            $end,
-            Rental::countDays($start, $end),
-            $offers,
-        );
+        return [
+            'vehicle' => $vehicle,
+            'rentalType' => RentalType::from($details['rental_type']),
+            'start' => $start,
+            'end' => $end,
+            'durationDays' => Rental::countDays($start, $end),
+            'offers' => $offers,
+        ];
     }
 
     /**

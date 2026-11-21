@@ -56,11 +56,11 @@ class RentalServiceTest extends TestCase
         $quote = $this->service->quote($this->tenant, $this->details(['days' => 5]));
 
         // Assert
-        $this->assertSame('2026-11-25', $quote->end->toDateString());
-        $this->assertSame(5, $quote->durationDays);
-        $this->assertSame([GarageType::Car->value], array_keys($quote->offers));
-        $this->assertSame(['C002'], $quote->offers[GarageType::Car->value]->map(fn ($draft) => $draft->garage->code)->all());
-        $this->assertEquals(50_000, $quote->offers[GarageType::Car->value]->first()->total_cost);
+        $this->assertSame('2026-11-25', $quote['end']->toDateString());
+        $this->assertSame(5, $quote['durationDays']);
+        $this->assertSame([GarageType::Car->value], array_keys($quote['offers']));
+        $this->assertSame(['C002'], $quote['offers'][GarageType::Car->value]->map(fn ($draft) => $draft->garage->code)->all());
+        $this->assertEquals(50_000, $quote['offers'][GarageType::Car->value]->first()->total_cost);
     }
 
     public function test_quote_for_electric_car_adds_charging_only_in_electric_garages(): void
@@ -71,8 +71,8 @@ class RentalServiceTest extends TestCase
 
         $quote = $this->service->quote($this->tenant, $this->details(['vehicle_id' => $electricCar->id, 'current_battery_kwh' => 20]));
 
-        $this->assertEquals(30_000, $quote->offers[GarageType::Car->value]->first()->total_cost);
-        $this->assertEquals(130_000, $quote->offers[GarageType::Electric->value]->first()->total_cost);
+        $this->assertEquals(30_000, $quote['offers'][GarageType::Car->value]->first()->total_cost);
+        $this->assertEquals(130_000, $quote['offers'][GarageType::Electric->value]->first()->total_cost);
     }
 
     public function test_quote_for_a_vehicle_already_parked_in_the_period_throws_on_vehicle_id(): void

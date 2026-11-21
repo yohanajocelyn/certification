@@ -78,15 +78,7 @@ class RentalController extends Controller
             throw $exception->redirectTo(route('rentals.create'));
         }
 
-        return view('rentals.preview', [
-            'details' => $details,
-            'vehicle' => $quote->vehicle,
-            'rentalType' => $quote->rentalType,
-            'start' => $quote->start,
-            'end' => $quote->end,
-            'durationDays' => $quote->durationDays,
-            'offers' => $quote->offers,
-        ]);
+        return view('rentals.preview', ['details' => $details, ...$quote]);
     }
 
     /**
