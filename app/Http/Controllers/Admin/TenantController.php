@@ -33,11 +33,10 @@ class TenantController extends Controller
             ->paginate(self::TENANTS_PER_PAGE)
             ->withQueryString();
 
-        $countsByStatus = User::tenants()
-            ->toBase()
-            ->selectRaw('status, count(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
+        $countsByStatus = [];
+        foreach (UserStatus::cases() as $status) {
+            $countsByStatus[$status->value] = User::tenants()->where('status', $status)->count();
+        }
 
         return view('admin.tenants.index', [
             'tenants' => $tenants,
