@@ -110,8 +110,8 @@ mobile: row 1 = brand + user/logout, row 2 = menu links (scroll sideways)
 | `primary` | `px-6 py-2.5 bg-primary text-white font-bold shadow-md hover:bg-secondary hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-primary-50 disabled:opacity-50 disabled:cursor-not-allowed` |
 | `secondary` (Cancel) | `px-5 py-2.5 font-semibold text-primary-700 bg-white hover:bg-primary-100/80 border border-primary-300 shadow-2xs hover:shadow-xs` |
 | `danger` | `px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-md hover:shadow-lg focus:ring-rose-500 transform hover:-translate-y-0.5` |
-| `row-edit` (small) | `px-3.5 py-1.5 text-xs font-bold text-primary-900 bg-white hover:bg-primary-100 border border-primary-200 rounded-lg shadow-2xs` |
-| `row-delete` (small) | `px-3.5 py-1.5 text-xs font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg shadow-2xs` |
+| `row` (small) | `px-3.5 py-1.5 text-xs font-bold text-primary-900 bg-white hover:bg-primary-100 border border-primary-200 rounded-lg shadow-2xs` |
+| `row-danger` (small) | `px-3.5 py-1.5 text-xs font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg shadow-2xs` |
 
 **`x-input`**: `w-full border border-primary-300 rounded-xl shadow-sm bg-white/80 backdrop-blur-sm px-4 py-3 text-primary-900 placeholder-primary-400 hover:bg-white focus:bg-white focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all duration-300`.
 Use the same look for `x-select` and `x-textarea`. The component should render label + input + `@error` message (`text-sm text-red-600 mt-1.5`) together, with a `required` prop that adds `<span class="text-rose-500 ml-0.5">*</span>`.
@@ -132,7 +132,7 @@ Use the same look for `x-select` and `x-textarea`. The component should render l
 
 **Action row**: `flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6`. Create button (primary, `+` icon) on the left. A search box goes on the right **only if the brief asks for search** (`relative w-full sm:w-72 md:w-80`, input `pl-10 pr-4 py-2.5 rounded-xl border border-primary-300/80 bg-white/70 text-sm shadow-2xs`, magnifier icon absolutely positioned); it is then a GET form handled in the controller.
 
-**Delete confirmation (`x-delete-form`)**: default is CLAUDE.md's `x-delete-form` with `@csrf`, `@method('DELETE')`, `action="{{ route('items.destroy', $item) }}"` and `onsubmit="return confirm('...')"`, styled as the `row-delete` button. A styled modal is optional and only if the developer asks; if so, use this look:
+**Delete confirmation (`x-delete-form`)**: default is CLAUDE.md's `x-delete-form` with `@csrf`, `@method('DELETE')`, `action="{{ route('items.destroy', $item) }}"` and `onsubmit="return confirm('...')"`, styled as the `row-danger` button. A styled modal is optional and only if the developer asks; if so, use this look:
 - Overlay `fixed inset-0 z-50 bg-black/45 backdrop-blur-xs flex items-center justify-center p-4`, `role="dialog" aria-modal="true"`.
 - Panel `bg-white rounded-3xl shadow-2xl border border-primary-200 max-w-md w-full overflow-hidden`.
 - Header `p-6 pb-4 border-b border-primary-200/60` with icon tile `w-8 h-8 rounded-xl bg-rose-100/70 text-rose-600 border border-rose-200/60`, title, close X.

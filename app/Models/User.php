@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -79,6 +80,24 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === UserRole::Admin;
+    }
+
+    /**
+     * Only tenant accounts (no admins).
+     *
+     * @param  Builder<User>  $query
+     */
+    public function scopeTenants(Builder $query): void
+    {
+        $query->where('role', UserRole::Tenant);
+    }
+
+    /**
+     * Whether this registration still waits for an admin's decision.
+     */
+    public function isPending(): bool
+    {
+        return $this->status === UserStatus::Pending;
     }
 
     /**

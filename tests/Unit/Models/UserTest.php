@@ -49,6 +49,20 @@ class UserTest extends TestCase
         $this->assertFalse(User::factory()->rejected()->make()->isApproved());
     }
 
+    public function test_is_pending_is_true_only_for_pending_status(): void
+    {
+        $this->assertTrue(User::factory()->pending()->make()->isPending());
+        $this->assertFalse(User::factory()->make()->isPending());
+    }
+
+    public function test_tenants_scope_excludes_admins(): void
+    {
+        User::factory()->admin()->create();
+        User::factory()->count(2)->create();
+
+        $this->assertSame(2, User::tenants()->count());
+    }
+
     public function test_vehicles_relation_returns_owned_vehicles(): void
     {
         $user = User::factory()->has(Vehicle::factory()->count(2))->create();

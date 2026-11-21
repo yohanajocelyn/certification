@@ -55,14 +55,9 @@
                         @endif
                     </td>
                     <td>
-                        <span class="inline-flex items-center gap-2 font-semibold">
-                            <span @class([
-                                'inline-block w-2.5 h-2.5 rounded-full shadow-2xs',
-                                'bg-rose-500' => $garage->is_used,
-                                'bg-emerald-500' => ! $garage->is_used,
-                            ])></span>
+                        <x-status :tone="$garage->is_used ? 'danger' : 'success'">
                             {{ $garage->is_used ? 'Dipakai' : 'Tersedia' }}
-                        </span>
+                        </x-status>
                     </td>
                 </tr>
             @endforeach

@@ -28,6 +28,7 @@
                         <nav aria-label="Menu utama"
                              class="order-last md:order-none w-full md:w-auto flex items-center gap-6 md:gap-8 overflow-x-auto whitespace-nowrap md:flex-1">
                             <x-nav-link :href="route('admin.garages.index')" :active="request()->routeIs('admin.garages.*')">Garasi</x-nav-link>
+                            <x-nav-link :href="route('admin.tenants.index')" :active="request()->routeIs('admin.tenants.*')">Penyewa</x-nav-link>
                         </nav>
                     @endif
 

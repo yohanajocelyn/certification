@@ -47,3 +47,15 @@ document.addEventListener('change', (event) => {
         }
     });
 });
+
+/*
+ * Ask before submitting a form that cannot be undone:
+ *   <form data-confirm="Tolak pendaftaran ini?"> ... </form>
+ */
+document.addEventListener('submit', (event) => {
+    const message = event.target.dataset.confirm;
+
+    if (message && ! window.confirm(message)) {
+        event.preventDefault();
+    }
+});

@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Admin\GarageController;
+use App\Http\Controllers\Admin\TenantController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HomeController;
@@ -20,5 +21,6 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:'.UserRole::Admin->value)->prefix('admin')->name('admin.')->group(function () {
         Route::resource('garages', GarageController::class)->only(['index', 'create', 'store']);
+        Route::resource('tenants', TenantController::class)->only(['index', 'update']);
     });
 });

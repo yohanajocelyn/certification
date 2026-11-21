@@ -82,9 +82,9 @@ Done when: tests green, admin can log in from seeded `.env` data.
 
 ## Batch 4 - Admin: tenant verification
 
-- [ ] `Admin\TenantController` index (pending first, filter by status), update (approve / reject, only from `pending`)
-- [ ] Views: `admin/tenants/index` with approve / reject buttons
-- [ ] Feature tests: approve, reject, cannot change an already decided tenant, cannot target an admin, approved tenant can now log in
+- [x] `Admin\TenantController` index (pending first, filter by status), update (approve / reject, only from `pending`)
+- [x] Views: `admin/tenants/index` with approve / reject buttons
+- [x] Feature tests: approve, reject, cannot change an already decided tenant, cannot target an admin, approved tenant can now log in
 
 ## Batch 5 - Tenant: new rental (two-step) + my rentals
 
