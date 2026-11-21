@@ -25,7 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
     Route::middleware('role:'.UserRole::Admin->value)->prefix('admin')->name('admin.')->group(function () {
-        Route::resource('garages', GarageController::class)->only(['index', 'create', 'store']);
+        Route::resource('garages', GarageController::class)->only(['index', 'create', 'store', 'edit', 'update']);
         Route::resource('tenants', TenantController::class)->only(['index', 'update']);
         Route::resource('rentals', AdminRentalController::class)->only(['index']);
         Route::get('/rentals/{rental}/extensions/preview', [RentalExtensionController::class, 'preview'])

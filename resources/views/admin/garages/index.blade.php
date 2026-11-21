@@ -39,6 +39,7 @@
                 <th scope="col" class="text-right">Harga Bulanan</th>
                 <th scope="col" class="text-right">Isi Listrik / kWh</th>
                 <th scope="col">Status Hari Ini</th>
+                <th scope="col"><span class="sr-only">Aksi</span></th>
             </x-slot:head>
 
             @foreach ($garages as $garage)
@@ -58,6 +59,13 @@
                         <x-status :tone="$garage->is_used ? 'danger' : 'success'">
                             {{ $garage->is_used ? 'Dipakai' : 'Tersedia' }}
                         </x-status>
+                    </td>
+                    <td data-label="" class="text-right">
+                        <x-link-button :href="route('admin.garages.edit', $garage)" variant="row"
+                                       aria-label="Ubah garasi {{ $garage->code }}">
+                            <x-heroicon-o-pencil-square class="w-3.5 h-3.5 text-secondary" />
+                            Ubah
+                        </x-link-button>
                     </td>
                 </tr>
             @endforeach

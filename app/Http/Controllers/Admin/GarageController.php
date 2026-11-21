@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
- * Admin pages to list garages and create them in batches per type.
+ * Admin pages to list garages, create them in batches per type and change their prices.
  */
 class GarageController extends Controller
 {
@@ -85,6 +85,31 @@ class GarageController extends Controller
     }
 
     /**
+     * Show the form to change a garage's prices. Type and code never change.
+     */
+    public function edit(Garage $garage): View
+    {
+        return view('admin.garages.edit', ['garage' => $garage]);
+    }
+
+    /**
+     * Save new prices. Existing rentals keep the price they were booked at.
+     */
+    public function update(Request $request, Garage $garage): RedirectResponse
+    {
+        $validated = $request->validate($this->priceRules($garage->type));
+
+        $garage->update([
+            'daily_price' => $validated['daily_price'],
+            'kwh_price' => $validated['kwh_price'] ?? null,
+        ]);
+
+        return redirect()
+            ->route('admin.garages.index', ['type' => $garage->type->value])
+            ->with('success', "Harga garasi {$garage->code} diperbarui.");
+    }
+
+    /**
      * Rules for a garage batch. The quantity limit depends on the codes left for the chosen type,
      * and the kWh price belongs only to garages that charge.
      *
@@ -93,17 +118,32 @@ class GarageController extends Controller
     private function validationRules(Request $request): array
     {
         $type = GarageType::tryFrom((string) $request->input('type'));
-        $hasCharging = $type?->hasCharging() ?? false;
         $maxQuantity = $type
             ? min(Garage::MAX_BATCH_SIZE, Garage::remainingCodeNumbers($type))
             : Garage::MAX_BATCH_SIZE;
-        $priceRules = ['numeric', 'decimal:0,'.Garage::PRICE_SCALE, 'gt:0', 'max:'.Garage::MAX_PRICE];
 
         return [
             'type' => ['required', Rule::enum(GarageType::class)],
             'quantity' => ['required', 'integer', 'min:'.Garage::MIN_BATCH_SIZE, 'max:'.$maxQuantity],
-            'daily_price' => ['required', ...$priceRules],
-            'kwh_price' => [Rule::requiredIf($hasCharging), Rule::prohibitedIf(! $hasCharging), 'nullable', ...$priceRules],
+            ...$this->priceRules($type),
+        ];
+    }
+
+    /**
+     * Price rules shared by creating and editing: a daily price always, a kWh price only for
+     * garages that charge.
+     *
+     * @param  GarageType|null  $type  null while the chosen type is still invalid
+     * @return array<string, mixed>
+     */
+    private function priceRules(?GarageType $type): array
+    {
+        $hasCharging = $type?->hasCharging() ?? false;
+        $amountRules = ['numeric', 'decimal:0,'.Garage::PRICE_SCALE, 'gt:0', 'max:'.Garage::MAX_PRICE];
+
+        return [
+            'daily_price' => ['required', ...$amountRules],
+            'kwh_price' => [Rule::requiredIf($hasCharging), Rule::prohibitedIf(! $hasCharging), 'nullable', ...$amountRules],
         ];
     }
 
