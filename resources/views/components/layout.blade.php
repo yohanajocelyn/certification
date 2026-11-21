@@ -8,6 +8,9 @@
     <meta name="view-transition" content="same-origin">
     <title>{{ $title ? $title.' · '.config('app.name') : config('app.name') }}</title>
 
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon/favicon-16x16.png') }}">
+
     {{-- Self-hosted Instrument Sans: preload links + @font-face (configured in vite.config.js). --}}
     @fonts
 
