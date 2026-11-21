@@ -16,7 +16,7 @@
     </x-slot:head>
 
     @foreach ($rows as $row)
-        <tr @class(['text-primary-400' => $row['rentals'] === 0 && $row['extensions'] === 0])>
+        <tr @class(['text-primary-500' => $row['rentals'] === 0 && $row['extensions'] === 0])>
             <td class="font-semibold text-primary-900">{{ $row['label'] }}</td>
             <td class="text-right">{{ $row['rentals'] }}</td>
             <td class="text-right"><x-rupiah :amount="$row['rental_revenue']" /></td>

@@ -8,20 +8,24 @@
     --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-    --color-primary-50: #fbf8f5;
-    --color-primary-100: #f5eee5;
-    --color-primary-200: #eadecc;
-    --color-primary-300: #dcc4ab;
-    --color-primary-400: #c9a484;
-    --color-primary-500: #b98762;
-    --color-primary-600: #aa704f;
-    --color-primary-700: #8d5841;
-    --color-primary-800: #734837;
-    --color-primary-900: #3d2100;
+    /* Concrete and charcoal grays, with a parking-sign amber accent. */
+    --color-primary-50: #fafafa;
+    --color-primary-100: #f4f4f5;
+    --color-primary-200: #e4e4e7;
+    --color-primary-300: #d4d4d8;
+    --color-primary-400: #a1a1aa;
+    --color-primary-500: #71717a;
+    --color-primary-600: #52525b;
+    --color-primary-700: #3f3f46;
+    --color-primary-800: #27272a;
+    --color-primary-900: #18181b;
 
-    --color-primary: #3d2100;
-    --color-secondary: #8b5a2b;
-    --color-tertiary: #d2b48c;
+    /* Buttons and headings. */
+    --color-primary: #18181b;
+    /* Hover, focus rings, links, selected cards. Dark enough for white text (4.9:1). */
+    --color-secondary: #b45309;
+    /* Decoration only, never text: too light for contrast. */
+    --color-tertiary: #f59e0b;
 }
 
 /* Always reserve the scrollbar's width: centered pages no longer jump sideways

@@ -51,7 +51,7 @@
                         @if ($garage->kwh_price !== null)
                             <x-rupiah :amount="$garage->kwh_price" />
                         @else
-                            <span class="text-primary-400">—</span>
+                            <span class="text-primary-500">—</span>
                         @endif
                     </td>
                     <td>

@@ -10,7 +10,7 @@ Visual style to follow, taken from the developer's earlier project `DSC-Home-Ass
 - Features shown below as UI patterns (search bar, navbar user area, status dots, choice cards) are used **only if the task brief needs them**. Never add a feature because the reference had it.
 - Do not open the reference project again to copy from it; this file is the whole hand-off. If something here conflicts with CLAUDE.md, follow CLAUDE.md and tell the developer.
 
-Mood: warm, calm, coffee/brown palette on an off-white background; rounded, soft shadows, bold headings; airy lists instead of boxed tables.
+Mood: a garage / parking feel: concrete and charcoal grays with a parking-sign amber accent on a near-white background; rounded, soft shadows, bold headings; airy lists instead of boxed tables. (The layout and components come from the reference project; the colours were changed for this app.)
 
 ## 1. Design tokens (`resources/css/app.css`)
 
@@ -23,20 +23,20 @@ Mood: warm, calm, coffee/brown palette on an off-white background; rounded, soft
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
 
-    --color-primary-50: #fbf8f5;
-    --color-primary-100: #f5eee5;
-    --color-primary-200: #eadecc;
-    --color-primary-300: #dcc4ab;
-    --color-primary-400: #c9a484;
-    --color-primary-500: #b98762;
-    --color-primary-600: #aa704f;
-    --color-primary-700: #8d5841;
-    --color-primary-800: #734837;
-    --color-primary-900: #3d2100;
+    --color-primary-50: #fafafa;   /* page background */
+    --color-primary-100: #f4f4f5;
+    --color-primary-200: #e4e4e7;  /* dividers */
+    --color-primary-300: #d4d4d8;  /* input borders */
+    --color-primary-400: #a1a1aa;  /* placeholders, icons only (too light for text) */
+    --color-primary-500: #71717a;
+    --color-primary-600: #52525b;  /* meta text */
+    --color-primary-700: #3f3f46;
+    --color-primary-800: #27272a;
+    --color-primary-900: #18181b;  /* text */
 
-    --color-primary: #3d2100;   /* main buttons, headings */
-    --color-secondary: #8B5A2B; /* hover, focus ring, accents, links */
-    --color-tertiary: #D2B48C;
+    --color-primary: #18181b;   /* charcoal: main buttons, headings */
+    --color-secondary: #b45309; /* amber: hover, focus ring, links, selected cards, active menu underline */
+    --color-tertiary: #f59e0b;  /* light amber: decoration only, never text */
 }
 
 @view-transition { navigation: auto; }
@@ -51,7 +51,7 @@ Font: Instrument Sans 400-700 through laravel-vite-plugin's fonts feature (`bunn
 | Role | Classes |
 |---|---|
 | Page background / text | `bg-primary-50 text-primary-900` |
-| Muted text | `text-primary-600` (meta), `text-primary-700` (body copy), `text-primary-400` (placeholder/icons) |
+| Muted text | `text-primary-600` (meta), `text-primary-700` (body copy), `text-primary-500` (faded rows, dashes), `text-primary-400` (placeholders and icons only) |
 | Lines | `border-primary-200/60` (dividers), `border-primary-300` (inputs, secondary buttons) |
 | Surfaces | Mostly no cards; page bg directly. Cards/modals: `bg-white rounded-3xl border border-primary-200 shadow-2xl` |
 | Success | `bg-emerald-50 border-emerald-200 text-emerald-800`, icon `text-emerald-600`, dot `bg-emerald-500` |
@@ -84,7 +84,7 @@ mobile: row 1 = brand + user/logout, row 2 = menu links (scroll sideways)
 - Header inner (same width as `<main>` so edges line up): `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-0 md:h-16 flex flex-wrap md:flex-nowrap items-center justify-between gap-x-8 gap-y-3`.
 - Brand (left): app name, `text-lg font-black tracking-tight text-primary-900`, links to the role's home page.
 - Menu `<nav aria-label="Menu utama">`: `order-last md:order-none w-full md:w-auto flex items-center gap-6 md:gap-8 overflow-x-auto whitespace-nowrap md:flex-1`. Links are plain text, `text-sm sm:text-base tracking-wide py-1`:
-  - active: `text-primary-900 font-bold underline decoration-2 underline-offset-8` + `aria-current="page"`
+  - active: `text-primary-900 font-bold underline decoration-2 decoration-secondary underline-offset-8` + `aria-current="page"`
   - idle: `text-primary-800/80 font-medium hover:text-primary-900 hover:underline hover:decoration-primary-400 hover:underline-offset-8`
   - Decide active with `request()->routeIs('admin.garages.*')` per link; no big `@php` blocks.
 - Menu items are the resources from the task brief, nothing else, and depend on the logged-in role.
