@@ -12,6 +12,7 @@
         <x-table>
             <x-slot:head>
                 <th scope="col">Kendaraan</th>
+                <th scope="col">Tipe</th>
                 <th scope="col">Nomor Plat</th>
                 <th scope="col">Kapasitas Baterai</th>
                 <th scope="col">Garasi</th>
@@ -20,10 +21,8 @@
             @foreach ($vehicles as $vehicle)
                 @php $rentalToday = $vehicle->rentalsToday->first(); @endphp
                 <tr>
-                    <td data-label="">
-                        <span class="block font-bold text-primary-900">{{ $vehicle->brand_model }}</span>
-                        <span class="block text-sm text-primary-600">{{ $vehicle->type->label() }}</span>
-                    </td>
+                    <td data-label="" class="font-bold text-primary-900">{{ $vehicle->brand_model }}</td>
+                    <td data-label="Tipe" class="text-primary-700 whitespace-nowrap">{{ $vehicle->type->label() }}</td>
                     <td data-label="Nomor Plat" class="font-mono tracking-wide text-primary-800 whitespace-nowrap">
                         {{ $vehicle->plate_number ?? '—' }}
                     </td>
