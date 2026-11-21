@@ -6,14 +6,14 @@
         UserStatus::Approved->value => 'success',
         UserStatus::Rejected->value => 'danger',
     ];
-    $chipClass = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold border transition-colors';
+    $chipClass = 'px-3.5 py-1.5 rounded-lg text-sm font-semibold border transition-colors';
     $activeChip = $chipClass.' bg-primary text-white border-primary';
     $idleChip = $chipClass.' bg-white text-primary-800 border-primary-200 hover:bg-primary-100';
 @endphp
 
 <x-layout title="Verifikasi Penyewa">
     <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-2">Verifikasi Penyewa</h1>
-    <p class="text-sm text-primary-700 mb-6">
+    <p class="text-base text-primary-700 mb-6">
         Cocokkan NIK dengan KTP pendaftar, lalu terima atau tolak pendaftarannya.
     </p>
 

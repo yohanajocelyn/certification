@@ -67,6 +67,8 @@ class RentalController extends Controller
             'electricVehicleIds' => $vehicles->filter(fn (Vehicle $vehicle) => $vehicle->type->hasBattery())->pluck('id')->all(),
             'rentalTypes' => RentalType::cases(),
             'today' => CarbonImmutable::today(),
+            'startDate' => $this->requestedStartDate($request),
+            'initialEndDate' => $this->requestedEndDate($request),
             'defaults' => $request->query(),
         ]);
     }
@@ -299,6 +301,24 @@ class RentalController extends Controller
         $days = isset($details['days']) ? (int) $details['days'] : null;
 
         return Rental::calculateEndDate(RentalType::from($details['rental_type']), $this->startDate($details), $days);
+    }
+
+    /**
+     * End date shown on step 1 when the form is refilled, or null while the days are not valid yet.
+     */
+    private function requestedEndDate(Request $request): ?CarbonImmutable
+    {
+        $start = $this->requestedStartDate($request);
+        $type = RentalType::tryFrom((string) $request->input('rental_type')) ?? RentalType::Daily;
+        $days = filter_var($request->input('days'), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => Rental::MIN_DAILY_DAYS, 'max_range' => Rental::maxDailyDays($start)],
+        ]);
+
+        if ($type === RentalType::Daily && $days === false) {
+            return null;
+        }
+
+        return Rental::calculateEndDate($type, $start, $days === false ? null : $days);
     }
 
     /**

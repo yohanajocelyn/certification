@@ -10,7 +10,7 @@
 
     <div role="{{ $isSuccess ? 'status' : 'alert' }}"
          {{ $attributes->class([
-             'p-4 rounded-2xl border text-sm shadow-2xs flex items-start gap-3',
+             'p-4 rounded-2xl border text-base shadow-2xs flex items-start gap-3',
              'bg-emerald-50 border-emerald-200 text-emerald-800' => $isSuccess,
              'bg-rose-50 border-rose-200 text-rose-800' => ! $isSuccess,
          ]) }}>

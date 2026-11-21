@@ -9,7 +9,7 @@
 
         <nav aria-label="Saring tipe garasi" class="flex flex-wrap items-center gap-2">
             @php
-                $chipClass = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold border transition-colors';
+                $chipClass = 'px-3.5 py-1.5 rounded-lg text-sm font-semibold border transition-colors';
                 $activeChip = $chipClass.' bg-primary text-white border-primary';
                 $idleChip = $chipClass.' bg-white text-primary-800 border-primary-200 hover:bg-primary-100';
             @endphp

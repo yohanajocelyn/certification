@@ -14,7 +14,7 @@
 @endphp
 
 <div>
-    <label for="{{ $id }}" class="block font-semibold text-sm text-primary-800 mb-2">
+    <label for="{{ $id }}" class="block font-semibold text-base text-primary-800 mb-2">
         {{ $label }}
         @if ($required)
             <span class="text-rose-500 ml-0.5" aria-hidden="true">*</span>

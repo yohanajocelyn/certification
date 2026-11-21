@@ -7,7 +7,7 @@
 
 @if ($paginator->hasPages())
     <nav role="navigation" aria-label="Navigasi halaman" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p class="text-xs sm:text-sm text-primary-600">
+        <p class="text-sm text-primary-600">
             Menampilkan {{ $paginator->firstItem() }}–{{ $paginator->lastItem() }} dari {{ $paginator->total() }}
         </p>
 

@@ -19,7 +19,7 @@
 
         @auth
             <header class="sticky top-0 z-20 border-b border-primary-900 bg-primary-50">
-                <div class="max-w-6xl mx-auto px-6 sm:px-10 py-4 md:py-0 md:h-16 flex flex-wrap md:flex-nowrap items-center justify-between gap-x-8 gap-y-3">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-0 md:h-16 flex flex-wrap md:flex-nowrap items-center justify-between gap-x-8 gap-y-3">
                     <a href="{{ route('home') }}" class="text-lg font-black tracking-tight text-primary-900">
                         {{ config('app.name') }}
                     </a>
@@ -42,7 +42,7 @@
                         </div>
                         <div class="hidden sm:block min-w-0">
                             <p class="text-sm font-semibold text-primary-900 truncate max-w-[10rem]">{{ auth()->user()->name }}</p>
-                            <p class="text-xs text-primary-600">{{ auth()->user()->role->label() }}</p>
+                            <p class="text-sm text-primary-600">{{ auth()->user()->role->label() }}</p>
                         </div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -60,7 +60,7 @@
 
         <main @class([
             'relative z-10 flex-1 w-full',
-            'max-w-6xl mx-auto px-6 sm:px-10 py-8 md:py-12' => auth()->check(),
+            'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12' => auth()->check(),
             'flex flex-col items-center justify-center px-4 py-8 sm:py-12' => auth()->guest(),
         ])>
             @if (session('success') || session('error'))

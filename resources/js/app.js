@@ -67,12 +67,34 @@ document.addEventListener('submit', (event) => {
  * Rental days field (data-rental-days), driven by the start date and the rental type:
  *   daily   -> editable, at most (days in the start month - 1)
  *   monthly -> read-only, filled with the days in the start month
- * Display only: the server recalculates the end date and checks the limit again.
+ * The read-only end date (data-rental-end-date) shows start + days - 1, or stays empty
+ * while the days are not valid. Display only: the server recalculates both and checks the limit.
  */
 function daysInMonth(isoDate) {
     const [year, month] = isoDate.split('-').map(Number);
 
     return new Date(year, month, 0).getDate();
+}
+
+function lastRentedDay(isoDate, days) {
+    const [year, month, day] = isoDate.split('-').map(Number);
+
+    // UTC avoids a daylight-saving hour shifting the date.
+    return new Date(Date.UTC(year, month - 1, day + days - 1)).toISOString().slice(0, 10);
+}
+
+function showEndDate(form, startDate, daysInput) {
+    const endDateInput = form.querySelector('[data-rental-end-date]');
+
+    if (! endDateInput) {
+        return;
+    }
+
+    const days = Number(daysInput.value);
+    const isValid = Number.isInteger(days) && days >= Number(daysInput.min)
+        && (daysInput.max === '' || days <= Number(daysInput.max));
+
+    endDateInput.value = isValid ? lastRentedDay(startDate, days) : '';
 }
 
 function syncRentalDays(form) {
@@ -95,6 +117,7 @@ function syncRentalDays(form) {
         daysInput.removeAttribute('max');
         daysInput.value = monthDays;
         hint.textContent = daysInput.dataset.monthlyHint.replace(':days', monthDays);
+        showEndDate(form, startDate, daysInput);
 
         return;
     }
@@ -105,12 +128,15 @@ function syncRentalDays(form) {
     daysInput.readOnly = false;
     daysInput.max = monthDays - 1;
     hint.textContent = daysInput.dataset.dailyHint.replace(':max', monthDays - 1);
+    showEndDate(form, startDate, daysInput);
 }
 
 document.querySelectorAll('[data-rental-days]').forEach((daysInput) => syncRentalDays(daysInput.form));
 
-document.addEventListener('change', (event) => {
-    if (event.target.form?.querySelector('[data-rental-days]')) {
-        syncRentalDays(event.target.form);
-    }
+['change', 'input'].forEach((eventName) => {
+    document.addEventListener(eventName, (event) => {
+        if (event.target.form?.querySelector('[data-rental-days]')) {
+            syncRentalDays(event.target.form);
+        }
+    });
 });

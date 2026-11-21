@@ -5,20 +5,20 @@
     $singleGarageType = count($offers) === 1 ? array_key_first($offers) : null;
     $selectedGarageType = old('garage_type', $singleGarageType);
     $sectionTitle = 'text-lg font-black text-primary-900 tracking-tight';
-    $termClass = 'text-xs font-semibold text-primary-600 uppercase tracking-wide';
-    $valueClass = 'mt-1 text-sm font-bold text-primary-900';
+    $termClass = 'text-sm font-semibold text-primary-600 uppercase tracking-wide';
+    $valueClass = 'mt-1 text-base font-bold text-primary-900';
 @endphp
 
 <x-layout title="Pilih Garasi">
-    <div class="max-w-4xl">
+    <div class="max-w-5xl">
         <a href="{{ route('rentals.create', $details) }}"
-           class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-secondary hover:text-primary-900 transition-colors mb-4">
+           class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-primary-900 transition-colors mb-4">
             <x-heroicon-o-arrow-left class="w-4 h-4" />
             Ubah kendaraan atau waktu sewa
         </a>
 
         <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-2">Pilih Garasi</h1>
-        <p class="text-sm text-primary-700 mb-6">Langkah 2 dari 2: pilih garasi, cek total biaya, lalu unggah bukti pelunasan.</p>
+        <p class="text-base text-primary-700 mb-6">Langkah 2 dari 2: pilih garasi, cek total biaya, lalu unggah bukti pelunasan.</p>
 
         <dl class="grid grid-cols-2 md:grid-cols-4 gap-5 p-5 sm:p-6 mb-10 rounded-2xl border border-primary-200 bg-white/70 shadow-2xs">
             <div class="col-span-2">
@@ -57,7 +57,7 @@
                 <h2 id="garage-heading" class="{{ $sectionTitle }}">Garasi</h2>
 
                 <fieldset>
-                    <legend class="block font-semibold text-sm text-primary-800 mb-2">
+                    <legend class="block font-semibold text-base text-primary-800 mb-2">
                         Tipe Garasi <span class="text-rose-500 ml-0.5" aria-hidden="true">*</span>
                     </legend>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -87,10 +87,10 @@
                                 @foreach ($drafts as $draft)
                                     <x-choice-card name="garage_id" :value="$draft->garage->id" :label="$draft->garage->code"
                                                    :checked="(string) old('garage_id') === (string) $draft->garage->id" required>
-                                        <span class="block text-xs text-primary-600 mt-1">
+                                        <span class="block text-sm text-primary-600 mt-1">
                                             <x-rupiah :amount="$draft->daily_price" /> / hari
                                         </span>
-                                        <span class="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs text-primary-700">
+                                        <span class="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-sm text-primary-700">
                                             <span>Sewa</span>
                                             <x-rupiah :amount="$draft->rental_cost" class="text-right" />
                                             @if ($draft->charging_cost > 0)
@@ -112,7 +112,7 @@
                 <h2 id="payment-heading" class="{{ $sectionTitle }}">Pembayaran</h2>
                 <div class="md:max-w-md">
                     <x-input name="payment_proof" type="file" label="Bukti Pelunasan Biaya" required accept="image/*" class="py-2" />
-                    <p class="text-xs text-primary-600 mt-1.5">
+                    <p class="text-sm text-primary-600 mt-1.5">
                         Transfer sesuai total garasi yang dipilih. Gambar {{ strtoupper(implode(', ', Rental::PAYMENT_PROOF_MIMES)) }},
                         maksimal {{ Rental::PAYMENT_PROOF_MAX_KB / 1024 }} MB.
                     </p>

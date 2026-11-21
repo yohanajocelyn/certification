@@ -58,6 +58,39 @@ class RentalControllerTest extends TestCase
         $response->assertSee('Harian: 1 – 29 hari', false);
     }
 
+    public function test_create_lists_vehicles_in_a_dropdown_with_a_new_vehicle_option(): void
+    {
+        $response = $this->actingAs($this->tenant)->get(route('rentals.create'));
+
+        $this->assertMatchesRegularExpression('/<select\s+id="vehicle_id"\s+name="vehicle_id"/', $response->getContent());
+        $response->assertSee('+ Kendaraan baru');
+    }
+
+    public function test_create_refilled_daily_shows_the_last_rented_day(): void
+    {
+        $response = $this->actingAs($this->tenant)->get(route('rentals.create', ['start_date' => self::TODAY, 'days' => 5]));
+
+        $this->assertSame('2026-11-25', $this->shownEndDate($response->getContent()));
+    }
+
+    public function test_create_refilled_monthly_shows_end_date_from_the_start_month(): void
+    {
+        $response = $this->actingAs($this->tenant)->get(route('rentals.create', [
+            'start_date' => '2027-01-10',
+            'rental_type' => RentalType::Monthly->value,
+        ]));
+
+        $this->assertSame('2027-02-09', $this->shownEndDate($response->getContent()));
+        $this->assertMatchesRegularExpression('/name="days"\s+type="number"\s+value="31"/', $response->getContent());
+    }
+
+    public function test_create_with_days_over_the_limit_leaves_end_date_empty(): void
+    {
+        $response = $this->actingAs($this->tenant)->get(route('rentals.create', ['start_date' => self::TODAY, 'days' => 30]));
+
+        $this->assertSame('', $this->shownEndDate($response->getContent()));
+    }
+
     public function test_create_is_forbidden_for_admin(): void
     {
         $this->actingAs(User::factory()->admin()->create())->get(route('rentals.create'))->assertForbidden();
@@ -499,6 +532,16 @@ class RentalControllerTest extends TestCase
     }
 
     // ---- Helpers --------------------------------------------------------------------------
+
+    /**
+     * Value of the read-only end date shown on step 1.
+     */
+    private function shownEndDate(string $html): string
+    {
+        preg_match('/name="end_date_display"\s+type="date"\s+value="([^"]*)"/', $html, $match);
+
+        return $match[1] ?? 'not rendered';
+    }
 
     /**
      * Step 1 input for the tenant's petrol car: daily, 3 days, from today.

@@ -3,20 +3,20 @@
     use App\Models\Rental;
 
     $isMonthly = $extension->extension_type === RentalType::Monthly;
-    $termClass = 'text-xs font-semibold text-primary-600 uppercase tracking-wide';
-    $valueClass = 'mt-1 text-sm font-bold text-primary-900';
+    $termClass = 'text-sm font-semibold text-primary-600 uppercase tracking-wide';
+    $valueClass = 'mt-1 text-base font-bold text-primary-900';
 @endphp
 
 <x-layout title="Sisa Biaya Perpanjangan {{ $rental->garage->code }}">
-    <div class="max-w-4xl">
+    <div class="max-w-5xl">
         <a href="{{ route('admin.rentals.extensions.create', [$rental, ...$input]) }}"
-           class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-secondary hover:text-primary-900 transition-colors mb-4">
+           class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-primary-900 transition-colors mb-4">
             <x-heroicon-o-arrow-left class="w-4 h-4" />
             Ubah perpanjangan
         </a>
 
         <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-2">Sisa Biaya Perpanjangan {{ $rental->garage->code }}</h1>
-        <p class="text-sm text-primary-700 mb-6">Langkah 2 dari 2: cek sisa biaya, lalu unggah bukti pembayaran.</p>
+        <p class="text-base text-primary-700 mb-6">Langkah 2 dari 2: cek sisa biaya, lalu unggah bukti pembayaran.</p>
 
         <x-rental-summary :rental="$rental" class="mb-6" />
 
@@ -34,14 +34,14 @@
                 <dd class="{{ $valueClass }}">
                     {{ $extension->days }} hari
                     @if ($isMonthly)
-                        <span class="block text-xs font-medium text-primary-600">{{ $extension->months }} bulan × {{ $extension->old_end_date->daysInMonth }} hari</span>
+                        <span class="block text-sm font-medium text-primary-600">{{ $extension->months }} bulan × {{ $extension->old_end_date->daysInMonth }} hari</span>
                     @endif
                 </dd>
             </div>
             <div>
                 <dt class="{{ $termClass }}">Sisa Biaya</dt>
                 <dd class="mt-1 text-lg font-black text-primary-900"><x-rupiah :amount="$extension->additional_cost" /></dd>
-                <span class="block text-xs font-medium text-primary-600">
+                <span class="block text-sm font-medium text-primary-600">
                     @if ($isMonthly)
                         {{ $extension->months }} × <x-rupiah :amount="(float) $rental->daily_price * Rental::MONTHLY_PRICE_MULTIPLIER" />
                     @else
@@ -59,7 +59,7 @@
 
             <div class="md:max-w-md">
                 <x-input name="payment_proof" type="file" label="Bukti Pembayaran" required accept="image/*" class="py-2" />
-                <p class="text-xs text-primary-600 mt-1.5">
+                <p class="text-sm text-primary-600 mt-1.5">
                     Gambar {{ strtoupper(implode(', ', Rental::PAYMENT_PROOF_MIMES)) }}, maksimal {{ Rental::PAYMENT_PROOF_MAX_KB / 1024 }} MB.
                 </p>
             </div>
