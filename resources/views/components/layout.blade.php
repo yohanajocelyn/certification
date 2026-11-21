@@ -35,8 +35,8 @@
                             <x-nav-link :href="route('admin.rentals.index')" :active="request()->routeIs('admin.rentals.*')">Perpanjang Sewa</x-nav-link>
                             <x-nav-link :href="route('admin.reports.monthly')" :active="request()->routeIs('admin.reports.*')">Laporan</x-nav-link>
                         @else
-                            <x-nav-link :href="route('rentals.index')" :active="request()->routeIs('rentals.index')">Sewa Saya</x-nav-link>
-                            <x-nav-link :href="route('rentals.create')" :active="request()->routeIs('rentals.create', 'rentals.preview')">Sewa Baru</x-nav-link>
+                            <x-nav-link :href="route('rentals.index')" :active="request()->routeIs('rentals.*')">Sewa Saya</x-nav-link>
+                            <x-nav-link :href="route('vehicles.index')" :active="request()->routeIs('vehicles.*')">Kendaraan Saya</x-nav-link>
                         @endif
                     </nav>
 

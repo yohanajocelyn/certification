@@ -28,7 +28,8 @@ Each batch ends green: `php artisan test`, `./vendor/bin/pint`, `npm run build`,
 | Admin | GET `/admin/rentals` (active today) | `admin.rentals.index` | `Admin\RentalController@index` |
 | Admin | GET/POST `/admin/rentals/{rental}/extensions/create`, `/admin/rentals/{rental}/extensions` | `admin.rentals.extensions.*` | `Admin\RentalExtensionController@create/store` |
 | Admin | GET `/admin/reports/{monthly,daily,garage-types,tenants}` | `admin.reports.*` | `Admin\ReportController@monthly/daily/garageTypes/tenants` |
-| Tenant | GET `/rentals`, GET `/rentals/create`, POST `/rentals/preview`, POST `/rentals` | `rentals.*` | `RentalController@index/create/preview/store` |
+| Tenant | GET `/rentals`, GET `/rentals/create`, GET `/rentals/preview`, POST `/rentals` | `rentals.*` | `RentalController@index/create/preview/store` |
+| Tenant | GET `/vehicles` | `vehicles.index` | `VehicleController@index` (added later: replaces the "Sewa Baru" menu link) |
 
 Middleware: `auth`, `guest`, and a small `role` alias (`EnsureUserHasRole`, takes a `UserRole` value) registered in `bootstrap/app.php`.
 

@@ -46,6 +46,7 @@ classDiagram
         +displayName() string
         +user() BelongsTo
         +rentals() HasMany
+        +rentalsToday() HasMany
         +isParkedBetween(start: CarbonInterface, end: CarbonInterface, ignore: Rental) bool
         #casts() array
         #booted() void

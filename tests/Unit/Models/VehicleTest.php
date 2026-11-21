@@ -41,6 +41,16 @@ class VehicleTest extends TestCase
         $this->assertSame('Sepeda · Polygon Xtrada', $bicycle->displayName());
     }
 
+    public function test_rentals_today_contains_only_the_rental_covering_today(): void
+    {
+        $this->travelTo('2026-11-21');
+        $vehicle = Vehicle::factory()->create();
+        $today = Rental::factory()->for($vehicle, 'vehicle')->daily(3)->startingOn('2026-11-20')->create();
+        Rental::factory()->for($vehicle, 'vehicle')->daily(2)->startingOn('2026-11-25')->create();
+
+        $this->assertSame([$today->id], $vehicle->rentalsToday->pluck('id')->all());
+    }
+
     public function test_is_parked_between_is_true_when_a_rental_overlaps(): void
     {
         $vehicle = Vehicle::factory()->create();

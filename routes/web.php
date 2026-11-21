@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RentalController;
+use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -42,5 +43,6 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:'.UserRole::Tenant->value)->group(function () {
         Route::get('/rentals/preview', [RentalController::class, 'preview'])->name('rentals.preview');
         Route::resource('rentals', RentalController::class)->only(['index', 'create', 'store']);
+        Route::resource('vehicles', VehicleController::class)->only(['index']);
     });
 });

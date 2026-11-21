@@ -9,6 +9,7 @@ use App\Models\Vehicles\Bicycle;
 use App\Models\Vehicles\Car;
 use App\Models\Vehicles\ElectricCar;
 use App\Models\Vehicles\Motorcycle;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Database\Factories\VehicleFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -218,6 +219,15 @@ class Vehicle extends Model implements Parkable
     public function rentals(): HasMany
     {
         return $this->hasMany(Rental::class);
+    }
+
+    /**
+     * Rentals covering today (at most one: a vehicle is in one garage at a time). Eager-load it to
+     * show where every vehicle is parked in one query.
+     */
+    public function rentalsToday(): HasMany
+    {
+        return $this->rentals()->activeOn(CarbonImmutable::today());
     }
 
     /**
