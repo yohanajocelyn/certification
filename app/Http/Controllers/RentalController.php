@@ -90,7 +90,7 @@ class RentalController extends Controller
         $choice = $request->validate([
             'garage_type' => ['required', Rule::enum(GarageType::class)],
             'garage_id' => ['required', 'integer', Rule::exists('garages', 'id')->where('type', $request->input('garage_type'))],
-            'payment_proof' => ['required', 'image', 'mimes:'.implode(',', Rental::PAYMENT_PROOF_MIMES), 'max:'.Rental::PAYMENT_PROOF_MAX_KB],
+            'payment_proof' => ['required', 'image', 'mimes:'.implode(',', Rental::PAYMENT_PROOF_MIMES), 'max:'.config('rules.rental.payment_proof_max_kb')],
         ]);
 
         $rental = $this->rentals->book($request->user(), $details, (int) $choice['garage_id'], $choice['payment_proof']);
@@ -135,17 +135,17 @@ class RentalController extends Controller
         $newWithPlate = $isNewVehicle && ($newVehicle?->requiresPlate() ?? true);
         $newWithBattery = $isNewVehicle && $hasBattery;
         $isDaily = $request->input('rental_type') === RentalType::Daily->value;
-        $kwhRules = ['numeric', 'decimal:0,'.Vehicle::KWH_SCALE];
+        $kwhRules = ['numeric', 'decimal:0,'.config('rules.vehicle.kwh_scale')];
 
         return [
             'vehicle_id' => ['required', Rule::in([...$ownVehicles->keys()->map(fn ($id) => (string) $id), RentalService::NEW_VEHICLE])],
             'vehicle_type' => [Rule::excludeIf(! $isNewVehicle), 'required', Rule::enum(VehicleType::class)],
             'plate_number' => [
-                Rule::excludeIf(! $newWithPlate), 'required', 'string', 'max:'.Vehicle::PLATE_MAX_LENGTH,
+                Rule::excludeIf(! $newWithPlate), 'required', 'string', 'max:'.config('rules.vehicle.plate_max_length'),
                 'regex:'.Vehicle::PLATE_PATTERN, 'unique:vehicles,plate_number',
             ],
-            'brand_model' => [Rule::excludeIf(! $isNewVehicle), 'required', 'string', 'max:'.Vehicle::BRAND_MODEL_MAX_LENGTH],
-            'battery_capacity_kwh' => [Rule::excludeIf(! $newWithBattery), 'required', ...$kwhRules, 'gt:0', 'max:'.Vehicle::MAX_BATTERY_KWH],
+            'brand_model' => [Rule::excludeIf(! $isNewVehicle), 'required', 'string', 'max:'.config('rules.vehicle.brand_model_max_length')],
+            'battery_capacity_kwh' => [Rule::excludeIf(! $newWithBattery), 'required', ...$kwhRules, 'gt:0', 'max:'.config('rules.vehicle.max_battery_kwh')],
             'current_battery_kwh' => [
                 Rule::excludeIf(! $hasBattery), 'required', ...$kwhRules, 'min:0',
                 $isNewVehicle ? 'lte:battery_capacity_kwh' : 'max:'.(float) $existingVehicle?->battery_capacity_kwh,
@@ -153,7 +153,7 @@ class RentalController extends Controller
             'rental_type' => ['required', Rule::enum(RentalType::class)],
             'start_date' => ['required', 'date_format:'.RentalService::DATE_FORMAT, 'after_or_equal:today'],
             'days' => [
-                Rule::excludeIf(! $isDaily), 'required', 'integer', 'min:'.Rental::MIN_DAILY_DAYS,
+                Rule::excludeIf(! $isDaily), 'required', 'integer', 'min:'.config('rules.rental.min_daily_days'),
                 'max:'.Rental::maxDailyDays($this->requestedStartDate($request)),
             ],
         ];
@@ -167,7 +167,7 @@ class RentalController extends Controller
         $start = $this->requestedStartDate($request);
         $type = RentalType::tryFrom((string) $request->input('rental_type')) ?? RentalType::Daily;
         $days = filter_var($request->input('days'), FILTER_VALIDATE_INT, [
-            'options' => ['min_range' => Rental::MIN_DAILY_DAYS, 'max_range' => Rental::maxDailyDays($start)],
+            'options' => ['min_range' => config('rules.rental.min_daily_days'), 'max_range' => Rental::maxDailyDays($start)],
         ]);
 
         if ($type === RentalType::Daily && $days === false) {

@@ -24,15 +24,9 @@ class Rental extends Model
     /** @use HasFactory<RentalFactory> */
     use HasFactory;
 
-    public const MONTHLY_PRICE_MULTIPLIER = 25;
-
-    public const MIN_DAILY_DAYS = 1;
-
     public const PAYMENT_PROOF_DISK = 'public';
 
     public const PAYMENT_PROOF_DIRECTORY = 'payment-proofs';
-
-    public const PAYMENT_PROOF_MAX_KB = 2048;
 
     public const PAYMENT_PROOF_MIMES = ['jpg', 'jpeg', 'png', 'webp'];
 
@@ -56,8 +50,8 @@ class Rental extends Model
      */
     protected function casts(): array
     {
-        $money = 'decimal:'.Garage::PRICE_SCALE;
-        $kwh = 'decimal:'.Vehicle::KWH_SCALE;
+        $money = 'decimal:'.config('rules.garage.price_scale');
+        $kwh = 'decimal:'.config('rules.vehicle.kwh_scale');
 
         return [
             'rental_type' => RentalType::class,
@@ -127,7 +121,7 @@ class Rental extends Model
             'rental_cost' => $rentalCost,
             'charging_kwh' => $chargingKwh,
             'charging_cost' => $chargingCost,
-            'total_cost' => round($rentalCost + $chargingCost, Garage::PRICE_SCALE),
+            'total_cost' => round($rentalCost + $chargingCost, config('rules.garage.price_scale')),
         ]);
         $rental->garage()->associate($garage);
         $rental->vehicle()->associate($vehicle);
@@ -153,7 +147,7 @@ class Rental extends Model
             return $start->addDays($start->daysInMonth - 1);
         }
 
-        if ($days === null || $days < self::MIN_DAILY_DAYS) {
+        if ($days === null || $days < config('rules.rental.min_daily_days')) {
             throw new InvalidArgumentException('A daily rental needs at least one day.');
         }
 
@@ -176,10 +170,10 @@ class Rental extends Model
     public static function calculateRentalCost(RentalType $type, float $dailyPrice, ?int $days = null): float
     {
         if ($type === RentalType::Monthly) {
-            return round($dailyPrice * self::MONTHLY_PRICE_MULTIPLIER, Garage::PRICE_SCALE);
+            return round($dailyPrice * config('rules.rental.monthly_price_multiplier'), config('rules.garage.price_scale'));
         }
 
-        return round($dailyPrice * (int) $days, Garage::PRICE_SCALE);
+        return round($dailyPrice * (int) $days, config('rules.garage.price_scale'));
     }
 
     /**
@@ -198,7 +192,7 @@ class Rental extends Model
      */
     public static function calculateChargingCost(float $chargingKwh, ?float $kwhPrice): float
     {
-        return round($chargingKwh * (float) $kwhPrice, Garage::PRICE_SCALE);
+        return round($chargingKwh * (float) $kwhPrice, config('rules.garage.price_scale'));
     }
 
     /**

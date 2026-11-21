@@ -34,7 +34,7 @@ class GarageTest extends TestCase
     {
         $this->assertSame('S001', Garage::formatCode(GarageType::Bike, 1));
         $this->assertSame('C010', Garage::formatCode(GarageType::Car, 10));
-        $this->assertSame('E999', Garage::formatCode(GarageType::Electric, Garage::MAX_CODE_NUMBER));
+        $this->assertSame('E999', Garage::formatCode(GarageType::Electric, config('rules.garage.max_code_number')));
     }
 
     public function test_with_usage_on_is_used_while_a_rental_covers_the_date(): void
@@ -82,14 +82,14 @@ class GarageTest extends TestCase
         Garage::factory()->car()->create(['code' => 'C010']);
 
         $this->assertSame(989, Garage::remainingCodeNumbers(GarageType::Car));
-        $this->assertSame(Garage::MAX_CODE_NUMBER, Garage::remainingCodeNumbers(GarageType::Bike));
+        $this->assertSame(config('rules.garage.max_code_number'), Garage::remainingCodeNumbers(GarageType::Bike));
     }
 
     public function test_code_number_reads_the_number_inside_a_code(): void
     {
         $this->assertSame(1, Garage::codeNumber('S001'));
         $this->assertSame(10, Garage::codeNumber('C010'));
-        $this->assertSame(Garage::MAX_CODE_NUMBER, Garage::codeNumber('E999'));
+        $this->assertSame(config('rules.garage.max_code_number'), Garage::codeNumber('E999'));
     }
 
     public function test_with_usage_on_flags_each_garage_in_one_query(): void

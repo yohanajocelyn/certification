@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Garage;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('garages', function (Blueprint $table) {
             $table->id();
-            $table->char('code', Garage::CODE_LENGTH)->unique();
+            $table->char('code', config('rules.garage.code_length'))->unique();
             $table->string('type', self::ENUM_COLUMN_LENGTH)->index();
-            $table->decimal('daily_price', Garage::PRICE_PRECISION, Garage::PRICE_SCALE);
-            $table->decimal('kwh_price', Garage::PRICE_PRECISION, Garage::PRICE_SCALE)->nullable();
+            $table->decimal('daily_price', config('rules.garage.price_precision'), config('rules.garage.price_scale'));
+            $table->decimal('kwh_price', config('rules.garage.price_precision'), config('rules.garage.price_scale'))->nullable();
             $table->timestamps();
         });
     }

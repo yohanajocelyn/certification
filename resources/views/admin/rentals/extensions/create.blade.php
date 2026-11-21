@@ -1,6 +1,5 @@
 @php
     use App\Enums\RentalType;
-    use App\Models\RentalExtension;
 
     $selectedType = old('extension_type', $defaults['extension_type'] ?? RentalType::Daily->value);
     $firstExtraDay = $rental->end_date->addDay();
@@ -74,8 +73,8 @@
 
             <x-show-when field="extension_type" :values="[RentalType::Monthly->value]" :current="$selectedType" class="md:max-w-xs">
                 <x-input name="months" type="number" label="Jumlah Bulan" required step="1"
-                         min="{{ RentalExtension::MIN_MONTHS }}" max="{{ RentalExtension::MAX_MONTHS }}"
-                         :value="$defaults['months'] ?? RentalExtension::MIN_MONTHS" />
+                         min="{{ config('rules.rental_extension.min_months') }}" max="{{ config('rules.rental_extension.max_months') }}"
+                         :value="$defaults['months'] ?? config('rules.rental_extension.min_months')" />
                 <p class="text-sm text-primary-600 mt-1.5">1 bulan = {{ $monthDays }} hari</p>
             </x-show-when>
 

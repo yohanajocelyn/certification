@@ -1,8 +1,6 @@
 @php
     use App\Enums\RentalType;
     use App\Services\RentalService;
-    use App\Models\Rental;
-    use App\Models\Vehicle;
 
     $selectedVehicle = (string) ($defaults['vehicle_id']
         ?? ($vehicles->isEmpty() ? RentalService::NEW_VEHICLE : $vehicles->first()->id));
@@ -33,17 +31,17 @@
                               :options="collect($vehicleTypes)->mapWithKeys(fn ($type) => [$type->value => $type->label()])->all()"
                               :value="$defaults['vehicle_type'] ?? null" />
 
-                    <x-input name="brand_model" label="Merek dan Tipe" required maxlength="{{ Vehicle::BRAND_MODEL_MAX_LENGTH }}"
+                    <x-input name="brand_model" label="Merek dan Tipe" required maxlength="{{ config('rules.vehicle.brand_model_max_length') }}"
                              placeholder="contoh Toyota Avanza" :value="$defaults['brand_model'] ?? null" />
 
                     <x-show-when field="vehicle_type" :values="$plateVehicleTypes" :current="old('vehicle_type', $defaults['vehicle_type'] ?? '')">
-                        <x-input name="plate_number" label="Nomor Plat" required maxlength="{{ Vehicle::PLATE_MAX_LENGTH }}"
+                        <x-input name="plate_number" label="Nomor Plat" required maxlength="{{ config('rules.vehicle.plate_max_length') }}"
                                  placeholder="contoh B 1234 XYZ" class="uppercase" :value="$defaults['plate_number'] ?? null" />
                     </x-show-when>
 
                     <x-show-when field="vehicle_type" :values="$batteryVehicleTypes" :current="old('vehicle_type', $defaults['vehicle_type'] ?? '')">
                         <x-input name="battery_capacity_kwh" type="number" label="Kapasitas Baterai Penuh (kWh)" required
-                                 min="0.01" max="{{ Vehicle::MAX_BATTERY_KWH }}" step="0.01"
+                                 min="0.01" max="{{ config('rules.vehicle.max_battery_kwh') }}" step="0.01"
                                  :value="$defaults['battery_capacity_kwh'] ?? null" />
                     </x-show-when>
 
@@ -88,7 +86,7 @@
 
                     <div>
                         <x-input name="days" type="number" label="Jumlah Hari" required step="1"
-                                 min="{{ Rental::MIN_DAILY_DAYS }}"
+                                 min="{{ config('rules.rental.min_daily_days') }}"
                                  :max="$isMonthly ? null : $monthDays - 1"
                                  :readonly="$isMonthly"
                                  :value="$isMonthly ? $monthDays : ($defaults['days'] ?? null)"

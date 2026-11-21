@@ -1,7 +1,5 @@
 @php
     use App\Enums\GarageType;
-    use App\Models\Garage;
-    use App\Models\Rental;
 @endphp
 
 <x-layout title="Buat Garasi Baru">
@@ -41,20 +39,20 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <x-input name="quantity" type="number" label="Jumlah Garasi" required
-                             min="{{ Garage::MIN_BATCH_SIZE }}" max="{{ Garage::MAX_BATCH_SIZE }}" step="1"
-                             placeholder="1 – {{ Garage::MAX_BATCH_SIZE }}" />
+                             min="{{ config('rules.garage.min_batch_size') }}" max="{{ config('rules.garage.max_batch_size') }}" step="1"
+                             placeholder="1 – {{ config('rules.garage.max_batch_size') }}" />
                 </div>
 
                 <div>
                     <x-input name="daily_price" type="number" label="Harga Sewa Harian (Rp)" required
-                             min="1" max="{{ Garage::MAX_PRICE }}" step="0.01" placeholder="contoh 25000" />
-                    <p class="text-sm text-primary-600 mt-1.5">Harga bulanan = {{ Rental::MONTHLY_PRICE_MULTIPLIER }} × harga harian.</p>
+                             min="1" max="{{ config('rules.garage.max_price') }}" step="0.01" placeholder="contoh 25000" />
+                    <p class="text-sm text-primary-600 mt-1.5">Harga bulanan = {{ config('rules.rental.monthly_price_multiplier') }} × harga harian.</p>
                 </div>
             </div>
 
             <x-show-when field="type" :values="[GarageType::Electric->value]" :current="old('type')" class="md:max-w-[calc(50%-0.75rem)]">
                 <x-input name="kwh_price" type="number" label="Harga Isi Listrik per kWh (Rp)"
-                         min="1" max="{{ Garage::MAX_PRICE }}" step="0.01" placeholder="contoh 2500" />
+                         min="1" max="{{ config('rules.garage.max_price') }}" step="0.01" placeholder="contoh 2500" />
             </x-show-when>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-primary-200/60">

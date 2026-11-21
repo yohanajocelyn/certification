@@ -40,17 +40,6 @@ class Vehicle extends Model implements Parkable
     /** The type a child class stands for; null on this parent class. */
     public const ?VehicleType TYPE = null;
 
-    public const PLATE_MAX_LENGTH = 15;
-
-    public const BRAND_MODEL_MAX_LENGTH = 100;
-
-    public const KWH_PRECISION = 6;
-
-    public const KWH_SCALE = 2;
-
-    /** Largest battery value a decimal(6,2) column holds. */
-    public const MAX_BATTERY_KWH = 9_999.99;
-
     /** Letters, digits and single spaces, e.g. "B 1234 XYZ". */
     public const PLATE_PATTERN = '/^[A-Za-z0-9]+( [A-Za-z0-9]+)*$/';
 
@@ -92,7 +81,7 @@ class Vehicle extends Model implements Parkable
     {
         return [
             'type' => VehicleType::class,
-            'battery_capacity_kwh' => 'decimal:'.self::KWH_SCALE,
+            'battery_capacity_kwh' => 'decimal:'.config('rules.vehicle.kwh_scale'),
         ];
     }
 

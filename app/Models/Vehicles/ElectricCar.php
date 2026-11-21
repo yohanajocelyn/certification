@@ -39,6 +39,6 @@ class ElectricCar extends Vehicle
     {
         $missingKwh = (float) $this->battery_capacity_kwh - (float) $currentBatteryKwh;
 
-        return round(max(0.0, $missingKwh), self::KWH_SCALE);
+        return round(max(0.0, $missingKwh), config('rules.vehicle.kwh_scale'));
     }
 }

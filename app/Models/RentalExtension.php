@@ -21,14 +21,6 @@ class RentalExtension extends Model
     /** @use HasFactory<RentalExtensionFactory> */
     use HasFactory;
 
-    public const MIN_MONTHS = 1;
-
-    /** Column limit of `days` (unsigned smallint), not a business limit: extensions have no day limit. */
-    public const MAX_DAYS = 65_535;
-
-    /** Most months that always fit in MAX_DAYS, even when every month counts 31 days. */
-    public const MAX_MONTHS = 2_114;
-
     protected $fillable = [
         'extension_type',
         'months',
@@ -50,7 +42,7 @@ class RentalExtension extends Model
             'days' => 'integer',
             'old_end_date' => 'immutable_date',
             'new_end_date' => 'immutable_date',
-            'additional_cost' => 'decimal:'.Garage::PRICE_SCALE,
+            'additional_cost' => 'decimal:'.config('rules.garage.price_scale'),
         ];
     }
 
@@ -76,7 +68,7 @@ class RentalExtension extends Model
         $oldEndDate = $rental->end_date;
         $isMonthly = $type === RentalType::Monthly;
 
-        if ($isMonthly ? ($months === null || $months < self::MIN_MONTHS) : $newEndDate === null) {
+        if ($isMonthly ? ($months === null || $months < config('rules.rental_extension.min_months')) : $newEndDate === null) {
             throw new InvalidArgumentException('A daily extension needs a new end date, a monthly one at least one month.');
         }
 
@@ -153,9 +145,9 @@ class RentalExtension extends Model
     public static function calculateAdditionalCost(RentalType $type, float $dailyPrice, int $days, ?int $months = null): float
     {
         if ($type === RentalType::Monthly) {
-            return round($dailyPrice * Rental::MONTHLY_PRICE_MULTIPLIER * (int) $months, Garage::PRICE_SCALE);
+            return round($dailyPrice * config('rules.rental.monthly_price_multiplier') * (int) $months, config('rules.garage.price_scale'));
         }
 
-        return round($dailyPrice * $days, Garage::PRICE_SCALE);
+        return round($dailyPrice * $days, config('rules.garage.price_scale'));
     }
 }

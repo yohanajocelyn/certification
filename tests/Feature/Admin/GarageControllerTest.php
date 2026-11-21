@@ -178,17 +178,17 @@ class GarageControllerTest extends TestCase
     public function test_store_quantity_at_max_batch_size_creates_all_garages(): void
     {
         $this->actingAs($this->admin)->post(route('admin.garages.store'), $this->validData([
-            'quantity' => Garage::MAX_BATCH_SIZE,
+            'quantity' => config('rules.garage.max_batch_size'),
         ]));
 
-        $this->assertDatabaseCount('garages', Garage::MAX_BATCH_SIZE);
+        $this->assertDatabaseCount('garages', config('rules.garage.max_batch_size'));
         $this->assertDatabaseHas('garages', ['code' => 'C999']);
     }
 
     public function test_store_quantity_over_max_batch_size_returns_validation_error(): void
     {
         $response = $this->actingAs($this->admin)->post(route('admin.garages.store'), $this->validData([
-            'quantity' => Garage::MAX_BATCH_SIZE + 1,
+            'quantity' => config('rules.garage.max_batch_size') + 1,
         ]));
 
         $response->assertSessionHasErrors('quantity');
@@ -231,7 +231,7 @@ class GarageControllerTest extends TestCase
     public function test_store_with_daily_price_over_max_returns_validation_error(): void
     {
         $response = $this->actingAs($this->admin)->post(route('admin.garages.store'), $this->validData([
-            'daily_price' => Garage::MAX_PRICE + 1,
+            'daily_price' => config('rules.garage.max_price') + 1,
         ]));
 
         $response->assertSessionHasErrors('daily_price');

@@ -1,7 +1,3 @@
-@php
-    use App\Models\User;
-@endphp
-
 <x-layout title="Daftar Penyewa">
     <div class="w-full sm:max-w-lg px-6 py-8 sm:px-8 sm:py-10 bg-white/80 backdrop-blur-md shadow-2xl sm:rounded-3xl border border-white/40">
         <div class="mb-6 sm:mb-8 text-center">
@@ -13,21 +9,21 @@
             @csrf
 
             <x-input name="nik" label="NIK (Nomor KTP)" required inputmode="numeric" autofocus
-                     minlength="{{ User::NIK_LENGTH }}" maxlength="{{ User::NIK_LENGTH }}"
-                     placeholder="{{ User::NIK_LENGTH }} digit" />
+                     minlength="{{ config('rules.user.nik_length') }}" maxlength="{{ config('rules.user.nik_length') }}"
+                     placeholder="{{ config('rules.user.nik_length') }} digit" />
 
             <x-input name="name" label="Nama Lengkap" required autocomplete="name"
-                     maxlength="{{ User::NAME_MAX_LENGTH }}" />
+                     maxlength="{{ config('rules.user.name_max_length') }}" />
 
             <x-input name="phone" type="tel" label="Nomor Telepon" required autocomplete="tel"
-                     maxlength="{{ User::PHONE_MAX_LENGTH }}" placeholder="08xxxxxxxxxx" />
+                     maxlength="{{ config('rules.user.phone_max_length') }}" placeholder="08xxxxxxxxxx" />
 
             <x-input name="email" type="email" label="Email" required autocomplete="email"
-                     maxlength="{{ User::EMAIL_MAX_LENGTH }}" placeholder="anda@contoh.com" />
+                     maxlength="{{ config('rules.user.email_max_length') }}" placeholder="anda@contoh.com" />
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <x-input name="password" type="password" label="Kata Sandi" required autocomplete="new-password"
-                         minlength="{{ User::PASSWORD_MIN_LENGTH }}" />
+                         minlength="{{ config('rules.user.password_min_length') }}" />
 
                 <x-input name="password_confirmation" type="password" label="Ulangi Kata Sandi" required
                          autocomplete="new-password" />

@@ -102,6 +102,6 @@ class GarageServiceTest extends TestCase
         $nextCodes = $this->service->nextCodes();
 
         $this->assertSame(['next' => 'C011', 'remaining' => 989], $nextCodes[GarageType::Car->value]);
-        $this->assertSame(['next' => 'S001', 'remaining' => Garage::MAX_CODE_NUMBER], $nextCodes[GarageType::Bike->value]);
+        $this->assertSame(['next' => 'S001', 'remaining' => config('rules.garage.max_code_number')], $nextCodes[GarageType::Bike->value]);
     }
 }

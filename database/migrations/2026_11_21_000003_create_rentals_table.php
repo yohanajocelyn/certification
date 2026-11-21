@@ -21,15 +21,15 @@ return new class extends Migration
             // The tenant is reached through the vehicle (vehicles.user_id), so no user_id column here.
             $table->foreignId('garage_id')->constrained()->restrictOnDelete();
             $table->foreignId('vehicle_id')->constrained()->restrictOnDelete();
-            $table->decimal('current_battery_kwh', Vehicle::KWH_PRECISION, Vehicle::KWH_SCALE)->nullable();
+            $table->decimal('current_battery_kwh', config('rules.vehicle.kwh_precision'), config('rules.vehicle.kwh_scale'))->nullable();
             $table->string('rental_type', self::ENUM_COLUMN_LENGTH);
             $table->unsignedSmallInteger('days')->nullable();
             $table->date('start_date');
             $table->date('end_date');
-            $table->decimal('rental_cost', Garage::PRICE_PRECISION, Garage::PRICE_SCALE);
-            $table->decimal('charging_kwh', Vehicle::KWH_PRECISION, Vehicle::KWH_SCALE)->default(0);
-            $table->decimal('charging_cost', Garage::PRICE_PRECISION, Garage::PRICE_SCALE)->default(0);
-            $table->decimal('total_cost', Garage::PRICE_PRECISION, Garage::PRICE_SCALE);
+            $table->decimal('rental_cost', config('rules.garage.price_precision'), config('rules.garage.price_scale'));
+            $table->decimal('charging_kwh', config('rules.vehicle.kwh_precision'), config('rules.vehicle.kwh_scale'))->default(0);
+            $table->decimal('charging_cost', config('rules.garage.price_precision'), config('rules.garage.price_scale'))->default(0);
+            $table->decimal('total_cost', config('rules.garage.price_precision'), config('rules.garage.price_scale'));
             $table->string('payment_proof');
             $table->timestamps();
 

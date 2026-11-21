@@ -20,9 +20,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('type', self::ENUM_COLUMN_LENGTH);
             // Nullable only for bicycles; MySQL allows many NULLs in a unique column.
-            $table->string('plate_number', Vehicle::PLATE_MAX_LENGTH)->nullable()->unique();
-            $table->string('brand_model', Vehicle::BRAND_MODEL_MAX_LENGTH);
-            $table->decimal('battery_capacity_kwh', Vehicle::KWH_PRECISION, Vehicle::KWH_SCALE)->nullable();
+            $table->string('plate_number', config('rules.vehicle.plate_max_length'))->nullable()->unique();
+            $table->string('brand_model', config('rules.vehicle.brand_model_max_length'));
+            $table->decimal('battery_capacity_kwh', config('rules.vehicle.kwh_precision'), config('rules.vehicle.kwh_scale'))->nullable();
             $table->timestamps();
         });
     }

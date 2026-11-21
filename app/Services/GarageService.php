@@ -49,17 +49,17 @@ class GarageService
     /**
      * Create a batch of garages of one type with the next free codes (C011, C012, ...).
      *
-     * @param  int  $quantity  1 to Garage::MAX_BATCH_SIZE, and no more than the codes left
+     * @param  int  $quantity  1 to config('rules.garage.max_batch_size'), and no more than the codes left
      * @param  float|null  $kwhPrice  charging price; stored only for garages that charge
      * @return Collection<int, string> the new codes, in order
      *
-     * @throws InvalidArgumentException when the quantity is below Garage::MIN_BATCH_SIZE
+     * @throws InvalidArgumentException when the quantity is below config('rules.garage.min_batch_size')
      * @throws LengthException when the batch would go past code number 999
      */
     public function createBatch(GarageType $type, int $quantity, float $dailyPrice, ?float $kwhPrice): Collection
     {
-        if ($quantity < Garage::MIN_BATCH_SIZE) {
-            throw new InvalidArgumentException('A garage batch needs at least '.Garage::MIN_BATCH_SIZE.' garage.');
+        if ($quantity < config('rules.garage.min_batch_size')) {
+            throw new InvalidArgumentException('A garage batch needs at least '.config('rules.garage.min_batch_size').' garage.');
         }
 
         return DB::transaction(function () use ($type, $quantity, $dailyPrice, $kwhPrice) {
@@ -68,8 +68,8 @@ class GarageService
             $firstNumber = $highestCode === null ? 1 : Garage::codeNumber($highestCode) + 1;
             $lastNumber = $firstNumber + $quantity - 1;
 
-            if ($lastNumber > Garage::MAX_CODE_NUMBER) {
-                throw new LengthException("Only {$type->prefix()} codes up to ".Garage::MAX_CODE_NUMBER.' exist.');
+            if ($lastNumber > config('rules.garage.max_code_number')) {
+                throw new LengthException("Only {$type->prefix()} codes up to ".config('rules.garage.max_code_number').' exist.');
             }
 
             $now = now();

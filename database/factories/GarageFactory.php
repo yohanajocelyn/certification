@@ -35,7 +35,7 @@ class GarageFactory extends Factory
             // A number unique across all types also keeps the code unique within each type.
             'code' => fn (array $attributes) => Garage::formatCode(
                 GarageType::from($this->typeValue($attributes['type'])),
-                fake()->unique()->numberBetween(1, Garage::MAX_CODE_NUMBER),
+                fake()->unique()->numberBetween(1, config('rules.garage.max_code_number')),
             ),
             'daily_price' => fake()->numberBetween(
                 self::MIN_DAILY_PRICE / self::PRICE_STEP,

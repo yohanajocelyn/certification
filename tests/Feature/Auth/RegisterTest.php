@@ -45,7 +45,7 @@ class RegisterTest extends TestCase
 
     public function test_register_with_nik_one_digit_short_returns_validation_error(): void
     {
-        $nik = str_repeat('1', User::NIK_LENGTH - 1);
+        $nik = str_repeat('1', config('rules.user.nik_length') - 1);
 
         $response = $this->post(route('register.store'), $this->validData(['nik' => $nik]));
 
@@ -55,7 +55,7 @@ class RegisterTest extends TestCase
 
     public function test_register_with_nik_one_digit_long_returns_validation_error(): void
     {
-        $nik = str_repeat('1', User::NIK_LENGTH + 1);
+        $nik = str_repeat('1', config('rules.user.nik_length') + 1);
 
         $response = $this->post(route('register.store'), $this->validData(['nik' => $nik]));
 
@@ -92,7 +92,7 @@ class RegisterTest extends TestCase
 
     public function test_register_with_name_at_max_length_succeeds(): void
     {
-        $name = str_repeat('a', User::NAME_MAX_LENGTH);
+        $name = str_repeat('a', config('rules.user.name_max_length'));
 
         $response = $this->post(route('register.store'), $this->validData(['name' => $name]));
 
@@ -102,7 +102,7 @@ class RegisterTest extends TestCase
 
     public function test_register_with_name_over_max_length_returns_validation_error(): void
     {
-        $name = str_repeat('a', User::NAME_MAX_LENGTH + 1);
+        $name = str_repeat('a', config('rules.user.name_max_length') + 1);
 
         $response = $this->post(route('register.store'), $this->validData(['name' => $name]));
 
@@ -126,7 +126,7 @@ class RegisterTest extends TestCase
 
     public function test_register_with_password_below_min_length_returns_validation_error(): void
     {
-        $password = str_repeat('a', User::PASSWORD_MIN_LENGTH - 1);
+        $password = str_repeat('a', config('rules.user.password_min_length') - 1);
 
         $response = $this->post(route('register.store'), $this->validData([
             'password' => $password,

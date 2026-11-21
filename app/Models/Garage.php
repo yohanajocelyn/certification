@@ -18,24 +18,6 @@ class Garage extends Model
     /** @use HasFactory<GarageFactory> */
     use HasFactory;
 
-    public const CODE_NUMBER_DIGITS = 3;
-
-    public const CODE_LENGTH = 1 + self::CODE_NUMBER_DIGITS;
-
-    public const MAX_CODE_NUMBER = 999;
-
-    /** Smallest batch GarageService::createBatch() accepts. */
-    public const MIN_BATCH_SIZE = 1;
-
-    public const MAX_BATCH_SIZE = 999;
-
-    /** Highest daily or kWh price; keeps a 25-day month plus charging well inside decimal(12,2). */
-    public const MAX_PRICE = 100_000_000;
-
-    public const PRICE_PRECISION = 12;
-
-    public const PRICE_SCALE = 2;
-
     protected $fillable = ['code', 'type', 'daily_price', 'kwh_price'];
 
     /**
@@ -45,8 +27,8 @@ class Garage extends Model
     {
         return [
             'type' => GarageType::class,
-            'daily_price' => 'decimal:'.self::PRICE_SCALE,
-            'kwh_price' => 'decimal:'.self::PRICE_SCALE,
+            'daily_price' => 'decimal:'.config('rules.garage.price_scale'),
+            'kwh_price' => 'decimal:'.config('rules.garage.price_scale'),
             'is_used' => 'boolean',
         ];
     }
@@ -75,7 +57,7 @@ class Garage extends Model
      */
     public static function codeNumber(string $code): int
     {
-        return (int) substr($code, -self::CODE_NUMBER_DIGITS);
+        return (int) substr($code, -config('rules.garage.code_number_digits'));
     }
 
     /**
@@ -83,7 +65,7 @@ class Garage extends Model
      */
     public static function remainingCodeNumbers(GarageType $type): int
     {
-        return self::MAX_CODE_NUMBER - (self::nextCodeNumber($type) - 1);
+        return config('rules.garage.max_code_number') - (self::nextCodeNumber($type) - 1);
     }
 
     /**
@@ -91,7 +73,7 @@ class Garage extends Model
      */
     public static function formatCode(GarageType $type, int $number): string
     {
-        return $type->prefix().str_pad((string) $number, self::CODE_NUMBER_DIGITS, '0', STR_PAD_LEFT);
+        return $type->prefix().str_pad((string) $number, config('rules.garage.code_number_digits'), '0', STR_PAD_LEFT);
     }
 
     /**
@@ -120,6 +102,6 @@ class Garage extends Model
      */
     public function monthlyPrice(): float
     {
-        return (float) $this->daily_price * Rental::MONTHLY_PRICE_MULTIPLIER;
+        return (float) $this->daily_price * config('rules.rental.monthly_price_multiplier');
     }
 }

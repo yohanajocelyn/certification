@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Garage;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,7 +22,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('days');
             $table->date('old_end_date');
             $table->date('new_end_date');
-            $table->decimal('additional_cost', Garage::PRICE_PRECISION, Garage::PRICE_SCALE);
+            $table->decimal('additional_cost', config('rules.garage.price_precision'), config('rules.garage.price_scale'));
             $table->string('payment_proof');
             $table->timestamps();
         });

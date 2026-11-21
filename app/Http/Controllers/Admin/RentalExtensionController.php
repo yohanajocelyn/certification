@@ -6,7 +6,6 @@ use App\Enums\RentalType;
 use App\Exceptions\RentalNotExtendableException;
 use App\Http\Controllers\Controller;
 use App\Models\Rental;
-use App\Models\RentalExtension;
 use App\Services\RentalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -69,7 +68,7 @@ class RentalExtensionController extends Controller
     {
         $input = $request->validate($this->validationRules($request, $rental));
         $proof = $request->validate([
-            'payment_proof' => ['required', 'image', 'mimes:'.implode(',', Rental::PAYMENT_PROOF_MIMES), 'max:'.Rental::PAYMENT_PROOF_MAX_KB],
+            'payment_proof' => ['required', 'image', 'mimes:'.implode(',', Rental::PAYMENT_PROOF_MIMES), 'max:'.config('rules.rental.payment_proof_max_kb')],
         ])['payment_proof'];
 
         try {
@@ -99,11 +98,11 @@ class RentalExtensionController extends Controller
             'new_end_date' => [
                 Rule::excludeIf($isMonthly), 'required', 'date_format:'.RentalService::DATE_FORMAT,
                 'after:'.$oldEndDate->toDateString(),
-                'before_or_equal:'.$oldEndDate->addDays(RentalExtension::MAX_DAYS)->toDateString(),
+                'before_or_equal:'.$oldEndDate->addDays(config('rules.rental_extension.max_days'))->toDateString(),
             ],
             'months' => [
                 Rule::excludeIf(! $isMonthly), 'required', 'integer',
-                'min:'.RentalExtension::MIN_MONTHS, 'max:'.RentalExtension::MAX_MONTHS,
+                'min:'.config('rules.rental_extension.min_months'), 'max:'.config('rules.rental_extension.max_months'),
             ],
         ];
     }

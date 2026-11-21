@@ -20,18 +20,8 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    public const NIK_LENGTH = 16;
-
-    public const NAME_MAX_LENGTH = 100;
-
-    public const PHONE_MAX_LENGTH = 20;
-
     /** Digits with an optional leading "+", e.g. 081234567890 or +6281234567890. */
     public const PHONE_PATTERN = '/^\+?[0-9]+$/';
-
-    public const EMAIL_MAX_LENGTH = 255;
-
-    public const PASSWORD_MIN_LENGTH = 8;
 
     protected $fillable = ['nik', 'name', 'phone', 'email', 'password', 'role', 'status'];
 

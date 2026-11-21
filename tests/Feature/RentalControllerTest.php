@@ -500,7 +500,7 @@ class RentalControllerTest extends TestCase
     public function test_store_with_payment_proof_over_max_size_returns_validation_error(): void
     {
         $garage = Garage::factory()->car()->create();
-        $tooLarge = UploadedFile::fake()->image('bukti.jpg')->size(Rental::PAYMENT_PROOF_MAX_KB + 1);
+        $tooLarge = UploadedFile::fake()->image('bukti.jpg')->size(config('rules.rental.payment_proof_max_kb') + 1);
 
         $response = $this->actingAs($this->tenant)->post(route('rentals.store'), $this->storeData($garage, ['payment_proof' => $tooLarge]));
 

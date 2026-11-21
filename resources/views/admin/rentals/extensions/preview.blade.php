@@ -1,6 +1,5 @@
 @php
     use App\Enums\RentalType;
-    use App\Models\Rental;
 
     $isMonthly = $extension->extension_type === RentalType::Monthly;
     $termClass = 'text-sm font-semibold text-primary-600 uppercase tracking-wide';
@@ -58,7 +57,7 @@
 
             <div class="md:max-w-md">
                 <x-input name="payment_proof" type="file" label="Bukti Pembayaran" required accept="image/*" class="py-2" />
-                <p class="text-sm text-primary-600 mt-1.5">JPG, PNG atau WEBP, maks. {{ Rental::PAYMENT_PROOF_MAX_KB / 1024 }} MB.</p>
+                <p class="text-sm text-primary-600 mt-1.5">JPG, PNG atau WEBP, maks. {{ config('rules.rental.payment_proof_max_kb') / 1024 }} MB.</p>
             </div>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-primary-200/60">

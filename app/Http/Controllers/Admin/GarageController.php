@@ -78,13 +78,13 @@ class GarageController extends Controller
         $type = GarageType::tryFrom((string) $request->input('type'));
         $hasCharging = $type?->hasCharging() ?? false;
         $maxQuantity = $type
-            ? min(Garage::MAX_BATCH_SIZE, Garage::remainingCodeNumbers($type))
-            : Garage::MAX_BATCH_SIZE;
-        $priceRules = ['numeric', 'decimal:0,'.Garage::PRICE_SCALE, 'gt:0', 'max:'.Garage::MAX_PRICE];
+            ? min(config('rules.garage.max_batch_size'), Garage::remainingCodeNumbers($type))
+            : config('rules.garage.max_batch_size');
+        $priceRules = ['numeric', 'decimal:0,'.config('rules.garage.price_scale'), 'gt:0', 'max:'.config('rules.garage.max_price')];
 
         return [
             'type' => ['required', Rule::enum(GarageType::class)],
-            'quantity' => ['required', 'integer', 'min:'.Garage::MIN_BATCH_SIZE, 'max:'.$maxQuantity],
+            'quantity' => ['required', 'integer', 'min:'.config('rules.garage.min_batch_size'), 'max:'.$maxQuantity],
             'daily_price' => ['required', ...$priceRules],
             'kwh_price' => [Rule::requiredIf($hasCharging), Rule::prohibitedIf(! $hasCharging), 'nullable', ...$priceRules],
         ];

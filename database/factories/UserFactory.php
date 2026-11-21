@@ -29,7 +29,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'nik' => fake()->unique()->numerify(str_repeat('#', User::NIK_LENGTH)),
+            'nik' => fake()->unique()->numerify(str_repeat('#', config('rules.user.nik_length'))),
             'name' => fake()->name(),
             'phone' => fake()->numerify('08##########'),
             'email' => fake()->unique()->safeEmail(),

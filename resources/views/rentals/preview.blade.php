@@ -1,10 +1,9 @@
 @php
     use App\Enums\GarageType;
-    use App\Models\Rental;
 
     $singleGarageType = count($offers) === 1 ? array_key_first($offers) : null;
     $selectedGarageType = old('garage_type', $singleGarageType);
-    $proofHint = 'JPG, PNG atau WEBP, maks. '.(Rental::PAYMENT_PROOF_MAX_KB / 1024).' MB.';
+    $proofHint = 'JPG, PNG atau WEBP, maks. '.(config('rules.rental.payment_proof_max_kb') / 1024).' MB.';
     $termClass = 'text-sm font-semibold text-primary-600 uppercase tracking-wide';
     $valueClass = 'mt-1 text-base font-bold text-primary-900';
 @endphp
