@@ -23,8 +23,20 @@
     --color-tertiary: #d2b48c;
 }
 
+/* Always reserve the scrollbar's width: centered pages no longer jump sideways
+   when moving between a short page and one long enough to scroll. */
+html {
+    scrollbar-gutter: stable;
+}
+
 @view-transition {
     navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    @view-transition {
+        navigation: none;
+    }
 }
 
 header {
