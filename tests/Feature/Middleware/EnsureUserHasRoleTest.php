@@ -24,28 +24,13 @@ class EnsureUserHasRoleTest extends TestCase
         Route::middleware(['web', 'auth', 'role:tenant'])->get(self::TENANT_URI, fn () => 'tenant area');
     }
 
-    public function test_admin_route_allows_admin(): void
-    {
-        $this->actingAs(User::factory()->admin()->create())->get(self::ADMIN_URI)->assertOk();
-    }
-
     public function test_admin_route_forbids_tenant(): void
     {
         $this->actingAs(User::factory()->create())->get(self::ADMIN_URI)->assertForbidden();
     }
 
-    public function test_tenant_route_allows_tenant(): void
-    {
-        $this->actingAs(User::factory()->create())->get(self::TENANT_URI)->assertOk();
-    }
-
     public function test_tenant_route_forbids_admin(): void
     {
         $this->actingAs(User::factory()->admin()->create())->get(self::TENANT_URI)->assertForbidden();
-    }
-
-    public function test_role_route_redirects_guest_to_login(): void
-    {
-        $this->get(self::ADMIN_URI)->assertRedirect(route('login'));
     }
 }

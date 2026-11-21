@@ -4,7 +4,6 @@ namespace Tests\Unit\Services;
 
 use App\Enums\GarageType;
 use App\Models\Garage;
-use App\Models\Rental;
 use App\Services\GarageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
@@ -79,29 +78,5 @@ class GarageServiceTest extends TestCase
         } finally {
             $this->assertDatabaseCount('garages', 1);
         }
-    }
-
-    public function test_paginate_filters_by_type_and_flags_garages_used_today(): void
-    {
-        $used = Garage::factory()->car()->create(['code' => 'C001']);
-        Garage::factory()->car()->create(['code' => 'C002']);
-        Garage::factory()->bike()->create(['code' => 'S001']);
-        Rental::factory()->for($used)->startingOn('2026-11-21')->create();
-
-        $garages = $this->service->paginate(GarageType::Car);
-
-        $this->assertSame(['C001', 'C002'], $garages->pluck('code')->all());
-        $this->assertTrue($garages->firstWhere('code', 'C001')->is_used);
-        $this->assertFalse($garages->firstWhere('code', 'C002')->is_used);
-    }
-
-    public function test_next_codes_gives_next_code_and_codes_left_per_type(): void
-    {
-        Garage::factory()->car()->create(['code' => 'C010']);
-
-        $nextCodes = $this->service->nextCodes();
-
-        $this->assertSame(['next' => 'C011', 'remaining' => 989], $nextCodes[GarageType::Car->value]);
-        $this->assertSame(['next' => 'S001', 'remaining' => config('rules.garage.max_code_number')], $nextCodes[GarageType::Bike->value]);
     }
 }

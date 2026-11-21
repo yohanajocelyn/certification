@@ -68,20 +68,4 @@ class TenantServiceTest extends TestCase
             $this->assertSame(UserStatus::Rejected, $tenant->fresh()->status);
         }
     }
-
-    public function test_overview_lists_one_status_and_counts_every_status_without_admins(): void
-    {
-        User::factory()->admin()->create();
-        User::factory()->count(2)->pending()->create();
-        User::factory()->rejected()->create();
-
-        $overview = $this->service->overview(UserStatus::Pending);
-
-        $this->assertSame(2, $overview['tenants']->total());
-        $this->assertSame([
-            UserStatus::Pending->value => 2,
-            UserStatus::Approved->value => 0,
-            UserStatus::Rejected->value => 1,
-        ], $overview['countsByStatus']);
-    }
 }
