@@ -17,7 +17,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->char('nik', config('rules.user.nik_length'))->unique();
+            $table->string('nik', config('rules.user.nik_length'))->unique();
             $table->string('name', config('rules.user.name_max_length'));
             $table->string('phone', config('rules.user.phone_max_length'));
             $table->string('email', config('rules.user.email_max_length'))->unique();
