@@ -88,7 +88,8 @@ class ReportControllerTest extends TestCase
         $response = $this->report('admin.reports.monthly');
 
         $response->assertOk();
-        $response->assertSee('Tahun 2026');
+        $this->assertSame(2026, $response->viewData('filters')['year']);
+        $this->assertMatchesRegularExpression('/name="year"\s+type="number"\s+value="2026"/', $response->getContent());
         $response->assertSee('Desember');
     }
 
@@ -166,7 +167,10 @@ class ReportControllerTest extends TestCase
 
     public function test_garage_types_without_period_defaults_to_current_month(): void
     {
-        $this->report('admin.reports.garage-types')->assertSee('01 Nov 2026 – 30 Nov 2026');
+        $html = $this->report('admin.reports.garage-types')->getContent();
+
+        $this->assertMatchesRegularExpression('/name="from"\s+type="date"\s+value="2026-11-01"/', $html);
+        $this->assertMatchesRegularExpression('/name="to"\s+type="date"\s+value="2026-11-30"/', $html);
     }
 
     public function test_period_ending_before_it_starts_returns_validation_error(): void

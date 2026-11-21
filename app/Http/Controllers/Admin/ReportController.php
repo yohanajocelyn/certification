@@ -45,7 +45,7 @@ class ReportController extends Controller
             fn (RentalExtension $extension) => $extension->created_at->month,
         );
 
-        return $this->report('monthly', 'Bulan', 'Tahun '.$yearStart->year, $rows, $filters);
+        return $this->report('monthly', 'Bulan', $rows, $filters);
     }
 
     /**
@@ -73,7 +73,7 @@ class ReportController extends Controller
             ->mapWithKeys(fn (int $month) => [$month => $monthStart->month($month)->translatedFormat('F')])
             ->all();
 
-        return $this->report('daily', 'Tanggal', $monthStart->translatedFormat('F Y'), $rows, $filters)
+        return $this->report('daily', 'Tanggal', $rows, $filters)
             ->with('monthOptions', $monthOptions);
     }
 
@@ -93,7 +93,7 @@ class ReportController extends Controller
             fn (RentalExtension $extension) => $extension->rental->garage->type->value,
         );
 
-        return $this->report('garage-types', 'Tipe Garasi', $this->periodLabel($from, $to), $rows, $filters);
+        return $this->report('garage-types', 'Tipe Garasi', $rows, $filters);
     }
 
     /**
@@ -118,7 +118,7 @@ class ReportController extends Controller
             fn (RentalExtension $extension) => $extension->rental->user_id,
         ))->sortByDesc('total_revenue')->values()->all();
 
-        return $this->report('tenants', 'Penyewa', $this->periodLabel($from, $to), $rows, $filters);
+        return $this->report('tenants', 'Penyewa', $rows, $filters);
     }
 
     /**
@@ -176,7 +176,7 @@ class ReportController extends Controller
      * @param  list<array<string, mixed>>  $rows
      * @param  array<string, mixed>  $filters
      */
-    private function report(string $report, string $bucketHeading, string $periodLabel, array $rows, array $filters): View
+    private function report(string $report, string $bucketHeading, array $rows, array $filters): View
     {
         $totals = ['label' => 'Total'];
         foreach (['rentals', 'rental_revenue', 'extensions', 'extension_revenue', 'total_revenue'] as $column) {
@@ -185,7 +185,6 @@ class ReportController extends Controller
 
         return view('admin.reports.'.$report, [
             'bucketHeading' => $bucketHeading,
-            'periodLabel' => $periodLabel,
             'rows' => $rows,
             'totals' => $totals,
             'filters' => $filters,
@@ -234,13 +233,5 @@ class ReportController extends Controller
         } catch (ValidationException $exception) {
             throw $exception->redirectTo(route($routeName));
         }
-    }
-
-    /**
-     * Readable period, e.g. "01 Nov 2026 – 30 Nov 2026".
-     */
-    private function periodLabel(CarbonImmutable $from, CarbonImmutable $to): string
-    {
-        return $from->translatedFormat('d M Y').' – '.$to->translatedFormat('d M Y');
     }
 }
