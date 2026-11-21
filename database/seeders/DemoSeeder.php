@@ -7,6 +7,7 @@ use App\Models\Garage;
 use App\Models\Rental;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Services\GarageService;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
@@ -32,13 +33,13 @@ class DemoSeeder extends Seeder
     /**
      * Seed tenants in every status, garages with sequential codes, and a few rentals.
      */
-    public function run(): void
+    public function run(GarageService $garageService): void
     {
         $tenants = User::factory()->count(3)->create();
         User::factory()->count(2)->pending()->create();
         User::factory()->rejected()->create();
 
-        $garages = $this->seedGarages();
+        $garages = $this->seedGarages($garageService);
         $this->seedRentals($tenants->all(), $garages);
     }
 
@@ -47,7 +48,7 @@ class DemoSeeder extends Seeder
      *
      * @return array<string, list<Garage>> garages keyed by type value
      */
-    private function seedGarages(): array
+    private function seedGarages(GarageService $garageService): array
     {
         $garages = [];
 
@@ -55,8 +56,8 @@ class DemoSeeder extends Seeder
             $type = GarageType::from($typeValue);
             $kwhPrice = $type->hasCharging() ? self::KWH_PRICE : null;
 
-            $codes = Garage::createBatch($type, $count, self::DAILY_PRICES[$typeValue], $kwhPrice);
-            $garages[$typeValue] = Garage::whereIn('code', $codes)->orderBy('code')->get()->all();
+            $codes = $garageService->createBatch($type, $count, self::DAILY_PRICES[$typeValue], $kwhPrice);
+            $garages[$typeValue] = Garage::whereIn('code', $codes->all())->orderBy('code')->get()->all();
         }
 
         return $garages;

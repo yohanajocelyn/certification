@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserStatus;
+use App\Exceptions\TenantAlreadyDecidedException;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\TenantService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -15,7 +17,7 @@ use Illuminate\View\View;
  */
 class TenantController extends Controller
 {
-    private const TENANTS_PER_PAGE = 15;
+    public function __construct(private readonly TenantService $tenants) {}
 
     /**
      * List tenants with one status (pending by default), newest registration first.
@@ -27,22 +29,13 @@ class TenantController extends Controller
         ]);
         $selectedStatus = UserStatus::tryFrom($filters['status'] ?? '') ?? UserStatus::Pending;
 
-        $tenants = User::tenants()
-            ->where('status', $selectedStatus)
-            ->latest()
-            ->paginate(self::TENANTS_PER_PAGE)
-            ->withQueryString();
-
-        $countsByStatus = [];
-        foreach (UserStatus::cases() as $status) {
-            $countsByStatus[$status->value] = User::tenants()->where('status', $status)->count();
-        }
+        $overview = $this->tenants->overview($selectedStatus);
 
         return view('admin.tenants.index', [
-            'tenants' => $tenants,
+            'tenants' => $overview->tenants->withQueryString(),
             'statuses' => UserStatus::cases(),
             'selectedStatus' => $selectedStatus,
-            'countsByStatus' => $countsByStatus,
+            'countsByStatus' => $overview->countsByStatus,
         ]);
     }
 
@@ -58,13 +51,16 @@ class TenantController extends Controller
             'status' => ['required', Rule::enum(UserStatus::class)->only([UserStatus::Approved, UserStatus::Rejected])],
         ]);
 
-        if (! $tenant->isPending()) {
-            return back()->with('error', "Pendaftaran {$tenant->name} sudah diputuskan sebelumnya.");
+        try {
+            $decided = UserStatus::from($validated['status']) === UserStatus::Approved
+                ? $this->tenants->approve($tenant)
+                : $this->tenants->reject($tenant);
+        } catch (TenantAlreadyDecidedException $exception) {
+            return back()->with('error', $exception->getMessage());
         }
 
-        $tenant->update(['status' => $validated['status']]);
-        $decision = mb_strtolower($tenant->status->label());
+        $decision = mb_strtolower($decided->status->label());
 
-        return back()->with('success', "Pendaftaran {$tenant->name} {$decision}.");
+        return back()->with('success', "Pendaftaran {$decided->name} {$decision}.");
     }
 }

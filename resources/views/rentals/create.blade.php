@@ -1,16 +1,16 @@
 @php
     use App\Enums\RentalType;
-    use App\Http\Controllers\RentalController;
+    use App\Services\RentalService;
     use App\Models\Rental;
     use App\Models\Vehicle;
 
     $selectedVehicle = (string) ($defaults['vehicle_id']
-        ?? ($vehicles->isEmpty() ? RentalController::NEW_VEHICLE : $vehicles->first()->id));
+        ?? ($vehicles->isEmpty() ? RentalService::NEW_VEHICLE : $vehicles->first()->id));
     $selectedRentalType = old('rental_type', $defaults['rental_type'] ?? RentalType::Daily->value);
     $isMonthly = $selectedRentalType === RentalType::Monthly->value;
     $monthDays = $startDate->daysInMonth;
     $vehicleOptions = $vehicles->mapWithKeys(fn ($vehicle) => [$vehicle->id => $vehicle->displayName()])->all()
-        + [RentalController::NEW_VEHICLE => '+ Kendaraan baru'];
+        + [RentalService::NEW_VEHICLE => '+ Kendaraan baru'];
     $sectionTitle = 'text-lg font-black text-primary-900 tracking-tight';
 @endphp
 
@@ -27,7 +27,7 @@
                               :options="$vehicleOptions" :value="$selectedVehicle" />
                 </div>
 
-                <x-show-when field="vehicle_id" :values="[RentalController::NEW_VEHICLE]" :current="old('vehicle_id', $selectedVehicle)"
+                <x-show-when field="vehicle_id" :values="[RentalService::NEW_VEHICLE]" :current="old('vehicle_id', $selectedVehicle)"
                      class="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 sm:p-6 rounded-2xl border border-primary-200 bg-white/60">
                     <x-select name="vehicle_type" label="Tipe Kendaraan" required placeholder="Pilih tipe"
                               :options="collect($vehicleTypes)->mapWithKeys(fn ($type) => [$type->value => $type->label()])->all()"

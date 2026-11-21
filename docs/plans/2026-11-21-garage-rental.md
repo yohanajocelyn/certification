@@ -69,6 +69,10 @@ Done when: all unit tests green.
 
 - [x] A rental's tenant is traced through its vehicle (`$rental->vehicle->user`); `User::rentals()` is a HasManyThrough via `vehicles`. Migration edited in place (run `php artisan migrate:fresh --seed`); ERD and database structure updated
 
+## Change - service layer
+
+- [x] CLAUDE.md now asks for services: `GarageService`, `TenantService`, `VehicleService`, `RentalService` (booking and extensions) and `ReportService` in `app/Services`; controllers validate, call one service method and return a view or redirect. Results with several parts come back as read-only objects (`RentalQuote`, `ReportTable`, `TenantOverview`); non-field business errors are `TenantAlreadyDecidedException` and `RentalNotExtendableException`. `Garage::createBatch()` moved to `GarageService`. Service unit tests in `tests/Unit/Services`.
+
 ## Batch 2 - Layout, auth, roles, seeding
 
 Owners: laravel-backend (controllers, middleware, seeders, tests) -> laravel-frontend (views).

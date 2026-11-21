@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\VehicleService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -10,18 +11,13 @@ use Illuminate\View\View;
  */
 class VehicleController extends Controller
 {
-    private const VEHICLES_PER_PAGE = 10;
+    public function __construct(private readonly VehicleService $vehicles) {}
 
     /**
      * The tenant's vehicles with where each one is parked today.
      */
     public function index(Request $request): View
     {
-        $vehicles = $request->user()->vehicles()
-            ->with('rentalsToday.garage')
-            ->orderBy('brand_model')
-            ->paginate(self::VEHICLES_PER_PAGE);
-
-        return view('vehicles.index', ['vehicles' => $vehicles]);
+        return view('vehicles.index', ['vehicles' => $this->vehicles->paginateForTenant($request->user())]);
     }
 }

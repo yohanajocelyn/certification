@@ -9,9 +9,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
-use LengthException;
 
 /**
  * A rentable garage with a type-prefixed code such as S001, C010 or E002.
@@ -27,6 +24,7 @@ class Garage extends Model
 
     public const MAX_CODE_NUMBER = 999;
 
+    /** Smallest batch GarageService::createBatch() accepts. */
     public const MIN_BATCH_SIZE = 1;
 
     public const MAX_BATCH_SIZE = 999;
@@ -66,7 +64,18 @@ class Garage extends Model
      */
     public static function nextCodeNumber(GarageType $type): int
     {
-        return self::highestCodeNumber(static::query()->where('type', $type), $type) + 1;
+        // Codes are zero-padded, so the highest string is also the highest number.
+        $highestCode = static::query()->where('type', $type)->max('code');
+
+        return $highestCode === null ? 1 : self::codeNumber($highestCode) + 1;
+    }
+
+    /**
+     * The number inside a garage code, e.g. "C010" -> 10.
+     */
+    public static function codeNumber(string $code): int
+    {
+        return (int) substr($code, -self::CODE_NUMBER_DIGITS);
     }
 
     /**
@@ -75,48 +84,6 @@ class Garage extends Model
     public static function remainingCodeNumbers(GarageType $type): int
     {
         return self::MAX_CODE_NUMBER - (self::nextCodeNumber($type) - 1);
-    }
-
-    /**
-     * Create a batch of garages of one type with the next free codes (C011, C012, ...).
-     *
-     * @param  int  $quantity  1 to MAX_BATCH_SIZE, and no more than remainingCodeNumbers()
-     * @param  float|null  $kwhPrice  charging price; stored only for electric garages
-     * @return list<string> the new codes, in order
-     *
-     * @throws InvalidArgumentException when the quantity is below MIN_BATCH_SIZE
-     * @throws LengthException when the batch would go past code number 999
-     */
-    public static function createBatch(GarageType $type, int $quantity, float $dailyPrice, ?float $kwhPrice): array
-    {
-        if ($quantity < self::MIN_BATCH_SIZE) {
-            throw new InvalidArgumentException('A garage batch needs at least '.self::MIN_BATCH_SIZE.' garage.');
-        }
-
-        return DB::transaction(function () use ($type, $quantity, $dailyPrice, $kwhPrice) {
-            // Lock this type's rows so two admins creating at once never get the same numbers.
-            $lockedQuery = static::query()->where('type', $type)->lockForUpdate();
-            $firstNumber = self::highestCodeNumber($lockedQuery, $type) + 1;
-            $lastNumber = $firstNumber + $quantity - 1;
-
-            if ($lastNumber > self::MAX_CODE_NUMBER) {
-                throw new LengthException("Only {$type->prefix()} codes up to ".self::MAX_CODE_NUMBER.' exist.');
-            }
-
-            $now = now();
-            $codes = array_map(fn (int $number) => self::formatCode($type, $number), range($firstNumber, $lastNumber));
-
-            static::query()->insert(array_map(fn (string $code) => [
-                'code' => $code,
-                'type' => $type->value,
-                'daily_price' => $dailyPrice,
-                'kwh_price' => $type->hasCharging() ? $kwhPrice : null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ], $codes));
-
-            return $codes;
-        });
     }
 
     /**
@@ -171,18 +138,5 @@ class Garage extends Model
     public function monthlyPrice(): float
     {
         return (float) $this->daily_price * Rental::MONTHLY_PRICE_MULTIPLIER;
-    }
-
-    /**
-     * Highest code number matched by the query, 0 when it matches nothing.
-     *
-     * @param  Builder<Garage>  $query  garages of one type
-     */
-    private static function highestCodeNumber(Builder $query, GarageType $type): int
-    {
-        // Codes are zero-padded, so the highest string is also the highest number.
-        $highestCode = $query->max('code');
-
-        return $highestCode === null ? 0 : (int) substr($highestCode, strlen($type->prefix()));
     }
 }

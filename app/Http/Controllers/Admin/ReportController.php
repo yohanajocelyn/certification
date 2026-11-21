@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\GarageType;
 use App\Http\Controllers\Controller;
-use App\Models\Rental;
-use App\Models\RentalExtension;
-use App\Models\User;
+use App\Services\ReportService;
+use App\Services\Results\ReportTable;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
- * Garage rental reports: per month of a year, per day of a month, per garage type and per tenant.
- * Rentals count in the period of their start date, extensions in the period they were made.
+ * Garage rental report pages: per month of a year, per day of a month, per garage type and per
+ * tenant. Validates the filters; ReportService does the counting.
  */
 class ReportController extends Controller
 {
@@ -25,27 +22,20 @@ class ReportController extends Controller
 
     private const DATE_FORMAT = 'Y-m-d';
 
+    private const MONTHS_IN_YEAR = 12;
+
+    public function __construct(private readonly ReportService $reports) {}
+
     /**
      * One row per month of the chosen year.
      */
     public function monthly(Request $request): View
     {
-        $today = CarbonImmutable::today();
-        $filters = $this->validateFilters($request, 'admin.reports.monthly', ['year' => $today->year], [
+        $filters = $this->validateFilters($request, 'admin.reports.monthly', ['year' => CarbonImmutable::today()->year], [
             'year' => ['required', 'integer', 'between:'.self::MIN_YEAR.','.self::MAX_YEAR],
         ]);
-        $yearStart = CarbonImmutable::create((int) $filters['year'])->startOfYear();
 
-        $months = collect(range(1, 12))->mapWithKeys(fn (int $month) => [$month => $yearStart->month($month)->translatedFormat('F')]);
-        $rows = $this->buildRows(
-            $months,
-            Rental::query()->startingBetween($yearStart, $yearStart->endOfYear())->get(),
-            RentalExtension::query()->createdBetween($yearStart, $yearStart->endOfYear())->get(),
-            fn (Rental $rental) => $rental->start_date->month,
-            fn (RentalExtension $extension) => $extension->created_at->month,
-        );
-
-        return $this->report('monthly', 'Bulan', $rows, $filters);
+        return $this->report('monthly', 'Bulan', $this->reports->monthly((int) $filters['year']), $filters);
     }
 
     /**
@@ -56,24 +46,14 @@ class ReportController extends Controller
         $today = CarbonImmutable::today();
         $filters = $this->validateFilters($request, 'admin.reports.daily', ['year' => $today->year, 'month' => $today->month], [
             'year' => ['required', 'integer', 'between:'.self::MIN_YEAR.','.self::MAX_YEAR],
-            'month' => ['required', 'integer', 'between:1,12'],
+            'month' => ['required', 'integer', 'between:1,'.self::MONTHS_IN_YEAR],
         ]);
-        $monthStart = CarbonImmutable::create((int) $filters['year'], (int) $filters['month'])->startOfMonth();
 
-        $days = collect(range(1, $monthStart->daysInMonth))->mapWithKeys(fn (int $day) => [$day => $monthStart->day($day)->translatedFormat('d M Y')]);
-        $rows = $this->buildRows(
-            $days,
-            Rental::query()->startingBetween($monthStart, $monthStart->endOfMonth())->get(),
-            RentalExtension::query()->createdBetween($monthStart, $monthStart->endOfMonth())->get(),
-            fn (Rental $rental) => $rental->start_date->day,
-            fn (RentalExtension $extension) => $extension->created_at->day,
-        );
-
-        $monthOptions = collect(range(1, 12))
-            ->mapWithKeys(fn (int $month) => [$month => $monthStart->month($month)->translatedFormat('F')])
+        $monthOptions = collect(range(1, self::MONTHS_IN_YEAR))
+            ->mapWithKeys(fn (int $month) => [$month => $today->startOfYear()->month($month)->translatedFormat('F')])
             ->all();
 
-        return $this->report('daily', 'Tanggal', $rows, $filters)
+        return $this->report('daily', 'Tanggal', $this->reports->daily((int) $filters['year'], (int) $filters['month']), $filters)
             ->with('monthOptions', $monthOptions);
     }
 
@@ -84,16 +64,7 @@ class ReportController extends Controller
     {
         [$from, $to, $filters] = $this->validatePeriod($request, 'admin.reports.garage-types');
 
-        $types = collect(GarageType::cases())->mapWithKeys(fn (GarageType $type) => [$type->value => $type->label()]);
-        $rows = $this->buildRows(
-            $types,
-            Rental::query()->startingBetween($from, $to)->with('garage')->get(),
-            RentalExtension::query()->createdBetween($from, $to)->with('rental.garage')->get(),
-            fn (Rental $rental) => $rental->garage->type->value,
-            fn (RentalExtension $extension) => $extension->rental->garage->type->value,
-        );
-
-        return $this->report('garage-types', 'Tipe Garasi', $rows, $filters);
+        return $this->report('garage-types', 'Tipe Garasi', $this->reports->garageTypes($from, $to), $filters);
     }
 
     /**
@@ -103,90 +74,20 @@ class ReportController extends Controller
     {
         [$from, $to, $filters] = $this->validatePeriod($request, 'admin.reports.tenants');
 
-        $rentals = Rental::query()->startingBetween($from, $to)->with('vehicle.user')->get();
-        $extensions = RentalExtension::query()->createdBetween($from, $to)->with('rental.vehicle.user')->get();
-        $tenants = $rentals->pluck('vehicle.user')
-            ->merge($extensions->pluck('rental.vehicle.user'))
-            ->unique('id')
-            ->mapWithKeys(fn (User $tenant) => [$tenant->id => $tenant->name.' ('.$tenant->email.')']);
-
-        $rows = collect($this->buildRows(
-            $tenants,
-            $rentals,
-            $extensions,
-            fn (Rental $rental) => $rental->vehicle->user_id,
-            fn (RentalExtension $extension) => $extension->rental->vehicle->user_id,
-        ))->sortByDesc('total_revenue')->values()->all();
-
-        return $this->report('tenants', 'Penyewa', $rows, $filters);
+        return $this->report('tenants', 'Penyewa', $this->reports->tenants($from, $to), $filters);
     }
 
     /**
-     * One row per bucket (month, day, type or tenant), in the order of the buckets given.
+     * Render a report with its rows and totals row.
      *
-     * @param  Collection<int|string, string>  $buckets  bucket key => label
-     * @param  Collection<int, Rental>  $rentals
-     * @param  Collection<int, RentalExtension>  $extensions
-     * @param  callable(Rental): (int|string)  $rentalBucket
-     * @param  callable(RentalExtension): (int|string)  $extensionBucket
-     * @return list<array{label: string, rentals: int, rental_revenue: float, extensions: int, extension_revenue: float, total_revenue: float}>
-     */
-    private function buildRows(
-        Collection $buckets,
-        Collection $rentals,
-        Collection $extensions,
-        callable $rentalBucket,
-        callable $extensionBucket,
-    ): array {
-        $rentalsByBucket = $rentals->groupBy($rentalBucket);
-        $extensionsByBucket = $extensions->groupBy($extensionBucket);
-
-        return $buckets->map(fn (string $label, int|string $bucket) => $this->row(
-            $label,
-            $rentalsByBucket->get($bucket, collect()),
-            $extensionsByBucket->get($bucket, collect()),
-        ))->values()->all();
-    }
-
-    /**
-     * Counts and revenue for one bucket: rentals (rent + charging) and extensions.
-     *
-     * @param  Collection<int, Rental>  $rentals
-     * @param  Collection<int, RentalExtension>  $extensions
-     * @return array{label: string, rentals: int, rental_revenue: float, extensions: int, extension_revenue: float, total_revenue: float}
-     */
-    private function row(string $label, Collection $rentals, Collection $extensions): array
-    {
-        $rentalRevenue = round($rentals->sum(fn (Rental $rental) => (float) $rental->total_cost), 2);
-        $extensionRevenue = round($extensions->sum(fn (RentalExtension $extension) => (float) $extension->additional_cost), 2);
-
-        return [
-            'label' => $label,
-            'rentals' => $rentals->count(),
-            'rental_revenue' => $rentalRevenue,
-            'extensions' => $extensions->count(),
-            'extension_revenue' => $extensionRevenue,
-            'total_revenue' => round($rentalRevenue + $extensionRevenue, 2),
-        ];
-    }
-
-    /**
-     * Render a report with its rows and a totals row.
-     *
-     * @param  list<array<string, mixed>>  $rows
      * @param  array<string, mixed>  $filters
      */
-    private function report(string $report, string $bucketHeading, array $rows, array $filters): View
+    private function report(string $report, string $bucketHeading, ReportTable $table, array $filters): View
     {
-        $totals = ['label' => 'Total'];
-        foreach (['rentals', 'rental_revenue', 'extensions', 'extension_revenue', 'total_revenue'] as $column) {
-            $totals[$column] = array_sum(array_column($rows, $column));
-        }
-
         return view('admin.reports.'.$report, [
             'bucketHeading' => $bucketHeading,
-            'rows' => $rows,
-            'totals' => $totals,
+            'rows' => $table->rows,
+            'totals' => $table->totals,
             'filters' => $filters,
         ]);
     }

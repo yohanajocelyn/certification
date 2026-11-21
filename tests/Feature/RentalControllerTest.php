@@ -5,11 +5,11 @@ namespace Tests\Feature;
 use App\Enums\GarageType;
 use App\Enums\RentalType;
 use App\Enums\VehicleType;
-use App\Http\Controllers\RentalController;
 use App\Models\Garage;
 use App\Models\Rental;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Services\RentalService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -584,7 +584,7 @@ class RentalControllerTest extends TestCase
     private function newVehicleDetails(VehicleType $type, array $overrides = []): array
     {
         return $this->details(array_merge([
-            'vehicle_id' => RentalController::NEW_VEHICLE,
+            'vehicle_id' => RentalService::NEW_VEHICLE,
             'vehicle_type' => $type->value,
             'plate_number' => 'B 9999 NEW',
             'brand_model' => 'Honda Beat',

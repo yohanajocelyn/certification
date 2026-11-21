@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Rental;
+use App\Services\RentalService;
 use Carbon\CarbonImmutable;
 use Illuminate\View\View;
 
@@ -12,23 +12,16 @@ use Illuminate\View\View;
  */
 class RentalController extends Controller
 {
-    private const RENTALS_PER_PAGE = 15;
+    public function __construct(private readonly RentalService $rentals) {}
 
     /**
      * Rentals that cover today, ending soonest first.
      */
     public function index(): View
     {
-        $today = CarbonImmutable::today();
-
-        $rentals = Rental::query()
-            ->activeOn($today)
-            ->with(['garage', 'vehicle.user'])
-            ->withCount('extensions')
-            ->orderBy('end_date')
-            ->orderBy('id')
-            ->paginate(self::RENTALS_PER_PAGE);
-
-        return view('admin.rentals.index', ['rentals' => $rentals, 'today' => $today]);
+        return view('admin.rentals.index', [
+            'rentals' => $this->rentals->activeToday(),
+            'today' => CarbonImmutable::today(),
+        ]);
     }
 }

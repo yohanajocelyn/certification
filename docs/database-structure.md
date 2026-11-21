@@ -125,5 +125,8 @@ All rental dates are inclusive: a rental covers every day from `start_date` to `
 | Daily extension: admin picks a later end date, no day limit; cost = extra days × daily_price | `RentalExtension::calculateAdditionalCost()` |
 | Monthly extension: admin picks a number of months; each month adds the day count of the month the rental currently ends in (ends in January → +31 per month); cost = months × 25 × daily_price | `RentalExtension::calculateMonthlyDays()` / `calculateAdditionalCost()` |
 | Extension must not overlap another rental of the same garage or of the same vehicle | overlap scopes, ignoring the rental being extended |
-| Extending updates `rentals.end_date` and stores the extension row in one transaction | `RentalExtensionController::store()` |
-| Only approved tenants can log in / rent; pending and rejected see a message | `AuthController::login()` checks `UserStatus::Approved` |
+| Booking locks the garage (and an existing vehicle), re-checks it fits and is free, then saves | `RentalService::book()` (uses `Vehicle::canParkIn()`) |
+| Batch creation locks the type's rows so codes never repeat | `GarageService::createBatch()` |
+| A registration is accepted or rejected once | `TenantService::approve()` / `reject()` |
+| Extending updates `rentals.end_date` and stores the extension row in one transaction | `RentalService::extend()` |
+| Only approved tenants can log in / rent; pending and rejected see a message | `AuthController::store()` checks `User::isApproved()` |
