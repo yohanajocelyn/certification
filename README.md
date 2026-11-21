@@ -37,6 +37,8 @@ The app's own database (in `.env`) is never touched by the tests.
 | PHPUnit | 12.x | BSD-3-Clause | Unit and feature tests | https://docs.phpunit.de |
 | blade-ui-kit/blade-heroicons | 2.7 | MIT | Heroicons as Blade components (`<x-heroicon-o-plus />`) for consistent, accessible SVG icons without writing raw SVG | https://github.com/blade-ui-kit/blade-heroicons |
 
+Font: Instrument Sans (SIL Open Font License 1.1), downloaded at build time by laravel-vite-plugin's fonts feature and served from the app, so pages do not flash a fallback font.
+
 `blade-heroicons` pulls in `blade-ui-kit/blade-icons` (1.11, MIT) as its dependency.
 
 > Never commit `.env` or credentials.

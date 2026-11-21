@@ -4,8 +4,9 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* --font-instrument-sans comes from @fonts in the layout (self-hosted, with a size-matched fallback). */
+    --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --color-primary-50: #fbf8f5;
     --color-primary-100: #f5eee5;
@@ -31,6 +32,22 @@ html {
 
 @view-transition {
     navigation: auto;
+}
+
+/* The header looks the same on every page, so it is swapped instantly instead of morphed
+   (a morph stretches it for a moment). Only the page content gets a short fade. */
+::view-transition-group(main-navbar),
+::view-transition-new(main-navbar) {
+    animation: none;
+}
+
+::view-transition-old(main-navbar) {
+    display: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 150ms;
 }
 
 @media (prefers-reduced-motion: reduce) {

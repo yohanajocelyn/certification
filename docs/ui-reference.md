@@ -41,11 +41,12 @@ Mood: warm, calm, coffee/brown palette on an off-white background; rounded, soft
 
 @view-transition { navigation: auto; }
 header { view-transition-name: main-navbar; }
+/* header swapped instantly, page content fades for 150ms; see app.css */
 
 body { @apply text-primary-900 bg-primary-50; }
 ```
 
-Font: Instrument Sans 400-900 from `https://fonts.bunny.net` (preconnect + `display=swap`).
+Font: Instrument Sans 400-700 through laravel-vite-plugin's fonts feature (`bunny()` in `vite.config.js`, downloaded at build time and self-hosted) and `@fonts` in the layout `<head>`, which preloads the files and adds a size-matched fallback. Never link the font CDN stylesheet directly: with `display=swap` it flashes a fallback font on every page load.
 
 | Role | Classes |
 |---|---|
@@ -79,7 +80,7 @@ mobile: row 1 = brand + user/logout, row 2 = menu links (scroll sideways)
 - `<x-layout>` body: `font-sans antialiased bg-primary-50 text-primary-900`, wrapper `min-h-screen flex flex-col relative overflow-x-clip`, plus decorative glow
   `<div class="absolute inset-0 z-0 pointer-events-none opacity-50 bg-[radial-gradient(ellipse_at_top,_var(--color-primary-200),_transparent_70%)]"></div>`, content `z-10`.
 - The navbar and `<main>` live inside the layout itself (not repeated in every page). The layout takes a `title` prop that is actually used in `<title>`.
-- Header: `<header class="sticky top-0 z-20 border-b border-primary-900 bg-primary-50/85 backdrop-blur-md">`.
+- Header: `<header class="sticky top-0 z-20 border-b border-primary-900 bg-primary-50">` (solid: a blurred, see-through header flickers during page transitions).
 - Header inner (same width as `<main>` so edges line up): `max-w-6xl mx-auto px-6 sm:px-10 py-4 md:py-0 md:h-16 flex flex-wrap md:flex-nowrap items-center justify-between gap-x-8 gap-y-3`.
 - Brand (left): app name, `text-lg font-black tracking-tight text-primary-900`, links to the role's home page.
 - Menu `<nav aria-label="Menu utama">`: `order-last md:order-none w-full md:w-auto flex items-center gap-6 md:gap-8 overflow-x-auto whitespace-nowrap md:flex-1`. Links are plain text, `text-sm sm:text-base tracking-wide py-1`:

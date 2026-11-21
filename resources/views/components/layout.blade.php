@@ -8,8 +8,8 @@
     <meta name="view-transition" content="same-origin">
     <title>{{ $title ? $title.' · '.config('app.name') : config('app.name') }}</title>
 
-    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800,900&display=swap" rel="stylesheet">
+    {{-- Self-hosted Instrument Sans: preload links + @font-face (configured in vite.config.js). --}}
+    @fonts
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -18,7 +18,7 @@
         <div class="absolute inset-0 z-0 pointer-events-none opacity-50 bg-[radial-gradient(ellipse_at_top,_var(--color-primary-200),_transparent_70%)]"></div>
 
         @auth
-            <header class="sticky top-0 z-20 border-b border-primary-900 bg-primary-50/85 backdrop-blur-md">
+            <header class="sticky top-0 z-20 border-b border-primary-900 bg-primary-50">
                 <div class="max-w-6xl mx-auto px-6 sm:px-10 py-4 md:py-0 md:h-16 flex flex-wrap md:flex-nowrap items-center justify-between gap-x-8 gap-y-3">
                     <a href="{{ route('home') }}" class="text-lg font-black tracking-tight text-primary-900">
                         {{ config('app.name') }}
