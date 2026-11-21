@@ -88,13 +88,15 @@ Done when: tests green, admin can log in from seeded `.env` data.
 
 ## Batch 5 - Tenant: new rental (two-step) + my rentals
 
-- [ ] `RentalController@create` (step 1): vehicle (D4), current battery for EV, rental type, days (daily), start date (default today), garage type limited to the vehicle type
-- [ ] `RentalController@preview` (step 2, POST): validate step 1, compute end date, list garages of that type available for the whole period, each with its rental cost, charging cost and total; payment proof upload
-- [ ] `RentalController@store`: re-validate everything with the same private rules method, then inside `DB::transaction`: lock the garage row, re-check garage and vehicle availability, create vehicle if new, store proof on the `public` disk, create the rental
-- [ ] `RentalController@index`: my rentals with garage code, vehicle, dates, total, extensions, status (upcoming / active / finished, derived)
-- [ ] `resources/js/app.js`: show/hide plate, battery and days fields; filter garage-type options (UI only)
-- [ ] Views: `rentals/create`, `rentals/preview`, `rentals/index`
-- [ ] Feature tests (`Storage::fake`, `travelTo`): each vehicle -> garage rule and its rejections, bicycle without plate ok / motorcycle without plate fails, days 0 / max / max+1 per month (Feb 2027 max 27, Nov max 29), start yesterday fails / future ok, monthly end dates, garage taken in overlapping period is hidden and rejected on store, same vehicle in two garages at once rejected, current battery > capacity fails, charging only in E garage, proof missing / not an image / too large fails, tenant sees only own rentals, future rental leaves garage "available" today
+- [x] `RentalController@create` (step 1): vehicle (D4), current battery for EV, rental type, days (daily), start date (default today), garage type limited to the vehicle type
+- [x] `RentalController@preview` (step 2, GET so a failed upload can return to it): validate step 1, compute end date, list garages of that type available for the whole period, each with its rental cost, charging cost and total; payment proof upload
+- [x] `RentalController@store`: re-validate everything with the same private rules method, then inside `DB::transaction`: lock the garage row, re-check garage and vehicle availability, create vehicle if new, store proof on the `public` disk, create the rental
+- [x] `RentalController@index`: my rentals with garage code, vehicle, dates, total, extensions, status (upcoming / active / finished, derived)
+- [x] `resources/js/app.js`: show/hide plate, battery and days fields; filter garage-type options (UI only)
+- [x] Views: `rentals/create`, `rentals/preview`, `rentals/index`
+- [x] Feature tests (`Storage::fake`, `travelTo`): each vehicle -> garage rule and its rejections, bicycle without plate ok / motorcycle without plate fails, days 0 / max / max+1 per month (Feb 2027 max 27, Nov max 29), start yesterday fails / future ok, monthly end dates, garage taken in overlapping period is hidden and rejected on store, same vehicle in two garages at once rejected, current battery > capacity fails, charging only in E garage, proof missing / not an image / too large fails, tenant sees only own rentals, future rental leaves garage "available" today
+- [x] Harian/Bulanan toggle: daily days editable up to (days in start month − 1); monthly days read-only and filled with the days in the start month (display only, server recalculates)
+- [x] Tenants land on "Sewa Saya" after login
 
 ## Batch 6 - Admin: extend rental
 

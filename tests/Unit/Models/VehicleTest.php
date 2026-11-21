@@ -21,6 +21,26 @@ class VehicleTest extends TestCase
         $this->assertTrue($vehicle->user->is($owner));
     }
 
+    public function test_plate_number_is_stored_in_capitals_with_single_spaces(): void
+    {
+        $vehicle = Vehicle::factory()->create(['plate_number' => '  b   1234  xyz ']);
+
+        $this->assertSame('B 1234 XYZ', $vehicle->fresh()->plate_number);
+    }
+
+    public function test_normalize_plate_turns_blank_into_null(): void
+    {
+        $this->assertNull(Vehicle::normalizePlate('   '));
+        $this->assertNull(Vehicle::normalizePlate(null));
+    }
+
+    public function test_display_name_skips_missing_plate(): void
+    {
+        $bicycle = Vehicle::factory()->bicycle()->make(['brand_model' => 'Polygon Xtrada']);
+
+        $this->assertSame('Sepeda · Polygon Xtrada', $bicycle->displayName());
+    }
+
     public function test_is_parked_between_is_true_when_a_rental_overlaps(): void
     {
         $vehicle = Vehicle::factory()->create();

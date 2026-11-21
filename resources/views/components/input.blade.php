@@ -24,11 +24,13 @@
     <input id="{{ $id }}"
            name="{{ $name }}"
            type="{{ $type }}"
-           @if ($type !== 'password') value="{{ old($name, $value) }}" @endif
+           @unless (in_array($type, ['password', 'file'], true)) value="{{ old($name, $value) }}" @endunless
            @required($required)
            @if ($hasError) aria-invalid="true" aria-describedby="{{ $errorId }}" @endif
            {{ $attributes->except('id')->class([
                'w-full border rounded-xl shadow-sm bg-white/80 backdrop-blur-sm px-4 py-3 text-primary-900 placeholder-primary-400 hover:bg-white focus:bg-white focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all duration-300',
+               'read-only:bg-primary-100/70 read-only:text-primary-700 read-only:cursor-not-allowed',
+               'file:mr-4 file:rounded-lg file:border-0 file:bg-primary-100 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-800 hover:file:bg-primary-200' => $type === 'file',
                'border-primary-300' => ! $hasError,
                'border-rose-400' => $hasError,
            ]) }}>

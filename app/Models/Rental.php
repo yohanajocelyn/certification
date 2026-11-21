@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RentalPeriodStatus;
 use App\Enums\RentalType;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 
 /**
@@ -25,6 +27,14 @@ class Rental extends Model
     public const MONTHLY_PRICE_MULTIPLIER = 25;
 
     public const MIN_DAILY_DAYS = 1;
+
+    public const PAYMENT_PROOF_DISK = 'public';
+
+    public const PAYMENT_PROOF_DIRECTORY = 'payment-proofs';
+
+    public const PAYMENT_PROOF_MAX_KB = 2048;
+
+    public const PAYMENT_PROOF_MIMES = ['jpg', 'jpeg', 'png', 'webp'];
 
     protected $fillable = [
         'garage_id',
@@ -99,6 +109,47 @@ class Rental extends Model
     }
 
     /**
+     * An unsaved rental with its end date and every cost worked out, used both to show
+     * the tenant the total before paying and to save the rental. Only the tenant and the
+     * payment proof are left to set.
+     *
+     * @param  int|null  $days  number of days, required for daily rentals
+     * @param  float|null  $currentBatteryKwh  battery level entered by the tenant (electric cars)
+     */
+    public static function draft(
+        Garage $garage,
+        Vehicle $vehicle,
+        RentalType $type,
+        CarbonInterface $start,
+        ?int $days,
+        ?float $currentBatteryKwh,
+    ): self {
+        $dailyPrice = (float) $garage->daily_price;
+        $kwhPrice = $garage->kwh_price === null ? null : (float) $garage->kwh_price;
+        $rentalCost = self::calculateRentalCost($type, $dailyPrice, $days);
+        $chargingKwh = self::calculateChargingKwh($vehicle, $garage, $currentBatteryKwh);
+        $chargingCost = self::calculateChargingCost($chargingKwh, $kwhPrice);
+
+        $rental = new self([
+            'current_battery_kwh' => $vehicle->type->hasBattery() ? $currentBatteryKwh : null,
+            'rental_type' => $type,
+            'days' => $type === RentalType::Daily ? $days : null,
+            'start_date' => CarbonImmutable::instance($start)->startOfDay(),
+            'end_date' => self::calculateEndDate($type, $start, $days),
+            'daily_price' => $dailyPrice,
+            'kwh_price' => $kwhPrice,
+            'rental_cost' => $rentalCost,
+            'charging_kwh' => $chargingKwh,
+            'charging_cost' => $chargingCost,
+            'total_cost' => round($rentalCost + $chargingCost, Garage::PRICE_SCALE),
+        ]);
+        $rental->garage()->associate($garage);
+        $rental->vehicle()->associate($vehicle);
+
+        return $rental;
+    }
+
+    /**
      * Last rented day (inclusive).
      *
      * Daily: start + days - 1 (21 Nov, 5 days -> 25 Nov).
@@ -167,6 +218,44 @@ class Rental extends Model
     public static function calculateChargingCost(float $chargingKwh, ?float $kwhPrice): float
     {
         return round($chargingKwh * (float) $kwhPrice, Garage::PRICE_SCALE);
+    }
+
+    /**
+     * Number of rented days, counting both the first and the last day.
+     */
+    public function durationInDays(): int
+    {
+        return self::countDays($this->start_date, $this->end_date);
+    }
+
+    /**
+     * Days from start to end, both included (21 Nov to 25 Nov = 5).
+     */
+    public static function countDays(CarbonInterface $start, CarbonInterface $end): int
+    {
+        return (int) $start->copy()->startOfDay()->diffInDays($end->copy()->startOfDay()) + 1;
+    }
+
+    /**
+     * Whether the rental has not started yet, is running, or is over on the given date.
+     */
+    public function periodStatusOn(CarbonInterface $date): RentalPeriodStatus
+    {
+        $day = CarbonImmutable::instance($date)->startOfDay();
+
+        if ($day->lessThan($this->start_date)) {
+            return RentalPeriodStatus::Upcoming;
+        }
+
+        return $day->greaterThan($this->end_date) ? RentalPeriodStatus::Finished : RentalPeriodStatus::Active;
+    }
+
+    /**
+     * Public URL of the uploaded payment proof image.
+     */
+    public function paymentProofUrl(): string
+    {
+        return Storage::disk(self::PAYMENT_PROOF_DISK)->url($this->payment_proof);
     }
 
     /**

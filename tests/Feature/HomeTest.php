@@ -15,15 +15,9 @@ class HomeTest extends TestCase
         $this->get(route('home'))->assertRedirect(route('login'));
     }
 
-    public function test_home_greets_logged_in_tenant_with_name_and_role(): void
+    public function test_home_redirects_tenant_to_own_rentals(): void
     {
-        $tenant = User::factory()->create(['name' => 'Budi Santoso']);
-
-        $response = $this->actingAs($tenant)->get(route('home'));
-
-        $response->assertOk();
-        $response->assertSee('Selamat datang, Budi Santoso');
-        $response->assertSee('Penyewa');
+        $this->actingAs(User::factory()->create())->get(route('home'))->assertRedirect(route('rentals.index'));
     }
 
     public function test_home_redirects_admin_to_garage_list(): void

@@ -3,6 +3,7 @@
 namespace Tests\Unit\Models;
 
 use App\Enums\GarageType;
+use App\Enums\RentalPeriodStatus;
 use App\Enums\RentalType;
 use App\Enums\VehicleType;
 use App\Models\Garage;
@@ -159,6 +160,59 @@ class RentalTest extends TestCase
         $overlaps = Rental::overlapping(CarbonImmutable::parse('2026-11-26'), CarbonImmutable::parse('2026-11-30'));
 
         $this->assertSame(0, $overlaps->count());
+    }
+
+    public function test_draft_for_electric_car_in_electric_garage_adds_charging_to_total(): void
+    {
+        // Arrange: 60 kWh battery at 20 kWh, 5 days at 10.000, 2.500 per kWh
+        $garage = $this->garage(GarageType::Electric);
+
+        // Act
+        $draft = Rental::draft($garage, $this->electricCar(60), RentalType::Daily, CarbonImmutable::parse('2026-11-21'), 5, 20);
+
+        // Assert
+        $this->assertSame('2026-11-25', $draft->end_date->toDateString());
+        $this->assertEquals(50_000, $draft->rental_cost);
+        $this->assertEquals(40, $draft->charging_kwh);
+        $this->assertEquals(100_000, $draft->charging_cost);
+        $this->assertEquals(150_000, $draft->total_cost);
+        $this->assertFalse($draft->exists);
+    }
+
+    public function test_draft_monthly_has_no_days_and_costs_25_daily_prices(): void
+    {
+        $car = new Vehicle(['type' => VehicleType::Car]);
+
+        $draft = Rental::draft($this->garage(GarageType::Car), $car, RentalType::Monthly, CarbonImmutable::parse('2027-02-10'), 12, null);
+
+        $this->assertNull($draft->days);
+        $this->assertSame('2027-03-09', $draft->end_date->toDateString());
+        $this->assertEquals(250_000, $draft->total_cost);
+    }
+
+    public function test_draft_for_petrol_car_keeps_no_battery_level(): void
+    {
+        $car = new Vehicle(['type' => VehicleType::Car]);
+
+        $draft = Rental::draft($this->garage(GarageType::Car), $car, RentalType::Daily, CarbonImmutable::parse('2026-11-21'), 1, 50);
+
+        $this->assertNull($draft->current_battery_kwh);
+    }
+
+    public function test_count_days_includes_first_and_last_day(): void
+    {
+        $this->assertSame(5, Rental::countDays(CarbonImmutable::parse('2026-11-21'), CarbonImmutable::parse('2026-11-25')));
+        $this->assertSame(1, Rental::countDays(CarbonImmutable::parse('2026-11-21'), CarbonImmutable::parse('2026-11-21')));
+    }
+
+    public function test_period_status_on_is_upcoming_active_then_finished(): void
+    {
+        $rental = Rental::factory()->daily(5)->startingOn('2026-11-21')->make();
+
+        $this->assertSame(RentalPeriodStatus::Upcoming, $rental->periodStatusOn(CarbonImmutable::parse('2026-11-20')));
+        $this->assertSame(RentalPeriodStatus::Active, $rental->periodStatusOn(CarbonImmutable::parse('2026-11-21')));
+        $this->assertSame(RentalPeriodStatus::Active, $rental->periodStatusOn(CarbonImmutable::parse('2026-11-25')));
+        $this->assertSame(RentalPeriodStatus::Finished, $rental->periodStatusOn(CarbonImmutable::parse('2026-11-26')));
     }
 
     public function test_factory_rental_belongs_to_vehicle_owner(): void

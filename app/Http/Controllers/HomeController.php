@@ -4,24 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 /**
- * Landing page after login: admins go to their garage list, tenants see a welcome page.
+ * Landing route after login: sends each role to its starting page.
  */
 class HomeController extends Controller
 {
     /**
-     * Send the user to the starting page for their role.
+     * Admins start at the garage list, tenants at their own rentals.
      */
-    public function __invoke(Request $request): View|RedirectResponse
+    public function __invoke(Request $request): RedirectResponse
     {
-        $user = $request->user();
+        $startRoute = $request->user()->isAdmin() ? 'admin.garages.index' : 'rentals.index';
 
-        if ($user->isAdmin()) {
-            return redirect()->route('admin.garages.index');
-        }
-
-        return view('home', ['user' => $user]);
+        return redirect()->route($startRoute);
     }
 }

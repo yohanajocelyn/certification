@@ -24,13 +24,16 @@
                         {{ config('app.name') }}
                     </a>
 
-                    @if (auth()->user()->isAdmin())
-                        <nav aria-label="Menu utama"
-                             class="order-last md:order-none w-full md:w-auto flex items-center gap-6 md:gap-8 overflow-x-auto whitespace-nowrap md:flex-1">
+                    <nav aria-label="Menu utama"
+                         class="order-last md:order-none w-full md:w-auto flex items-center gap-6 md:gap-8 overflow-x-auto whitespace-nowrap md:flex-1">
+                        @if (auth()->user()->isAdmin())
                             <x-nav-link :href="route('admin.garages.index')" :active="request()->routeIs('admin.garages.*')">Garasi</x-nav-link>
                             <x-nav-link :href="route('admin.tenants.index')" :active="request()->routeIs('admin.tenants.*')">Penyewa</x-nav-link>
-                        </nav>
-                    @endif
+                        @else
+                            <x-nav-link :href="route('rentals.index')" :active="request()->routeIs('rentals.index')">Sewa Saya</x-nav-link>
+                            <x-nav-link :href="route('rentals.create')" :active="request()->routeIs('rentals.create', 'rentals.preview')">Sewa Baru</x-nav-link>
+                        @endif
+                    </nav>
 
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-9 h-9 rounded-full bg-primary-200/70 border border-primary-300/60 flex items-center justify-center shrink-0">

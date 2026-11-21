@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\VehicleType;
 use Carbon\CarbonInterface;
 use Database\Factories\VehicleFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +27,12 @@ class Vehicle extends Model
 
     public const KWH_SCALE = 2;
 
+    /** Largest battery value a decimal(6,2) column holds. */
+    public const MAX_BATTERY_KWH = 9_999.99;
+
+    /** Letters, digits and single spaces, e.g. "B 1234 XYZ". */
+    public const PLATE_PATTERN = '/^[A-Za-z0-9]+( [A-Za-z0-9]+)*$/';
+
     protected $fillable = ['type', 'plate_number', 'brand_model', 'battery_capacity_kwh'];
 
     /**
@@ -37,6 +44,32 @@ class Vehicle extends Model
             'type' => VehicleType::class,
             'battery_capacity_kwh' => 'decimal:'.self::KWH_SCALE,
         ];
+    }
+
+    /**
+     * Plates are stored in capitals without extra spaces, so "b  1234 xyz" and "B 1234 XYZ" match.
+     */
+    protected function plateNumber(): Attribute
+    {
+        return Attribute::make(set: fn (?string $value) => self::normalizePlate($value));
+    }
+
+    /**
+     * Capitalise a plate and squeeze repeated spaces; blank becomes null (bicycles have no plate).
+     */
+    public static function normalizePlate(?string $plate): ?string
+    {
+        $squeezed = trim((string) preg_replace('/\s+/', ' ', (string) $plate));
+
+        return $squeezed === '' ? null : strtoupper($squeezed);
+    }
+
+    /**
+     * Short description for lists, e.g. "Mobil · Toyota Avanza · B 1234 XYZ".
+     */
+    public function displayName(): string
+    {
+        return implode(' · ', array_filter([$this->type->label(), $this->brand_model, $this->plate_number]));
     }
 
     /**
