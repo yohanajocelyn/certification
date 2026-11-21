@@ -35,7 +35,7 @@
                             <b>Garasi {{ $rentalToday->garage->code }}</b>
                             <span class="font-normal text-primary-600 whitespace-nowrap">s.d. {{ $rentalToday->end_date->translatedFormat('d M Y') }}</span>
                         @else
-                            <x-status tone="neutral">Tidak di garasi</x-status>
+                            <span class="text-primary-600">Tidak di garasi</span>
                         @endif
                     </td>
                 </tr>
