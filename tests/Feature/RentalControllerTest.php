@@ -411,6 +411,23 @@ class RentalControllerTest extends TestCase
         $this->assertSame(2, $this->tenant->rentals()->activeOn(CarbonImmutable::today())->count());
     }
 
+    public function test_store_failing_on_step_one_returns_to_preview_which_returns_to_step_one(): void
+    {
+        // Arrange: the car gets booked elsewhere between preview and save
+        $garage = Garage::factory()->car()->create();
+        $previewUrl = route('rentals.preview', $this->details());
+        Rental::factory()->for($this->car)->for($this->tenant)->startingOn(self::TODAY)->create();
+
+        // Act
+        $storeResponse = $this->actingAs($this->tenant)->from($previewUrl)->post(route('rentals.store'), $this->storeData($garage));
+        $previewResponse = $this->actingAs($this->tenant)->from($previewUrl)->get($previewUrl);
+
+        // Assert: no redirect loop on the preview page
+        $storeResponse->assertRedirect($previewUrl);
+        $previewResponse->assertRedirect(route('rentals.create'));
+        $previewResponse->assertSessionHasErrors('vehicle_id');
+    }
+
     public function test_store_without_payment_proof_returns_validation_error(): void
     {
         $garage = Garage::factory()->car()->create();

@@ -100,10 +100,12 @@ Done when: tests green, admin can log in from seeded `.env` data.
 
 ## Batch 6 - Admin: extend rental
 
-- [ ] `Admin\RentalController@index`: rentals active today (`start_date ≤ today ≤ end_date`)
-- [ ] `Admin\RentalExtensionController@create/store`: choose daily (new end date) or monthly (number of months, D2); preview remaining cost on the server before saving; proof upload; in one transaction: overlap checks for garage and vehicle (ignoring this rental), create extension, update `rentals.end_date`
-- [ ] Views: `admin/rentals/index`, `admin/rentals/extensions/create`
-- [ ] Feature tests: daily extension cost, monthly extension days + cost, new end date not after old fails, overlap with the next booking fails, inactive (finished / future) rental cannot be extended, no upper day limit
+- [x] `Admin\RentalController@index`: rentals active today (`start_date ≤ today ≤ end_date`)
+- [x] `Admin\RentalExtensionController@create/preview/store` (two steps like the tenant flow): choose daily (new end date) or monthly (number of months, D2); preview remaining cost on the server before saving; proof upload; in one transaction: overlap checks for garage and vehicle (ignoring this rental), create extension, update `rentals.end_date`
+- [x] Views: `admin/rentals/index`, `admin/rentals/extensions/create`
+- [x] Feature tests: daily extension cost, monthly extension days + cost, new end date not after old fails, overlap with the next booking fails, inactive (finished / future) rental cannot be extended, no upper day limit
+- [x] Failed step-2 checks always return to step 1 (both flows), so a failed save can never loop on the preview page
+- [x] Tenant rental list shows extension costs under the total
 
 ## Batch 7 - Admin: reports
 

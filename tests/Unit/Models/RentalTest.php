@@ -215,6 +215,15 @@ class RentalTest extends TestCase
         $this->assertSame(RentalPeriodStatus::Finished, $rental->periodStatusOn(CarbonImmutable::parse('2026-11-26')));
     }
 
+    public function test_is_active_on_only_between_start_and_end(): void
+    {
+        $rental = Rental::factory()->daily(5)->startingOn('2026-11-21')->make();
+
+        $this->assertTrue($rental->isActiveOn(CarbonImmutable::parse('2026-11-25')));
+        $this->assertFalse($rental->isActiveOn(CarbonImmutable::parse('2026-11-26')));
+        $this->assertFalse($rental->isActiveOn(CarbonImmutable::parse('2026-11-20')));
+    }
+
     public function test_factory_rental_belongs_to_vehicle_owner(): void
     {
         $rental = Rental::factory()->create();

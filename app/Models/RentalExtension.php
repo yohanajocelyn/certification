@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\RentalType;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Database\Factories\RentalExtensionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 
 /**
  * An admin moving a rental's end date later, with its extra cost and payment proof.
@@ -18,6 +21,12 @@ class RentalExtension extends Model
     use HasFactory;
 
     public const MIN_MONTHS = 1;
+
+    /** Column limit of `days` (unsigned smallint), not a business limit: extensions have no day limit. */
+    public const MAX_DAYS = 65_535;
+
+    /** Most months that always fit in MAX_DAYS, even when every month counts 31 days. */
+    public const MAX_MONTHS = 2_114;
 
     protected $fillable = [
         'extension_type',
@@ -50,6 +59,57 @@ class RentalExtension extends Model
     public function rental(): BelongsTo
     {
         return $this->belongsTo(Rental::class);
+    }
+
+    /**
+     * An unsaved extension of the rental with its days, new end date and cost worked out,
+     * used both to show the admin the remaining cost and to save it.
+     *
+     * @param  CarbonInterface|null  $newEndDate  required for a daily extension
+     * @param  int|null  $months  required for a monthly extension
+     *
+     * @throws InvalidArgumentException when the input for the chosen type is missing
+     */
+    public static function draftFor(Rental $rental, RentalType $type, ?CarbonInterface $newEndDate, ?int $months): self
+    {
+        $oldEndDate = $rental->end_date;
+        $isMonthly = $type === RentalType::Monthly;
+
+        if ($isMonthly ? ($months === null || $months < self::MIN_MONTHS) : $newEndDate === null) {
+            throw new InvalidArgumentException('A daily extension needs a new end date, a monthly one at least one month.');
+        }
+
+        $days = $isMonthly
+            ? self::calculateMonthlyDays($oldEndDate, $months)
+            : self::calculateExtraDays($oldEndDate, $newEndDate);
+
+        $extension = new self([
+            'extension_type' => $type,
+            'months' => $isMonthly ? $months : null,
+            'days' => $days,
+            'old_end_date' => $oldEndDate,
+            'new_end_date' => $oldEndDate->addDays($days),
+            'additional_cost' => self::calculateAdditionalCost($type, (float) $rental->daily_price, $days, $months),
+        ]);
+        $extension->rental()->associate($rental);
+
+        return $extension;
+    }
+
+    /**
+     * First day the extension adds (the day after the old end date).
+     */
+    public function firstExtraDay(): CarbonImmutable
+    {
+        return $this->old_end_date->addDay();
+    }
+
+    /**
+     * Public URL of the uploaded payment proof image.
+     */
+    public function paymentProofUrl(): string
+    {
+        return Storage::disk(Rental::PAYMENT_PROOF_DISK)->url($this->payment_proof);
     }
 
     /**

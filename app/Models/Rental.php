@@ -251,6 +251,14 @@ class Rental extends Model
     }
 
     /**
+     * Whether the rental covers the given date (only active rentals can be extended).
+     */
+    public function isActiveOn(CarbonInterface $date): bool
+    {
+        return $this->periodStatusOn($date) === RentalPeriodStatus::Active;
+    }
+
+    /**
      * Public URL of the uploaded payment proof image.
      */
     public function paymentProofUrl(): string

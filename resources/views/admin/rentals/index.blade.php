@@ -1,0 +1,54 @@
+<x-layout title="Perpanjang Sewa">
+    <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-2">Perpanjang Sewa</h1>
+    <p class="text-sm text-primary-700 mb-6">
+        Garasi yang sedang disewa hari ini, {{ $today->translatedFormat('d F Y') }}. Pilih salah satu untuk memperpanjang.
+    </p>
+
+    @if ($rentals->isEmpty())
+        <x-empty-state icon="calendar-days" message="Tidak ada garasi yang sedang disewa hari ini." />
+    @else
+        <x-table>
+            <x-slot:head>
+                <th scope="col">Garasi</th>
+                <th scope="col">Penyewa</th>
+                <th scope="col">Kendaraan</th>
+                <th scope="col">Periode</th>
+                <th scope="col" class="text-right">Aksi</th>
+            </x-slot:head>
+
+            @foreach ($rentals as $rental)
+                @php $daysLeft = \App\Models\Rental::countDays($today, $rental->end_date); @endphp
+                <tr>
+                    <td>
+                        <span class="block font-bold text-primary-900">{{ $rental->garage->code }}</span>
+                        <span class="block text-xs text-primary-600">{{ $rental->garage->type->label() }}</span>
+                    </td>
+                    <td>
+                        <span class="block text-primary-900">{{ $rental->user->name }}</span>
+                        <span class="block text-xs text-primary-600">{{ $rental->user->phone }}</span>
+                    </td>
+                    <td class="text-primary-700">{{ $rental->vehicle->displayName() }}</td>
+                    <td>
+                        <span class="block text-primary-900">
+                            {{ $rental->start_date->translatedFormat('d M Y') }} – {{ $rental->end_date->translatedFormat('d M Y') }}
+                        </span>
+                        <span class="block text-xs text-primary-600">
+                            Sisa {{ $daysLeft }} hari
+                            @if ($rental->extensions_count > 0)
+                                · diperpanjang {{ $rental->extensions_count }}×
+                            @endif
+                        </span>
+                    </td>
+                    <td class="text-right">
+                        <x-link-button :href="route('admin.rentals.extensions.create', $rental)" variant="row">
+                            <x-heroicon-o-calendar-days class="w-3.5 h-3.5 text-secondary" />
+                            Perpanjang
+                        </x-link-button>
+                    </td>
+                </tr>
+            @endforeach
+        </x-table>
+
+        {{ $rentals->links() }}
+    @endif
+</x-layout>

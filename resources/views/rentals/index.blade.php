@@ -40,7 +40,14 @@
                             @endif
                         </span>
                     </td>
-                    <td class="text-right font-semibold"><x-rupiah :amount="$rental->total_cost" /></td>
+                    <td class="text-right">
+                        <x-rupiah :amount="$rental->total_cost" class="block font-semibold" />
+                        @if ($rental->extensions_count > 0)
+                            <span class="block text-xs text-primary-600">
+                                + <x-rupiah :amount="$rental->extensions_sum_additional_cost" /> perpanjangan
+                            </span>
+                        @endif
+                    </td>
                     <td><x-status :tone="$periodStatus->tone()">{{ $periodStatus->label() }}</x-status></td>
                     <td>
                         <a href="{{ $rental->paymentProofUrl() }}" target="_blank" rel="noopener"

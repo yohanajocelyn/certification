@@ -40,6 +40,7 @@ class RentalController extends Controller
         $rentals = $request->user()->rentals()
             ->with(['garage', 'vehicle'])
             ->withCount('extensions')
+            ->withSum('extensions', 'additional_cost')
             ->latest('start_date')
             ->paginate(self::RENTALS_PER_PAGE);
 
@@ -75,7 +76,13 @@ class RentalController extends Controller
      */
     public function preview(Request $request): View
     {
-        [$details, $vehicle] = $this->validateRentalDetails($request);
+        try {
+            [$details, $vehicle] = $this->validateRentalDetails($request);
+        } catch (ValidationException $exception) {
+            // Always back to step 1: "back" could be this same page and loop when saving failed.
+            throw $exception->redirectTo(route('rentals.create'));
+        }
+
         $start = $this->startDate($details);
         $end = $this->endDate($details);
 

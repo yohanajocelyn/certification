@@ -98,6 +98,9 @@ return [
     'uploaded' => ':attribute gagal diunggah.',
 
     'custom' => [
+        'new_end_date' => [
+            'after' => 'Tanggal selesai baru harus setelah tanggal selesai sewa sekarang.',
+        ],
         'kwh_price' => [
             'required' => 'Harga isi listrik per kWh wajib diisi untuk Garasi Mobil Listrik.',
             'prohibited' => 'Harga isi listrik per kWh hanya diisi untuk Garasi Mobil Listrik.',

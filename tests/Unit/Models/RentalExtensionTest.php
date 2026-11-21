@@ -7,6 +7,7 @@ use App\Models\Rental;
 use App\Models\RentalExtension;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use InvalidArgumentException;
 use Tests\TestCase;
 
 class RentalExtensionTest extends TestCase
@@ -43,6 +44,46 @@ class RentalExtensionTest extends TestCase
         $cost = RentalExtension::calculateAdditionalCost(RentalType::Monthly, self::DAILY_PRICE, 62, 2);
 
         $this->assertSame(500_000.0, $cost);
+    }
+
+    public function test_draft_for_daily_extension_counts_days_and_cost_from_new_end_date(): void
+    {
+        $rental = Rental::factory()->daily(5)->startingOn('2026-11-21')->make(['daily_price' => 10_000]);
+
+        $extension = RentalExtension::draftFor($rental, RentalType::Daily, CarbonImmutable::parse('2026-11-30'), null);
+
+        $this->assertSame(5, $extension->days);
+        $this->assertSame('2026-11-25', $extension->old_end_date->toDateString());
+        $this->assertSame('2026-11-30', $extension->new_end_date->toDateString());
+        $this->assertSame('2026-11-26', $extension->firstExtraDay()->toDateString());
+        $this->assertEquals(50_000, $extension->additional_cost);
+        $this->assertNull($extension->months);
+    }
+
+    public function test_draft_for_monthly_extension_uses_end_month_length_for_every_month(): void
+    {
+        // Ends 20 Jan 2027: 2 months = 31 + 31 days -> 23 Mar 2027
+        $rental = Rental::factory()->daily(20)->startingOn('2027-01-01')->make(['daily_price' => 10_000]);
+
+        $extension = RentalExtension::draftFor($rental, RentalType::Monthly, null, 2);
+
+        $this->assertSame(62, $extension->days);
+        $this->assertSame('2027-03-23', $extension->new_end_date->toDateString());
+        $this->assertEquals(500_000, $extension->additional_cost);
+    }
+
+    public function test_draft_for_daily_extension_without_new_end_date_throws(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        RentalExtension::draftFor(Rental::factory()->make(), RentalType::Daily, null, null);
+    }
+
+    public function test_draft_for_monthly_extension_with_zero_months_throws(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        RentalExtension::draftFor(Rental::factory()->make(), RentalType::Monthly, null, 0);
     }
 
     public function test_rental_relation_returns_extended_rental(): void
