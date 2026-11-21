@@ -58,11 +58,11 @@
                 </div>
             </div>
 
-            <div data-show-when="type:{{ GarageType::Electric->value }}" class="md:max-w-[calc(50%-0.75rem)]">
+            <x-show-when field="type" :values="[GarageType::Electric->value]" :current="old('type')" class="md:max-w-[calc(50%-0.75rem)]">
                 <x-input name="kwh_price" type="number" label="Harga Isi Listrik per kWh (Rp)"
                          min="1" max="{{ Garage::MAX_PRICE }}" step="0.01" placeholder="contoh 2500" />
                 <p class="text-sm text-primary-600 mt-1.5">Hanya untuk Garasi Mobil Listrik.</p>
-            </div>
+            </x-show-when>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-primary-200/60">
                 <x-link-button :href="route('admin.garages.index')" variant="secondary">Batal</x-link-button>

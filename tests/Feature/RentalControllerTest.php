@@ -91,6 +91,22 @@ class RentalControllerTest extends TestCase
         $this->assertSame('', $this->shownEndDate($response->getContent()));
     }
 
+    public function test_create_renders_new_vehicle_fields_hidden_when_tenant_has_a_vehicle(): void
+    {
+        $html = $this->actingAs($this->tenant)->get(route('rentals.create'))->getContent();
+
+        $this->assertMatchesRegularExpression('/data-show-when="vehicle_id:new"\s+hidden/', $html);
+    }
+
+    public function test_create_renders_new_vehicle_fields_visible_when_tenant_has_no_vehicle(): void
+    {
+        $newTenant = User::factory()->create();
+
+        $html = $this->actingAs($newTenant)->get(route('rentals.create'))->getContent();
+
+        $this->assertMatchesRegularExpression('/data-show-when="vehicle_id:new"\s+class=/', $html);
+    }
+
     public function test_create_is_forbidden_for_admin(): void
     {
         $this->actingAs(User::factory()->admin()->create())->get(route('rentals.create'))->assertForbidden();

@@ -12,6 +12,9 @@
     @fonts
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Without JavaScript nothing can reveal conditional sections, so show them all. --}}
+    <noscript><style>[data-show-when][hidden] { display: block !important; }</style></noscript>
 </head>
 <body class="font-sans antialiased bg-primary-50 text-primary-900 selection:bg-primary-300 selection:text-primary-900">
     <div class="min-h-screen flex flex-col relative overflow-x-clip">

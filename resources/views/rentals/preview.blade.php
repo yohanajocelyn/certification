@@ -78,7 +78,7 @@
                 @enderror
 
                 @foreach ($offers as $garageTypeValue => $drafts)
-                    <div data-show-when="garage_type:{{ $garageTypeValue }}">
+                    <x-show-when field="garage_type" :values="[$garageTypeValue]" :current="$selectedGarageType">
                         @if ($drafts->isEmpty())
                             <x-empty-state icon="home-modern"
                                            message="Tidak ada {{ GarageType::from($garageTypeValue)->label() }} yang tersedia untuk tanggal ini." />
@@ -104,7 +104,7 @@
                                 @endforeach
                             </div>
                         @endif
-                    </div>
+                    </x-show-when>
                 @endforeach
             </section>
 

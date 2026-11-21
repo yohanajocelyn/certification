@@ -66,13 +66,13 @@
                 @enderror
             </fieldset>
 
-            <div data-show-when="extension_type:{{ RentalType::Daily->value }}" class="md:max-w-xs">
+            <x-show-when field="extension_type" :values="[RentalType::Daily->value]" :current="$selectedType" class="md:max-w-xs">
                 <x-input name="new_end_date" type="date" label="Tanggal Selesai Baru" required
                          min="{{ $firstExtraDay->toDateString() }}" :value="$defaults['new_end_date'] ?? $firstExtraDay->toDateString()" />
                 <p class="text-sm text-primary-600 mt-1.5">Setelah {{ $rental->end_date->translatedFormat('d M Y') }}. Tidak ada batas jumlah hari.</p>
-            </div>
+            </x-show-when>
 
-            <div data-show-when="extension_type:{{ RentalType::Monthly->value }}" class="md:max-w-xs">
+            <x-show-when field="extension_type" :values="[RentalType::Monthly->value]" :current="$selectedType" class="md:max-w-xs">
                 <x-input name="months" type="number" label="Jumlah Bulan" required step="1"
                          min="{{ RentalExtension::MIN_MONTHS }}" max="{{ RentalExtension::MAX_MONTHS }}"
                          :value="$defaults['months'] ?? RentalExtension::MIN_MONTHS" />
@@ -80,7 +80,7 @@
                     Setiap bulan dihitung {{ $monthDays }} hari, sesuai jumlah hari di {{ $rental->end_date->translatedFormat('F Y') }}
                     (bulan berakhirnya sewa).
                 </p>
-            </div>
+            </x-show-when>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-primary-200/60">
                 <x-link-button :href="route('admin.rentals.index')" variant="secondary">Batal</x-link-button>

@@ -156,6 +156,7 @@ Nothing is copied from the reference. Agreed with the developer:
 
 - **Rules live in PHP only.** Totals, end dates, max days, charging and garage availability are calculated by models/controllers and shown through a two-step server form (step 1 details, step 2 summary + garage picker + upload). JavaScript never recalculates them.
 - **Small UI-only scripts are allowed** in `resources/js/app.js`: show/hide fields (plate for non-bicycles, battery fields for electric cars, days for daily rentals) and limiting garage-type options to the chosen vehicle type. Drive them with `data-*` attributes, not inline `onclick`. The server still validates every field.
+- **Conditional sections use `<x-show-when field="..." :values="[...]" :current="...">`**, never a hand-written `data-show-when` div. The component renders the section already hidden when the condition is false: `app.js` runs after the first paint, so a section hidden only by the script flashes on every page load.
 
 ## 7. Do not copy from the reference
 

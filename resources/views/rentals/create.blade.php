@@ -30,7 +30,7 @@
                               :options="$vehicleOptions" :value="$selectedVehicle" />
                 </div>
 
-                <div data-show-when="vehicle_id:{{ RentalController::NEW_VEHICLE }}"
+                <x-show-when field="vehicle_id" :values="[RentalController::NEW_VEHICLE]" :current="old('vehicle_id', $selectedVehicle)"
                      class="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 sm:p-6 rounded-2xl border border-primary-200 bg-white/60">
                     <x-select name="vehicle_type" label="Tipe Kendaraan" required placeholder="Pilih tipe"
                               :options="collect($vehicleTypes)->mapWithKeys(fn ($type) => [$type->value => $type->label()])->all()"
@@ -39,32 +39,32 @@
                     <x-input name="brand_model" label="Merek dan Tipe" required maxlength="{{ Vehicle::BRAND_MODEL_MAX_LENGTH }}"
                              placeholder="contoh Toyota Avanza" :value="$defaults['brand_model'] ?? null" />
 
-                    <div data-show-when="vehicle_type:{{ implode(',', $plateVehicleTypes) }}">
+                    <x-show-when field="vehicle_type" :values="$plateVehicleTypes" :current="old('vehicle_type', $defaults['vehicle_type'] ?? '')">
                         <x-input name="plate_number" label="Nomor Plat" required maxlength="{{ Vehicle::PLATE_MAX_LENGTH }}"
                                  placeholder="contoh B 1234 XYZ" class="uppercase" :value="$defaults['plate_number'] ?? null" />
-                    </div>
+                    </x-show-when>
 
-                    <div data-show-when="vehicle_type:{{ implode(',', $batteryVehicleTypes) }}">
+                    <x-show-when field="vehicle_type" :values="$batteryVehicleTypes" :current="old('vehicle_type', $defaults['vehicle_type'] ?? '')">
                         <x-input name="battery_capacity_kwh" type="number" label="Kapasitas Baterai Penuh (kWh)" required
                                  min="0.01" max="{{ Vehicle::MAX_BATTERY_KWH }}" step="0.01"
                                  :value="$defaults['battery_capacity_kwh'] ?? null" />
-                    </div>
+                    </x-show-when>
 
-                    <div data-show-when="vehicle_type:{{ implode(',', $batteryVehicleTypes) }}">
+                    <x-show-when field="vehicle_type" :values="$batteryVehicleTypes" :current="old('vehicle_type', $defaults['vehicle_type'] ?? '')">
                         <x-input name="current_battery_kwh" type="number" label="Sisa Baterai Saat Ini (kWh)" required
                                  min="0" step="0.01" :value="$defaults['current_battery_kwh'] ?? null" />
-                    </div>
-                </div>
+                    </x-show-when>
+                </x-show-when>
 
                 @if ($electricVehicleIds !== [])
-                    <div data-show-when="vehicle_id:{{ implode(',', $electricVehicleIds) }}" class="md:max-w-[calc(50%-0.375rem)]">
+                    <x-show-when field="vehicle_id" :values="$electricVehicleIds" :current="old('vehicle_id', $selectedVehicle)" class="md:max-w-[calc(50%-0.375rem)]">
                         <x-input name="current_battery_kwh" id="current_battery_kwh_existing" type="number"
                                  label="Sisa Baterai Saat Ini (kWh)" required
                                  min="0" step="0.01" :value="$defaults['current_battery_kwh'] ?? null" />
                         <p class="text-sm text-primary-600 mt-1.5">
                             Di Garasi Mobil Listrik, baterai diisi sampai penuh dan biayanya dihitung per kWh.
                         </p>
-                    </div>
+                    </x-show-when>
                 @endif
             </section>
 

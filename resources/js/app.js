@@ -1,7 +1,8 @@
 /*
- * Show a field only while another field in the same form has one of the given values:
- *   <div data-show-when="type:electric"> ... </div>
- *   <div data-show-when="vehicle_type:car,electric_car"> ... </div>
+ * Show a field only while another field in the same form has one of the given values.
+ * Write sections with the x-show-when Blade component, which renders
+ *   <div data-show-when="vehicle_type:car,electric_car" hidden> ... </div>
+ * already hidden when the condition is false, so nothing flashes before this script runs.
  * Hidden fields are also disabled, so the browser does not submit them.
  * This is display only: the server validates every field again.
  */
