@@ -277,6 +277,17 @@ class Rental extends Model
     }
 
     /**
+     * Rentals whose first day falls inside the period (both ends inclusive); used by the reports.
+     *
+     * @param  Builder<Rental>  $query
+     */
+    public function scopeStartingBetween(Builder $query, CarbonInterface $from, CarbonInterface $to): void
+    {
+        $query->whereDate('start_date', '>=', $from->toDateString())
+            ->whereDate('start_date', '<=', $to->toDateString());
+    }
+
+    /**
      * Rentals sharing at least one day with the period (both ends inclusive).
      *
      * @param  Builder<Rental>  $query

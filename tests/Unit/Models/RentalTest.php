@@ -224,6 +224,17 @@ class RentalTest extends TestCase
         $this->assertFalse($rental->isActiveOn(CarbonImmutable::parse('2026-11-20')));
     }
 
+    public function test_starting_between_includes_both_end_days(): void
+    {
+        Rental::factory()->startingOn('2026-11-01')->create();
+        Rental::factory()->startingOn('2026-11-30')->create();
+        Rental::factory()->startingOn('2026-12-01')->create();
+
+        $count = Rental::startingBetween(CarbonImmutable::parse('2026-11-01'), CarbonImmutable::parse('2026-11-30'))->count();
+
+        $this->assertSame(2, $count);
+    }
+
     public function test_factory_rental_belongs_to_vehicle_owner(): void
     {
         $rental = Rental::factory()->create();

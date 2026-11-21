@@ -86,6 +86,16 @@ class RentalExtensionTest extends TestCase
         RentalExtension::draftFor(Rental::factory()->make(), RentalType::Monthly, null, 0);
     }
 
+    public function test_created_between_covers_whole_end_day(): void
+    {
+        RentalExtension::factory()->create(['created_at' => '2026-11-30 23:59:00']);
+        RentalExtension::factory()->create(['created_at' => '2026-12-01 00:00:00']);
+
+        $count = RentalExtension::createdBetween(CarbonImmutable::parse('2026-11-01'), CarbonImmutable::parse('2026-11-30'))->count();
+
+        $this->assertSame(1, $count);
+    }
+
     public function test_rental_relation_returns_extended_rental(): void
     {
         $rental = Rental::factory()->create();

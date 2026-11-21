@@ -6,6 +6,7 @@ use App\Enums\RentalType;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Database\Factories\RentalExtensionFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -110,6 +111,19 @@ class RentalExtension extends Model
     public function paymentProofUrl(): string
     {
         return Storage::disk(Rental::PAYMENT_PROOF_DISK)->url($this->payment_proof);
+    }
+
+    /**
+     * Extensions made on a day inside the period (both ends inclusive); used by the reports.
+     *
+     * @param  Builder<RentalExtension>  $query
+     */
+    public function scopeCreatedBetween(Builder $query, CarbonInterface $from, CarbonInterface $to): void
+    {
+        $query->whereBetween('created_at', [
+            CarbonImmutable::instance($from)->startOfDay(),
+            CarbonImmutable::instance($to)->endOfDay(),
+        ]);
     }
 
     /**

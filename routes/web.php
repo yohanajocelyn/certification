@@ -4,6 +4,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Admin\GarageController;
 use App\Http\Controllers\Admin\RentalController as AdminRentalController;
 use App\Http\Controllers\Admin\RentalExtensionController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TenantController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -29,6 +30,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/rentals/{rental}/extensions/preview', [RentalExtensionController::class, 'preview'])
             ->name('rentals.extensions.preview');
         Route::resource('rentals.extensions', RentalExtensionController::class)->only(['create', 'store']);
+
+        Route::prefix('reports')->name('reports.')->controller(ReportController::class)->group(function () {
+            Route::get('/monthly', 'monthly')->name('monthly');
+            Route::get('/daily', 'daily')->name('daily');
+            Route::get('/garage-types', 'garageTypes')->name('garage-types');
+            Route::get('/tenants', 'tenants')->name('tenants');
+        });
     });
 
     Route::middleware('role:'.UserRole::Tenant->value)->group(function () {

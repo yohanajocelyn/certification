@@ -109,10 +109,10 @@ Done when: tests green, admin can log in from seeded `.env` data.
 
 ## Batch 7 - Admin: reports
 
-- [ ] `Admin\ReportController`: monthly (year), daily (year + month), per garage type (period), per tenant (period). Each shows rental count and revenue = rental + charging + extensions. Rentals counted by `start_date`, extensions by their `created_at`
-- [ ] Aggregate with the query builder (`whereYear` / `whereMonth`, grouping by date parts); tests and app both run on MySQL
-- [ ] Views: `admin/reports/*` with filter forms and `x-table`, totals row, empty state
-- [ ] Feature tests: correct buckets and sums, extension revenue lands in its own month, empty period renders zeros, invalid year/month fails validation
+- [x] `Admin\ReportController`: monthly (year), daily (year + month), per garage type (period), per tenant (period). Each shows rental count and revenue = rental + charging + extensions. Rentals counted by `start_date`, extensions by their `created_at`
+- [x] Load the period's rentals/extensions with Eloquent date scopes and group them in PHP collections (no raw SQL, per CLAUDE.md)
+- [x] Views: `admin/reports/*` with filter forms and `x-table`, totals row, empty state
+- [x] Feature tests: correct buckets and sums, extension revenue lands in its own month, empty period renders zeros, invalid year/month fails validation
 
 ## Batch 8 - Documentation and final check
 
