@@ -32,10 +32,10 @@ class TenantController extends Controller
         $overview = $this->tenants->overview($selectedStatus);
 
         return view('admin.tenants.index', [
-            'tenants' => $overview->tenants->withQueryString(),
+            'tenants' => $overview['tenants']->withQueryString(),
             'statuses' => UserStatus::cases(),
             'selectedStatus' => $selectedStatus,
-            'countsByStatus' => $overview->countsByStatus,
+            'countsByStatus' => $overview['countsByStatus'],
         ]);
     }
 

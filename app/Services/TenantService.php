@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Enums\UserStatus;
 use App\Exceptions\TenantAlreadyDecidedException;
 use App\Models\User;
-use App\Services\Results\TenantOverview;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Tenant use cases: registration and the admin's verification (accept or reject, once).
@@ -32,8 +32,10 @@ class TenantService
 
     /**
      * Tenants with one status (newest registration first) and the number of tenants per status.
+     *
+     * @return array{tenants: LengthAwarePaginator<int, User>, countsByStatus: array<string, int>}
      */
-    public function overview(UserStatus $status): TenantOverview
+    public function overview(UserStatus $status): array
     {
         $countsByStatus = [];
         foreach (UserStatus::cases() as $eachStatus) {
@@ -42,7 +44,7 @@ class TenantService
 
         $tenants = User::tenants()->where('status', $status)->latest()->paginate(self::TENANTS_PER_PAGE);
 
-        return new TenantOverview($tenants, $countsByStatus);
+        return ['tenants' => $tenants, 'countsByStatus' => $countsByStatus];
     }
 
     /**

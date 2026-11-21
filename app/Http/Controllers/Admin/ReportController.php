@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\ReportService;
-use App\Services\Results\ReportTable;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -80,14 +79,14 @@ class ReportController extends Controller
     /**
      * Render a report with its rows and totals row.
      *
+     * @param  array{rows: list<array<string, mixed>>, totals: array<string, mixed>}  $table  from ReportService
      * @param  array<string, mixed>  $filters
      */
-    private function report(string $report, string $bucketHeading, ReportTable $table, array $filters): View
+    private function report(string $report, string $bucketHeading, array $table, array $filters): View
     {
         return view('admin.reports.'.$report, [
             'bucketHeading' => $bucketHeading,
-            'rows' => $table->rows,
-            'totals' => $table->totals,
+            ...$table,
             'filters' => $filters,
         ]);
     }

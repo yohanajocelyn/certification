@@ -38,7 +38,7 @@ class ReportServiceTest extends TestCase
         $this->rental('2025-03-10');
 
         // Act
-        $rows = $this->service->monthly(2026)->rows;
+        $rows = $this->service->monthly(2026)['rows'];
 
         // Assert: index 2 = March, index 6 = July; 2025 left out
         $this->assertCount(12, $rows);
@@ -54,7 +54,7 @@ class ReportServiceTest extends TestCase
         $rental = $this->rental('2026-11-28');
         RentalExtension::factory()->for($rental)->create(['days' => 2, 'additional_cost' => 20_000, 'created_at' => '2026-12-01 10:00:00']);
 
-        $rows = $this->service->monthly(2026)->rows;
+        $rows = $this->service->monthly(2026)['rows'];
 
         $this->assertEquals(30_000, $rows[10]['total_revenue']);
         $this->assertSame(1, $rows[11]['extensions']);
@@ -66,7 +66,7 @@ class ReportServiceTest extends TestCase
     {
         $this->rental('2026-05-10', ['charging_kwh' => 40, 'charging_cost' => 100_000, 'total_cost' => 130_000]);
 
-        $this->assertEquals(130_000, $this->service->monthly(2026)->rows[4]['rental_revenue']);
+        $this->assertEquals(130_000, $this->service->monthly(2026)['rows'][4]['rental_revenue']);
     }
 
     public function test_totals_add_up_every_row(): void
@@ -74,7 +74,7 @@ class ReportServiceTest extends TestCase
         $this->rental('2026-01-10');
         $this->rental('2026-08-10');
 
-        $totals = $this->service->monthly(2026)->totals;
+        $totals = $this->service->monthly(2026)['totals'];
 
         $this->assertSame('Total', $totals['label']);
         $this->assertSame(2, $totals['rentals']);
@@ -85,9 +85,9 @@ class ReportServiceTest extends TestCase
 
     public function test_daily_has_one_row_per_day_of_the_month(): void
     {
-        $this->assertCount(28, $this->service->daily(2027, 2)->rows);
-        $this->assertCount(29, $this->service->daily(2028, 2)->rows);
-        $this->assertCount(30, $this->service->daily(2026, 11)->rows);
+        $this->assertCount(28, $this->service->daily(2027, 2)['rows']);
+        $this->assertCount(29, $this->service->daily(2028, 2)['rows']);
+        $this->assertCount(30, $this->service->daily(2026, 11)['rows']);
     }
 
     public function test_daily_counts_rentals_on_their_start_day(): void
@@ -97,7 +97,7 @@ class ReportServiceTest extends TestCase
         $this->rental('2026-11-30');
         $this->rental('2026-12-01');
 
-        $rows = $this->service->daily(2026, 11)->rows;
+        $rows = $this->service->daily(2026, 11)['rows'];
 
         $this->assertSame(2, $rows[20]['rentals']);
         $this->assertSame(1, $rows[29]['rentals']);
@@ -114,7 +114,7 @@ class ReportServiceTest extends TestCase
         RentalExtension::factory()->for($carRental)->create(['additional_cost' => 50_000, 'created_at' => '2026-11-10 09:00:00']);
 
         // Act
-        $rows = collect($this->service->garageTypes($this->date('2026-11-01'), $this->date('2026-11-30'))->rows)->keyBy('label');
+        $rows = collect($this->service->garageTypes($this->date('2026-11-01'), $this->date('2026-11-30'))['rows'])->keyBy('label');
 
         // Assert
         $this->assertSame(1, $rows[GarageType::Bike->label()]['rentals']);
@@ -128,7 +128,7 @@ class ReportServiceTest extends TestCase
         $this->rental('2026-11-30');
         $this->rental('2026-12-01');
 
-        $totals = $this->service->garageTypes($this->date('2026-11-01'), $this->date('2026-11-30'))->totals;
+        $totals = $this->service->garageTypes($this->date('2026-11-01'), $this->date('2026-11-30'))['totals'];
 
         $this->assertSame(2, $totals['rentals']);
     }
@@ -145,7 +145,7 @@ class ReportServiceTest extends TestCase
         $this->rental('2026-11-04', [], null, $sari);
 
         // Act
-        $rows = $this->service->tenants($this->date('2026-11-01'), $this->date('2026-11-30'))->rows;
+        $rows = $this->service->tenants($this->date('2026-11-01'), $this->date('2026-11-30'))['rows'];
 
         // Assert
         $this->assertCount(2, $rows);
@@ -160,7 +160,7 @@ class ReportServiceTest extends TestCase
         $rental = $this->rental('2026-10-28', [], null, $tenant);
         RentalExtension::factory()->for($rental)->create(['additional_cost' => 20_000, 'created_at' => '2026-11-02 08:00:00']);
 
-        $rows = $this->service->tenants($this->date('2026-11-01'), $this->date('2026-11-30'))->rows;
+        $rows = $this->service->tenants($this->date('2026-11-01'), $this->date('2026-11-30'))['rows'];
 
         $this->assertCount(1, $rows);
         $this->assertSame(0, $rows[0]['rentals']);
@@ -169,7 +169,7 @@ class ReportServiceTest extends TestCase
 
     public function test_tenants_without_activity_has_no_rows(): void
     {
-        $this->assertSame([], $this->service->tenants($this->date('2026-11-01'), $this->date('2026-11-30'))->rows);
+        $this->assertSame([], $this->service->tenants($this->date('2026-11-01'), $this->date('2026-11-30'))['rows']);
     }
 
     // ---- Helpers --------------------------------------------------------------------------

@@ -77,11 +77,11 @@ class TenantServiceTest extends TestCase
 
         $overview = $this->service->overview(UserStatus::Pending);
 
-        $this->assertSame(2, $overview->tenants->total());
+        $this->assertSame(2, $overview['tenants']->total());
         $this->assertSame([
             UserStatus::Pending->value => 2,
             UserStatus::Approved->value => 0,
             UserStatus::Rejected->value => 1,
-        ], $overview->countsByStatus);
+        ], $overview['countsByStatus']);
     }
 }

@@ -6,7 +6,6 @@ use App\Enums\GarageType;
 use App\Models\Rental;
 use App\Models\RentalExtension;
 use App\Models\User;
-use App\Services\Results\ReportTable;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
@@ -25,8 +24,10 @@ class ReportService
 
     /**
      * One row per month of the year (January to December, empty months included).
+     *
+     * @return array{rows: list<array<string, mixed>>, totals: array<string, mixed>} one row per bucket and a totals row (shape in table())
      */
-    public function monthly(int $year): ReportTable
+    public function monthly(int $year): array
     {
         $yearStart = CarbonImmutable::create($year)->startOfYear();
         $months = collect(range(1, self::MONTHS_IN_YEAR))
@@ -45,8 +46,9 @@ class ReportService
      * One row per day of the month (28 to 31 rows, empty days included).
      *
      * @param  int  $month  1 to 12
+     * @return array{rows: list<array<string, mixed>>, totals: array<string, mixed>} one row per bucket and a totals row (shape in table())
      */
-    public function daily(int $year, int $month): ReportTable
+    public function daily(int $year, int $month): array
     {
         $monthStart = CarbonImmutable::create($year, $month)->startOfMonth();
         $days = collect(range(1, $monthStart->daysInMonth))
@@ -63,8 +65,10 @@ class ReportService
 
     /**
      * One row per garage type for the period (both ends inclusive).
+     *
+     * @return array{rows: list<array<string, mixed>>, totals: array<string, mixed>} one row per bucket and a totals row (shape in table())
      */
-    public function garageTypes(CarbonInterface $from, CarbonInterface $to): ReportTable
+    public function garageTypes(CarbonInterface $from, CarbonInterface $to): array
     {
         $types = collect(GarageType::cases())->mapWithKeys(fn (GarageType $type) => [$type->value => $type->label()]);
 
@@ -80,8 +84,10 @@ class ReportService
     /**
      * One row per tenant with rentals or extensions in the period, highest total revenue first.
      * A rental's tenant is its vehicle's owner.
+     *
+     * @return array{rows: list<array<string, mixed>>, totals: array<string, mixed>} one row per bucket and a totals row (shape in table())
      */
-    public function tenants(CarbonInterface $from, CarbonInterface $to): ReportTable
+    public function tenants(CarbonInterface $from, CarbonInterface $to): array
     {
         $rentals = Rental::query()->startingBetween($from, $to)->with('vehicle.user')->get();
         $extensions = RentalExtension::query()->createdBetween($from, $to)->with('rental.vehicle.user')->get();
@@ -154,14 +160,15 @@ class ReportService
      * Wrap the rows with their totals row.
      *
      * @param  list<array<string, mixed>>  $rows
+     * @return array{rows: list<array{label: string, rentals: int, rental_revenue: float, extensions: int, extension_revenue: float, total_revenue: float}>, totals: array{label: string, rentals: int, rental_revenue: float, extensions: int, extension_revenue: float, total_revenue: float}}
      */
-    private function table(array $rows): ReportTable
+    private function table(array $rows): array
     {
         $totals = ['label' => 'Total'];
         foreach (self::SUMMED_COLUMNS as $column) {
             $totals[$column] = array_sum(array_column($rows, $column));
         }
 
-        return new ReportTable($rows, $totals);
+        return ['rows' => $rows, 'totals' => $totals];
     }
 }
