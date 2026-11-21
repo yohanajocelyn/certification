@@ -15,8 +15,8 @@
     </div>
     <div>
         <dt class="{{ $termClass }}">Penyewa</dt>
-        <dd class="{{ $valueClass }}">{{ $rental->user->name }}
-            <span class="block text-sm font-medium text-primary-600">{{ $rental->user->phone }}</span>
+        <dd class="{{ $valueClass }}">{{ $rental->vehicle->user->name }}
+            <span class="block text-sm font-medium text-primary-600">{{ $rental->vehicle->user->phone }}</span>
         </dd>
     </div>
     <div class="col-span-2">

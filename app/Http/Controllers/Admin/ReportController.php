@@ -103,10 +103,10 @@ class ReportController extends Controller
     {
         [$from, $to, $filters] = $this->validatePeriod($request, 'admin.reports.tenants');
 
-        $rentals = Rental::query()->startingBetween($from, $to)->with('user')->get();
-        $extensions = RentalExtension::query()->createdBetween($from, $to)->with('rental.user')->get();
-        $tenants = $rentals->pluck('user')
-            ->merge($extensions->pluck('rental.user'))
+        $rentals = Rental::query()->startingBetween($from, $to)->with('vehicle.user')->get();
+        $extensions = RentalExtension::query()->createdBetween($from, $to)->with('rental.vehicle.user')->get();
+        $tenants = $rentals->pluck('vehicle.user')
+            ->merge($extensions->pluck('rental.vehicle.user'))
             ->unique('id')
             ->mapWithKeys(fn (User $tenant) => [$tenant->id => $tenant->name.' ('.$tenant->email.')']);
 
@@ -114,8 +114,8 @@ class ReportController extends Controller
             $tenants,
             $rentals,
             $extensions,
-            fn (Rental $rental) => $rental->user_id,
-            fn (RentalExtension $extension) => $extension->rental->user_id,
+            fn (Rental $rental) => $rental->vehicle->user_id,
+            fn (RentalExtension $extension) => $extension->rental->vehicle->user_id,
         ))->sortByDesc('total_revenue')->values()->all();
 
         return $this->report('tenants', 'Penyewa', $rows, $filters);

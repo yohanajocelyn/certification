@@ -45,7 +45,7 @@ class RentalControllerTest extends TestCase
     public function test_index_shows_tenant_and_days_left(): void
     {
         $tenant = User::factory()->create(['name' => 'Budi Santoso']);
-        Rental::factory()->for($tenant)->for(Vehicle::factory()->for($tenant))
+        Rental::factory()->for(Vehicle::factory()->for($tenant))
             ->daily(5)->startingOn(self::TODAY)->create();
 
         $response = $this->actingAs($this->admin)->get(route('admin.rentals.index'));

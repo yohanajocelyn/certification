@@ -11,8 +11,8 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Builds a consistent rental: the tenant owns the vehicle, and dates and costs follow the
- * Rental rules. Default: a 3-day daily rental of a car garage starting today.
+ * Builds a consistent rental whose dates and costs follow the Rental rules; the tenant is the
+ * vehicle's owner. Default: a 3-day daily rental of a car garage starting today.
  *
  * @extends Factory<Rental>
  */
@@ -29,7 +29,6 @@ class RentalFactory extends Factory
     {
         return [
             'vehicle_id' => Vehicle::factory(),
-            'user_id' => fn (array $attributes) => Vehicle::findOrFail($attributes['vehicle_id'])->user_id,
             'garage_id' => Garage::factory(),
             'current_battery_kwh' => null,
             'rental_type' => RentalType::Daily,

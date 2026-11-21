@@ -1,6 +1,5 @@
 erDiagram
     USERS ||--o{ VEHICLES : "owns (ON DELETE CASCADE)"
-    USERS ||--o{ RENTALS : "makes (ON DELETE RESTRICT)"
     GARAGES ||--o{ RENTALS : "is rented in (ON DELETE RESTRICT)"
     VEHICLES ||--o{ RENTALS : "is parked in (ON DELETE RESTRICT)"
     RENTALS ||--o{ RENTAL_EXTENSIONS : "is extended by (ON DELETE CASCADE)"
@@ -32,7 +31,6 @@ erDiagram
     }
     RENTALS {
         bigint id PK
-        bigint user_id FK "NOT NULL"
         bigint garage_id FK "NOT NULL"
         bigint vehicle_id FK "NOT NULL"
         decimal current_battery_kwh "NULL, electric only"

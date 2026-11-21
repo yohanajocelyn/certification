@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -67,11 +68,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Garage rentals made by this tenant.
+     * Garage rentals of this tenant, found through their vehicles (rentals have no user_id).
      */
-    public function rentals(): HasMany
+    public function rentals(): HasManyThrough
     {
-        return $this->hasMany(Rental::class);
+        return $this->hasManyThrough(Rental::class, Vehicle::class);
     }
 
     /**

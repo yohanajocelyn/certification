@@ -8,9 +8,12 @@ use App\Enums\RentalType;
 use App\Enums\VehicleType;
 use App\Models\Garage;
 use App\Models\Rental;
+use App\Models\User;
 use App\Models\Vehicle;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
 use Tests\TestCase;
 
@@ -235,11 +238,47 @@ class RentalTest extends TestCase
         $this->assertSame(2, $count);
     }
 
-    public function test_factory_rental_belongs_to_vehicle_owner(): void
+    public function test_rentals_table_has_no_user_id_column(): void
     {
-        $rental = Rental::factory()->create();
+        $this->assertFalse(Schema::hasColumn('rentals', 'user_id'));
+    }
 
-        $this->assertTrue($rental->user->is($rental->vehicle->user));
+    public function test_tenant_of_a_rental_is_the_owner_of_its_vehicle(): void
+    {
+        $tenant = User::factory()->create();
+        $rental = Rental::factory()->for(Vehicle::factory()->for($tenant))->create();
+
+        $this->assertTrue($rental->vehicle->user->is($tenant));
+    }
+
+    public function test_tenant_rentals_are_found_through_their_own_vehicles_only(): void
+    {
+        $tenant = User::factory()->create();
+        $car = Vehicle::factory()->for($tenant)->create();
+        $bicycle = Vehicle::factory()->bicycle()->for($tenant)->create();
+        $ownRentals = [
+            Rental::factory()->for($car, 'vehicle')->create(),
+            Rental::factory()->for($bicycle, 'vehicle')->create(),
+        ];
+        Rental::factory()->create();
+
+        $this->assertEqualsCanonicalizing(
+            array_map(fn (Rental $rental) => $rental->id, $ownRentals),
+            $tenant->rentals()->pluck('rentals.id')->all(),
+        );
+    }
+
+    public function test_tenant_with_rentals_cannot_be_deleted_so_history_is_kept(): void
+    {
+        // Deleting the user cascades to the vehicles, which rentals restrict.
+        $rental = Rental::factory()->create();
+        $this->expectException(QueryException::class);
+
+        try {
+            $rental->vehicle->user->delete();
+        } finally {
+            $this->assertDatabaseHas('rentals', ['id' => $rental->id]);
+        }
     }
 
     private function electricCar(float $capacityKwh): Vehicle

@@ -6,7 +6,6 @@ Column details and business rules: `database-structure.md`. Every table also has
 ```mermaid
 erDiagram
     USERS ||--o{ VEHICLES : "owns (ON DELETE CASCADE)"
-    USERS ||--o{ RENTALS : "makes (ON DELETE RESTRICT)"
     GARAGES ||--o{ RENTALS : "is rented in (ON DELETE RESTRICT)"
     VEHICLES ||--o{ RENTALS : "is parked in (ON DELETE RESTRICT)"
     RENTALS ||--o{ RENTAL_EXTENSIONS : "is extended by (ON DELETE CASCADE)"
@@ -38,7 +37,6 @@ erDiagram
     }
     RENTALS {
         bigint id PK
-        bigint user_id FK "NOT NULL"
         bigint garage_id FK "NOT NULL"
         bigint vehicle_id FK "NOT NULL"
         decimal current_battery_kwh "NULL, electric only"
@@ -72,11 +70,10 @@ erDiagram
 | Relationship | Cardinality | Foreign key | ON DELETE | Why |
 |---|---|---|---|---|
 | User owns Vehicle | 1 : N | `vehicles.user_id` | CASCADE | A vehicle has no meaning without its owner |
-| User makes Rental | 1 : N | `rentals.user_id` | RESTRICT | Rental history must be kept |
 | Garage is rented in Rental | 1 : N | `rentals.garage_id` | RESTRICT | A garage with rentals cannot disappear |
 | Vehicle is parked in Rental | 1 : N | `rentals.vehicle_id` | RESTRICT | Rentals keep their vehicle (no copied vehicle details) |
 | Rental is extended by RentalExtension | 1 : N | `rental_extensions.rental_id` | CASCADE | An extension has no meaning without its rental |
-| User rents Garage | M : N | through `rentals` | | |
+| User rents Garage | M : N | through `vehicles` and `rentals` | | A rental's tenant is its vehicle's owner (no `rentals.user_id`); deleting a user with rentals is blocked by the vehicle RESTRICT |
 
 ## Constraints
 

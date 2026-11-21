@@ -33,7 +33,7 @@ class RentalExtensionController extends Controller
             return $this->notActiveRedirect();
         }
 
-        $rental->load(['user', 'garage', 'vehicle', 'extensions']);
+        $rental->load(['garage', 'vehicle.user', 'extensions']);
 
         return view('admin.rentals.extensions.create', [
             'rental' => $rental,
@@ -58,7 +58,7 @@ class RentalExtensionController extends Controller
             throw $exception->redirectTo(route('admin.rentals.extensions.create', $rental));
         }
 
-        $rental->load(['user', 'garage', 'vehicle']);
+        $rental->load(['garage', 'vehicle.user']);
 
         return view('admin.rentals.extensions.preview', [
             'rental' => $rental,

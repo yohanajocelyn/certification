@@ -22,8 +22,8 @@
                         <span class="block text-sm text-primary-600">{{ $rental->garage->type->label() }}</span>
                     </td>
                     <td data-label="Penyewa">
-                        <span class="block text-primary-900">{{ $rental->user->name }}</span>
-                        <span class="block text-sm text-primary-600">{{ $rental->user->phone }}</span>
+                        <span class="block text-primary-900">{{ $rental->vehicle->user->name }}</span>
+                        <span class="block text-sm text-primary-600">{{ $rental->vehicle->user->phone }}</span>
                     </td>
                     <td data-label="Kendaraan" class="text-primary-700">{{ $rental->vehicle->displayName() }}</td>
                     <td data-label="Periode">

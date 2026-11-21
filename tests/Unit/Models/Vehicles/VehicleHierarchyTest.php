@@ -147,7 +147,7 @@ class VehicleHierarchyTest extends TestCase
     {
         $tenant = User::factory()->create();
         Vehicle::factory()->electricCar()->for($tenant)->create();
-        $rental = Rental::factory()->for(Vehicle::factory()->bicycle()->for($tenant))->for($tenant)->create();
+        $rental = Rental::factory()->for(Vehicle::factory()->bicycle()->for($tenant))->create();
 
         $this->assertInstanceOf(ElectricCar::class, $tenant->vehicles()->where('type', VehicleType::ElectricCar)->first());
         $this->assertInstanceOf(Bicycle::class, $rental->fresh()->vehicle);

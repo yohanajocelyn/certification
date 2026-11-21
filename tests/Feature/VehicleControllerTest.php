@@ -41,7 +41,7 @@ class VehicleControllerTest extends TestCase
     public function test_index_shows_the_garage_a_vehicle_is_in_today(): void
     {
         $car = Vehicle::factory()->for($this->tenant)->create();
-        Rental::factory()->for($car, 'vehicle')->for($this->tenant)
+        Rental::factory()->for($car, 'vehicle')
             ->for(Garage::factory()->car()->create(['code' => 'C007']))
             ->daily(5)->startingOn(self::TODAY)->create();
 
@@ -53,7 +53,7 @@ class VehicleControllerTest extends TestCase
     public function test_index_does_not_count_a_future_booking_as_parked_today(): void
     {
         $car = Vehicle::factory()->for($this->tenant)->create();
-        Rental::factory()->for($car, 'vehicle')->for($this->tenant)->startingOn('2026-12-01')->create();
+        Rental::factory()->for($car, 'vehicle')->startingOn('2026-12-01')->create();
 
         $response = $this->actingAs($this->tenant)->get(route('vehicles.index'));
 

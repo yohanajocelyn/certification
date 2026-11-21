@@ -65,6 +65,10 @@ Done when: all unit tests green.
 
 - [x] Done after Batch 7, see `docs/plans/oop-plan.md`: `Vehicle` parent implementing `Parkable`, children `Bicycle`, `Motorcycle`, `Car`, `ElectricCar` (single-table inheritance on `vehicles.type`); `VehicleType` keeps only cases and labels
 
+## Change - rentals.user_id removed
+
+- [x] A rental's tenant is traced through its vehicle (`$rental->vehicle->user`); `User::rentals()` is a HasManyThrough via `vehicles`. Migration edited in place (run `php artisan migrate:fresh --seed`); ERD and database structure updated
+
 ## Batch 2 - Layout, auth, roles, seeding
 
 Owners: laravel-backend (controllers, middleware, seeders, tests) -> laravel-frontend (views).

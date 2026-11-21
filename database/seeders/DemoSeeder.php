@@ -73,19 +73,19 @@ class DemoSeeder extends Seeder
         $today = CarbonImmutable::today();
 
         $car = Vehicle::factory()->for($tenants[0])->create();
-        Rental::factory()->for($car, 'vehicle')->for($tenants[0])->for($garages[GarageType::Car->value][0])
+        Rental::factory()->for($car, 'vehicle')->for($garages[GarageType::Car->value][0])
             ->daily(5)->startingOn($today->subDays(2))->create();
 
         $bicycle = Vehicle::factory()->bicycle()->for($tenants[0])->create();
-        Rental::factory()->for($bicycle, 'vehicle')->for($tenants[0])->for($garages[GarageType::Bike->value][0])
+        Rental::factory()->for($bicycle, 'vehicle')->for($garages[GarageType::Bike->value][0])
             ->monthly()->startingOn($today)->create();
 
         $electricCar = Vehicle::factory()->electricCar()->for($tenants[1])->create();
-        Rental::factory()->for($electricCar, 'vehicle')->for($tenants[1])->for($garages[GarageType::Car->value][1])
+        Rental::factory()->for($electricCar, 'vehicle')->for($garages[GarageType::Car->value][1])
             ->daily(3)->startingOn($today->addWeek())->create();
 
         $motorcycle = Vehicle::factory()->motorcycle()->for($tenants[2])->create();
-        Rental::factory()->for($motorcycle, 'vehicle')->for($tenants[2])->for($garages[GarageType::Bike->value][1])
+        Rental::factory()->for($motorcycle, 'vehicle')->for($garages[GarageType::Bike->value][1])
             ->daily(4)->startingOn($today->subMonth())->create();
     }
 }

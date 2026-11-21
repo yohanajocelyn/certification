@@ -23,7 +23,7 @@ class RentalController extends Controller
 
         $rentals = Rental::query()
             ->activeOn($today)
-            ->with(['user', 'garage', 'vehicle'])
+            ->with(['garage', 'vehicle.user'])
             ->withCount('extensions')
             ->orderBy('end_date')
             ->orderBy('id')

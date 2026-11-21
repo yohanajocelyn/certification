@@ -143,7 +143,7 @@ class RentalExtensionControllerTest extends TestCase
 
     public function test_preview_when_vehicle_is_booked_in_another_garage_returns_validation_error(): void
     {
-        Rental::factory()->for($this->rental->vehicle, 'vehicle')->for($this->rental->user)->daily(2)->startingOn('2026-11-27')->create();
+        Rental::factory()->for($this->rental->vehicle, 'vehicle')->daily(2)->startingOn('2026-11-27')->create();
 
         $this->actingAs($this->admin)->get(route('admin.rentals.extensions.preview', [
             $this->rental, 'extension_type' => RentalType::Daily->value, 'new_end_date' => '2026-11-30',
@@ -229,7 +229,7 @@ class RentalExtensionControllerTest extends TestCase
 
     public function test_store_is_forbidden_for_tenant(): void
     {
-        $response = $this->actingAs($this->rental->user)->post(route('admin.rentals.extensions.store', $this->rental), [
+        $response = $this->actingAs($this->rental->vehicle->user)->post(route('admin.rentals.extensions.store', $this->rental), [
             'extension_type' => RentalType::Daily->value,
             'new_end_date' => '2026-11-30',
             'payment_proof' => UploadedFile::fake()->image('bukti.jpg'),
@@ -249,7 +249,7 @@ class RentalExtensionControllerTest extends TestCase
 
         $this->actingAs($this->admin)->get(route('admin.rentals.extensions.create', $this->rental))
             ->assertSee('Riwayat Perpanjangan');
-        $this->actingAs($this->rental->user)->get(route('rentals.index'))
+        $this->actingAs($this->rental->vehicle->user)->get(route('rentals.index'))
             ->assertSee('30 Nov 2026')
             ->assertSee('diperpanjang 1×')
             ->assertSeeTextInOrder(['+', 'Rp 50.000', 'perpanjangan']);

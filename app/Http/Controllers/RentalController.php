@@ -227,7 +227,8 @@ class RentalController extends Controller
         }
 
         $draft->payment_proof = $paymentProof->store(Rental::PAYMENT_PROOF_DIRECTORY, Rental::PAYMENT_PROOF_DISK);
-        $tenant->rentals()->save($draft);
+        // The vehicle links the rental to the tenant; rentals have no user_id of their own.
+        $draft->save();
 
         return $draft;
     }

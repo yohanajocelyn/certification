@@ -50,7 +50,6 @@ Single-table inheritance: every vehicle type lives in this one table. `type` dec
 | Column | Type | Rules |
 |---|---|---|
 | id | bigint PK | |
-| user_id | bigint FK → users.id | NOT NULL, ON DELETE RESTRICT |
 | garage_id | bigint FK → garages.id | NOT NULL, ON DELETE RESTRICT |
 | vehicle_id | bigint FK → vehicles.id | NOT NULL, ON DELETE RESTRICT (rental history keeps its vehicle) |
 | current_battery_kwh | decimal(6,2) | NULL, battery level entered at rental time (electric cars only), must be ≤ capacity |
@@ -68,6 +67,8 @@ Single-table inheritance: every vehicle type lives in this one table. `type` dec
 | timestamps | | |
 | index | (garage_id, start_date, end_date) | speeds up the garage overlap check |
 | index | (vehicle_id, start_date, end_date) | speeds up the vehicle overlap check |
+
+A rental's tenant is the owner of its vehicle (`$rental->vehicle->user`); rentals do not store a `user_id`. History is still protected: deleting a user cascades to their vehicles, and `rentals.vehicle_id` RESTRICT blocks deleting a vehicle that has rentals.
 
 **rental_extensions**
 
@@ -89,11 +90,11 @@ Single-table inheritance: every vehicle type lives in this one table. `type` dec
 | From | To | Cardinality | FK and ON DELETE |
 |---|---|---|---|
 | User | Vehicle | 1 – N | vehicles.user_id, CASCADE |
-| User | Rental | 1 – N | rentals.user_id, RESTRICT |
+| User | Rental | 1 – N through Vehicle | no user_id on rentals: vehicles.user_id + rentals.vehicle_id (`User::rentals()` is a HasManyThrough) |
 | Garage | Rental | 1 – N | rentals.garage_id, RESTRICT |
 | Vehicle | Rental | 1 – N | rentals.vehicle_id, RESTRICT |
 | Rental | RentalExtension | 1 – N | rental_extensions.rental_id, CASCADE |
-| User | Garage | M – N through `rentals` | |
+| User | Garage | M – N through `vehicles` and `rentals` | |
 
 ### ERD (Mermaid)
 

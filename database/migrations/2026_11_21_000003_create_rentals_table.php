@@ -17,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('rentals', function (Blueprint $table) {
             $table->id();
-            // Restrict: rental history must survive, so its tenant, garage and vehicle cannot be deleted.
-            $table->foreignId('user_id')->constrained()->restrictOnDelete();
+            // Restrict: rental history must survive, so its garage and vehicle cannot be deleted.
+            // The tenant is reached through the vehicle (vehicles.user_id), so no user_id column here.
             $table->foreignId('garage_id')->constrained()->restrictOnDelete();
             $table->foreignId('vehicle_id')->constrained()->restrictOnDelete();
             $table->decimal('current_battery_kwh', Vehicle::KWH_PRECISION, Vehicle::KWH_SCALE)->nullable();

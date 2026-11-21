@@ -235,7 +235,7 @@ class ReportControllerTest extends TestCase
 
         return Rental::factory()
             ->for($garage)
-            ->for($tenant)
+
             ->for(Vehicle::factory()->for($tenant))
             ->daily(3)
             ->startingOn($startDate)

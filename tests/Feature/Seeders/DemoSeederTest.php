@@ -32,7 +32,7 @@ class DemoSeederTest extends TestCase
         $this->assertDatabaseHas('garages', ['code' => 'E001']);
     }
 
-    public function test_demo_rentals_belong_to_the_vehicle_owner_and_fit_the_garage(): void
+    public function test_demo_rentals_belong_to_an_approved_tenant_and_fit_the_garage(): void
     {
         $this->seed(DemoSeeder::class);
 
@@ -40,7 +40,7 @@ class DemoSeederTest extends TestCase
 
         $this->assertNotEmpty($rentals);
         foreach ($rentals as $rental) {
-            $this->assertSame($rental->user_id, $rental->vehicle->user_id);
+            $this->assertTrue($rental->vehicle->user->isApproved());
             $this->assertTrue($rental->vehicle->canParkIn($rental->garage->type));
         }
         $this->assertGreaterThan(0, Garage::count());

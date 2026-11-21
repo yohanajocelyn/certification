@@ -77,14 +77,6 @@ class Rental extends Model
     }
 
     /**
-     * The tenant who made this rental.
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
      * The rented garage.
      */
     public function garage(): BelongsTo
@@ -93,7 +85,7 @@ class Rental extends Model
     }
 
     /**
-     * The vehicle parked in the garage.
+     * The vehicle parked in the garage; its owner is the rental's tenant ($rental->vehicle->user).
      */
     public function vehicle(): BelongsTo
     {
