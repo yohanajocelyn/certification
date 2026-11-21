@@ -105,9 +105,9 @@ class GarageControllerTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.garages.create'));
 
         $response->assertOk();
-        $response->assertSee('Kode berikutnya S001');
-        $response->assertSee('Kode berikutnya C011');
-        $response->assertSee('Kode berikutnya E001');
+        $response->assertSee('Mulai dari S001');
+        $response->assertSee('Mulai dari C011');
+        $response->assertSee('Mulai dari E001');
     }
 
     public function test_store_first_bike_batch_creates_codes_from_s001(): void

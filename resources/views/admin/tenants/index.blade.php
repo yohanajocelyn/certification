@@ -12,10 +12,7 @@
 @endphp
 
 <x-layout title="Verifikasi Penyewa">
-    <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-2">Verifikasi Penyewa</h1>
-    <p class="text-base text-primary-700 mb-6">
-        Cocokkan NIK dengan KTP pendaftar, lalu terima atau tolak pendaftarannya.
-    </p>
+    <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-6">Verifikasi Penyewa</h1>
 
     <nav aria-label="Saring status pendaftaran" class="flex flex-wrap items-center gap-2 mb-6">
         @foreach ($statuses as $status)

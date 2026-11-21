@@ -14,7 +14,7 @@ class LoginTest extends TestCase
 
     public function test_login_page_renders_for_guest(): void
     {
-        $this->get(route('login'))->assertOk()->assertSee('Masuk ke akun Anda');
+        $this->get(route('login'))->assertOk()->assertSee('name="email"', false)->assertSee('name="password"', false);
     }
 
     public function test_login_with_valid_credentials_for_approved_tenant_redirects_home(): void

@@ -38,7 +38,4 @@
     </x-slot:foot>
 </x-table>
 
-<p class="text-sm text-primary-600 mt-3">
-    Pendapatan sewa = biaya sewa + isi baterai, dihitung pada tanggal mulai sewa.
-    Perpanjangan dihitung pada tanggal perpanjangan dibuat.
-</p>
+<p class="text-sm text-primary-600 mt-3">Sewa dihitung dari tanggal mulai, perpanjangan dari tanggal dibuat.</p>

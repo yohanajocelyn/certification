@@ -15,8 +15,7 @@
             Kembali ke daftar sewa hari ini
         </a>
 
-        <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-2">Perpanjang Sewa {{ $rental->garage->code }}</h1>
-        <p class="text-base text-primary-700 mb-6">Langkah 1 dari 2: pilih cara memperpanjang. Sisa biaya tampil di langkah berikutnya.</p>
+        <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-6">Perpanjang Sewa {{ $rental->garage->code }}</h1>
 
         <x-rental-summary :rental="$rental" class="mb-8" />
 
@@ -57,7 +56,6 @@
                 <div class="grid grid-cols-2 gap-3 md:max-w-md">
                     @foreach ($rentalTypes as $rentalType)
                         <x-choice-card name="extension_type" :value="$rentalType->value" :label="$rentalType->label()"
-                                       :description="$rentalType === RentalType::Monthly ? 'Per bulan, harga bulanan' : 'Pilih tanggal selesai baru'"
                                        :checked="$selectedType === $rentalType->value" required />
                     @endforeach
                 </div>
@@ -69,17 +67,13 @@
             <x-show-when field="extension_type" :values="[RentalType::Daily->value]" :current="$selectedType" class="md:max-w-xs">
                 <x-input name="new_end_date" type="date" label="Tanggal Selesai Baru" required
                          min="{{ $firstExtraDay->toDateString() }}" :value="$defaults['new_end_date'] ?? $firstExtraDay->toDateString()" />
-                <p class="text-sm text-primary-600 mt-1.5">Setelah {{ $rental->end_date->translatedFormat('d M Y') }}. Tidak ada batas jumlah hari.</p>
             </x-show-when>
 
             <x-show-when field="extension_type" :values="[RentalType::Monthly->value]" :current="$selectedType" class="md:max-w-xs">
                 <x-input name="months" type="number" label="Jumlah Bulan" required step="1"
                          min="{{ RentalExtension::MIN_MONTHS }}" max="{{ RentalExtension::MAX_MONTHS }}"
                          :value="$defaults['months'] ?? RentalExtension::MIN_MONTHS" />
-                <p class="text-sm text-primary-600 mt-1.5">
-                    Setiap bulan dihitung {{ $monthDays }} hari, sesuai jumlah hari di {{ $rental->end_date->translatedFormat('F Y') }}
-                    (bulan berakhirnya sewa).
-                </p>
+                <p class="text-sm text-primary-600 mt-1.5">1 bulan = {{ $monthDays }} hari</p>
             </x-show-when>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-primary-200/60">

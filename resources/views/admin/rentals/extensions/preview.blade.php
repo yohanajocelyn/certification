@@ -15,8 +15,7 @@
             Ubah perpanjangan
         </a>
 
-        <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-2">Sisa Biaya Perpanjangan {{ $rental->garage->code }}</h1>
-        <p class="text-base text-primary-700 mb-6">Langkah 2 dari 2: cek sisa biaya, lalu unggah bukti pembayaran.</p>
+        <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-6">Sisa Biaya Perpanjangan {{ $rental->garage->code }}</h1>
 
         <x-rental-summary :rental="$rental" class="mb-6" />
 
@@ -59,9 +58,7 @@
 
             <div class="md:max-w-md">
                 <x-input name="payment_proof" type="file" label="Bukti Pembayaran" required accept="image/*" class="py-2" />
-                <p class="text-sm text-primary-600 mt-1.5">
-                    Gambar {{ strtoupper(implode(', ', Rental::PAYMENT_PROOF_MIMES)) }}, maksimal {{ Rental::PAYMENT_PROOF_MAX_KB / 1024 }} MB.
-                </p>
+                <p class="text-sm text-primary-600 mt-1.5">JPG, PNG atau WEBP, maks. {{ Rental::PAYMENT_PROOF_MAX_KB / 1024 }} MB.</p>
             </div>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-primary-200/60">

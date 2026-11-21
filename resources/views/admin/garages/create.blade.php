@@ -12,10 +12,7 @@
             Kembali ke daftar garasi
         </a>
 
-        <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-2">Buat Garasi Baru</h1>
-        <p class="text-base text-primary-700 mb-6">
-            Garasi dibuat sekaligus dalam satu kelompok. Kode dibuat otomatis berurutan per tipe.
-        </p>
+        <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-6">Buat Garasi Baru</h1>
 
         <form method="POST" action="{{ route('admin.garages.store') }}" class="space-y-6">
             @csrf
@@ -29,8 +26,8 @@
                         @php
                             $info = $codeInfo[$type->value];
                             $description = $info['remaining'] > 0
-                                ? 'Kode berikutnya '.$info['next'].' · sisa '.$info['remaining'].' kode'
-                                : 'Kode sudah habis (maksimal '.Garage::MAX_CODE_NUMBER.')';
+                                ? 'Mulai dari '.$info['next']
+                                : 'Kode sudah habis';
                         @endphp
                         <x-choice-card name="type" :value="$type->value" :label="$type->label()" :description="$description"
                                        :checked="old('type') === $type->value" required />
@@ -46,22 +43,18 @@
                     <x-input name="quantity" type="number" label="Jumlah Garasi" required
                              min="{{ Garage::MIN_BATCH_SIZE }}" max="{{ Garage::MAX_BATCH_SIZE }}" step="1"
                              placeholder="1 – {{ Garage::MAX_BATCH_SIZE }}" />
-                    <p class="text-sm text-primary-600 mt-1.5">Maksimal {{ Garage::MAX_BATCH_SIZE }} garasi sekali buat.</p>
                 </div>
 
                 <div>
                     <x-input name="daily_price" type="number" label="Harga Sewa Harian (Rp)" required
                              min="1" max="{{ Garage::MAX_PRICE }}" step="0.01" placeholder="contoh 25000" />
-                    <p class="text-sm text-primary-600 mt-1.5">
-                        Harga bulanan otomatis {{ Rental::MONTHLY_PRICE_MULTIPLIER }} × harga harian.
-                    </p>
+                    <p class="text-sm text-primary-600 mt-1.5">Harga bulanan = {{ Rental::MONTHLY_PRICE_MULTIPLIER }} × harga harian.</p>
                 </div>
             </div>
 
             <x-show-when field="type" :values="[GarageType::Electric->value]" :current="old('type')" class="md:max-w-[calc(50%-0.75rem)]">
                 <x-input name="kwh_price" type="number" label="Harga Isi Listrik per kWh (Rp)"
                          min="1" max="{{ Garage::MAX_PRICE }}" step="0.01" placeholder="contoh 2500" />
-                <p class="text-sm text-primary-600 mt-1.5">Hanya untuk Garasi Mobil Listrik.</p>
             </x-show-when>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-primary-200/60">

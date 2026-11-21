@@ -4,7 +4,7 @@
 
     $singleGarageType = count($offers) === 1 ? array_key_first($offers) : null;
     $selectedGarageType = old('garage_type', $singleGarageType);
-    $sectionTitle = 'text-lg font-black text-primary-900 tracking-tight';
+    $proofHint = 'JPG, PNG atau WEBP, maks. '.(Rental::PAYMENT_PROOF_MAX_KB / 1024).' MB.';
     $termClass = 'text-sm font-semibold text-primary-600 uppercase tracking-wide';
     $valueClass = 'mt-1 text-base font-bold text-primary-900';
 @endphp
@@ -14,11 +14,10 @@
         <a href="{{ route('rentals.create', $details) }}"
            class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-primary-900 transition-colors mb-4">
             <x-heroicon-o-arrow-left class="w-4 h-4" />
-            Ubah kendaraan atau waktu sewa
+            Ubah data sewa
         </a>
 
-        <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-2">Pilih Garasi</h1>
-        <p class="text-base text-primary-700 mb-6">Langkah 2 dari 2: pilih garasi, cek total biaya, lalu unggah bukti pelunasan.</p>
+        <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-6">Pilih Garasi</h1>
 
         <dl class="grid grid-cols-2 md:grid-cols-4 gap-5 p-5 sm:p-6 mb-10 rounded-2xl border border-primary-200 bg-white/70 shadow-2xs">
             <div class="col-span-2">
@@ -53,8 +52,7 @@
                 @endif
             @endforeach
 
-            <section class="space-y-5" aria-labelledby="garage-heading">
-                <h2 id="garage-heading" class="{{ $sectionTitle }}">Garasi</h2>
+            <section class="space-y-5" aria-label="Garasi">
 
                 <fieldset>
                     <legend class="block font-semibold text-base text-primary-800 mb-2">
@@ -64,7 +62,7 @@
                         @foreach ($offers as $garageTypeValue => $drafts)
                             @php $garageType = GarageType::from($garageTypeValue); @endphp
                             <x-choice-card name="garage_type" :value="$garageTypeValue" :label="$garageType->label()"
-                                           :description="$drafts->count().' garasi tersedia'.($garageType->hasCharging() ? ' · termasuk isi baterai penuh' : '')"
+                                           :description="$drafts->count().' garasi tersedia'"
                                            :checked="$selectedGarageType === $garageTypeValue" required />
                         @endforeach
                     </div>
@@ -108,14 +106,10 @@
                 @endforeach
             </section>
 
-            <section class="space-y-5" aria-labelledby="payment-heading">
-                <h2 id="payment-heading" class="{{ $sectionTitle }}">Pembayaran</h2>
-                <div class="md:max-w-md">
+            <section class="md:max-w-md" aria-label="Pembayaran">
+                <div>
                     <x-input name="payment_proof" type="file" label="Bukti Pelunasan Biaya" required accept="image/*" class="py-2" />
-                    <p class="text-sm text-primary-600 mt-1.5">
-                        Transfer sesuai total garasi yang dipilih. Gambar {{ strtoupper(implode(', ', Rental::PAYMENT_PROOF_MIMES)) }},
-                        maksimal {{ Rental::PAYMENT_PROOF_MAX_KB / 1024 }} MB.
-                    </p>
+                    <p class="text-sm text-primary-600 mt-1.5">{{ $proofHint }}</p>
                 </div>
             </section>
 

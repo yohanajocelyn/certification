@@ -55,7 +55,7 @@ class RentalControllerTest extends TestCase
 
         $response->assertSee('Harian');
         $response->assertSee('Bulanan');
-        $response->assertSee('Harian: 1 – 29 hari', false);
+        $response->assertSee('Maksimal 29 hari.');
     }
 
     public function test_create_lists_vehicles_in_a_dropdown_with_a_new_vehicle_option(): void

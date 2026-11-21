@@ -1,8 +1,7 @@
 <x-layout title="Masuk">
     <div class="w-full sm:max-w-md px-6 py-8 sm:px-8 sm:py-10 bg-white/80 backdrop-blur-md shadow-2xl sm:rounded-3xl border border-white/40">
         <div class="mb-6 sm:mb-8 text-center">
-            <h1 class="text-2xl sm:text-3xl font-black text-primary-900 mb-2 leading-tight">{{ config('app.name') }}</h1>
-            <p class="text-base text-primary-600 font-medium">Masuk ke akun Anda</p>
+            <h1 class="text-2xl sm:text-3xl font-black text-primary-900 leading-tight">{{ config('app.name') }}</h1>
         </div>
 
         <form method="POST" action="{{ route('login.store') }}" class="space-y-5">

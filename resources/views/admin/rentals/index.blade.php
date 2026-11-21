@@ -1,8 +1,6 @@
 <x-layout title="Perpanjang Sewa">
-    <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-2">Perpanjang Sewa</h1>
-    <p class="text-base text-primary-700 mb-6">
-        Garasi yang sedang disewa hari ini, {{ $today->translatedFormat('d F Y') }}. Pilih salah satu untuk memperpanjang.
-    </p>
+    <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-1">Perpanjang Sewa</h1>
+    <p class="text-base text-primary-600 mb-6">Sedang disewa hari ini, {{ $today->translatedFormat('d F Y') }}</p>
 
     @if ($rentals->isEmpty())
         <x-empty-state icon="calendar-days" message="Tidak ada garasi yang sedang disewa hari ini." />

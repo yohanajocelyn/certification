@@ -104,6 +104,17 @@ mobile: row 1 = brand + user/logout, row 2 = menu links (scroll sideways)
 | Table | cells `text-base`, headings `text-sm uppercase` |
 | Back link | `inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-primary-900` + left-arrow icon |
 
+## 3b. Writing (text on the page)
+
+Every line of text must tell the user something they cannot see or would not guess. Keep: prices and how they are calculated, limits that are not obvious (max days, 1 bulan = N hari), file rules, empty states, errors. Leave out:
+
+- Page intros that restate the title or describe the steps ("Langkah 1 dari 2: isi ..."); the heading and the button label already say it.
+- Hints that repeat what the field already enforces (min date, max number, read-only, shown only for one type).
+- Section headings that only repeat the label right below them.
+- Descriptions on choice cards when the label is enough ("Harian" needs no "Per hari").
+
+Hints are one short sentence or fragment ("Maksimal 29 hari.", "JPG, PNG atau WEBP, maks. 2 MB."). Buttons say the action in one or two words ("Lanjut", "Simpan Sewa").
+
 ## 4. Components (map to CLAUDE.md component names)
 
 **`x-button` / `x-link-button`** with `variant` prop:
