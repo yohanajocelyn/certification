@@ -6,4 +6,4 @@
     $decimals = floor($value) === $value ? 0 : 2;
 @endphp
 
-<span {{ $attributes }}>Rp {{ number_format($value, $decimals, ',', '.') }}</span>
+<span {{ $attributes->merge(['class' => 'whitespace-nowrap']) }}>Rp {{ number_format($value, $decimals, ',', '.') }}</span>

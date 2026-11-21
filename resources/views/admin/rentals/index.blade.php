@@ -17,18 +17,19 @@
             @foreach ($rentals as $rental)
                 @php $daysLeft = \App\Models\Rental::countDays($today, $rental->end_date); @endphp
                 <tr>
-                    <td>
+                    <td data-label="">
                         <span class="block font-bold text-primary-900">{{ $rental->garage->code }}</span>
                         <span class="block text-sm text-primary-600">{{ $rental->garage->type->label() }}</span>
                     </td>
-                    <td>
+                    <td data-label="Penyewa">
                         <span class="block text-primary-900">{{ $rental->user->name }}</span>
                         <span class="block text-sm text-primary-600">{{ $rental->user->phone }}</span>
                     </td>
-                    <td class="text-primary-700">{{ $rental->vehicle->displayName() }}</td>
-                    <td>
+                    <td data-label="Kendaraan" class="text-primary-700">{{ $rental->vehicle->displayName() }}</td>
+                    <td data-label="Periode">
                         <span class="block text-primary-900">
-                            {{ $rental->start_date->translatedFormat('d M Y') }} – {{ $rental->end_date->translatedFormat('d M Y') }}
+                            <span class="whitespace-nowrap">{{ $rental->start_date->translatedFormat('d M Y') }}</span> –
+                            <span class="whitespace-nowrap">{{ $rental->end_date->translatedFormat('d M Y') }}</span>
                         </span>
                         <span class="block text-sm text-primary-600">
                             Sisa {{ $daysLeft }} hari
@@ -37,7 +38,7 @@
                             @endif
                         </span>
                     </td>
-                    <td class="text-right">
+                    <td data-label="" class="text-right">
                         <x-link-button :href="route('admin.rentals.extensions.create', $rental)" variant="row">
                             <x-heroicon-o-calendar-days class="w-3.5 h-3.5 text-secondary" />
                             Perpanjang

@@ -32,13 +32,16 @@
                     </x-slot:head>
                     @foreach ($rental->extensions as $pastExtension)
                         <tr>
-                            <td class="text-primary-700">{{ $pastExtension->created_at->translatedFormat('d M Y') }}</td>
-                            <td>{{ $pastExtension->old_end_date->translatedFormat('d M Y') }} → {{ $pastExtension->new_end_date->translatedFormat('d M Y') }}</td>
-                            <td class="text-primary-700">
+                            <td data-label="" class="text-primary-700 whitespace-nowrap">{{ $pastExtension->created_at->translatedFormat('d M Y') }}</td>
+                            <td data-label="Selesai Lama → Baru">
+                                <span class="whitespace-nowrap">{{ $pastExtension->old_end_date->translatedFormat('d M Y') }}</span> →
+                                <span class="whitespace-nowrap">{{ $pastExtension->new_end_date->translatedFormat('d M Y') }}</span>
+                            </td>
+                            <td data-label="Tambahan" class="text-primary-700">
                                 {{ $pastExtension->extension_type->label() }} · {{ $pastExtension->days }} hari
                             </td>
-                            <td class="text-right"><x-rupiah :amount="$pastExtension->additional_cost" /></td>
-                            <td>
+                            <td data-label="Biaya" class="text-right"><x-rupiah :amount="$pastExtension->additional_cost" /></td>
+                            <td data-label="Bukti">
                                 <a href="{{ $pastExtension->paymentProofUrl() }}" target="_blank" rel="noopener"
                                    class="text-sm font-semibold text-secondary hover:text-primary-900 underline underline-offset-4">Lihat</a>
                             </td>

@@ -17,23 +17,23 @@
 
     @foreach ($rows as $row)
         <tr @class(['text-primary-500' => $row['rentals'] === 0 && $row['extensions'] === 0])>
-            <td class="font-semibold text-primary-900">{{ $row['label'] }}</td>
-            <td class="text-right">{{ $row['rentals'] }}</td>
-            <td class="text-right"><x-rupiah :amount="$row['rental_revenue']" /></td>
-            <td class="text-right">{{ $row['extensions'] }}</td>
-            <td class="text-right"><x-rupiah :amount="$row['extension_revenue']" /></td>
-            <td class="text-right font-bold text-primary-900"><x-rupiah :amount="$row['total_revenue']" /></td>
+            <td data-label="" class="font-semibold text-primary-900 wrap-anywhere">{{ $row['label'] }}</td>
+            <td data-label="Jumlah Sewa" class="text-right">{{ $row['rentals'] }}</td>
+            <td data-label="Pendapatan Sewa" class="text-right"><x-rupiah :amount="$row['rental_revenue']" /></td>
+            <td data-label="Perpanjangan" class="text-right">{{ $row['extensions'] }}</td>
+            <td data-label="Pendapatan Perpanjangan" class="text-right"><x-rupiah :amount="$row['extension_revenue']" /></td>
+            <td data-label="Total Pendapatan" class="text-right font-bold text-primary-900"><x-rupiah :amount="$row['total_revenue']" /></td>
         </tr>
     @endforeach
 
     <x-slot:foot>
         <tr>
-            <td>{{ $totals['label'] }}</td>
-            <td class="text-right">{{ $totals['rentals'] }}</td>
-            <td class="text-right"><x-rupiah :amount="$totals['rental_revenue']" /></td>
-            <td class="text-right">{{ $totals['extensions'] }}</td>
-            <td class="text-right"><x-rupiah :amount="$totals['extension_revenue']" /></td>
-            <td class="text-right"><x-rupiah :amount="$totals['total_revenue']" /></td>
+            <td data-label="">{{ $totals['label'] }}</td>
+            <td data-label="Jumlah Sewa" class="text-right">{{ $totals['rentals'] }}</td>
+            <td data-label="Pendapatan Sewa" class="text-right"><x-rupiah :amount="$totals['rental_revenue']" /></td>
+            <td data-label="Perpanjangan" class="text-right">{{ $totals['extensions'] }}</td>
+            <td data-label="Pendapatan Perpanjangan" class="text-right"><x-rupiah :amount="$totals['extension_revenue']" /></td>
+            <td data-label="Total Pendapatan" class="text-right"><x-rupiah :amount="$totals['total_revenue']" /></td>
         </tr>
     </x-slot:foot>
 </x-table>

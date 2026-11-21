@@ -141,6 +141,8 @@ Use the same look for `x-select` and `x-textarea`. `x-select` adds `appearance-n
 - Row: `py-4 px-3 sm:px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl hover:bg-primary-100/50 transition-colors`
 - Left: status dot `w-2.5 h-2.5 rounded-full` + bold title. Middle: meta with small icons (`text-primary-400`). Chip: `text-sm font-semibold text-primary-800 bg-primary-100/80 border border-primary-200/60 px-2.5 py-1 rounded-lg` with icon in `text-secondary`. Right: Edit + Delete small buttons.
 - If the data is truly tabular (many columns), use `x-table` with the same divider/hover styling and `<th scope="col" class="text-sm font-semibold text-primary-600 uppercase tracking-wide">`.
+- Tables never scroll sideways. Cells wrap; keep only short values on one line (`x-rupiah` already does, add `whitespace-nowrap` to codes, phone numbers and single dates; put a date range as two nowrap dates around the dash). Long words such as emails get `wrap-anywhere`.
+- Below `lg` each row becomes a card: every `<td>` needs a `data-label` (shown as the label on the left), and the first cell gets `data-label=""` to act as the card title. Prefer fewer columns: stack related values in one cell (name + email) and drop columns that repeat the active filter.
 
 **Empty state**: `py-16 text-center`, icon `w-8 h-8 text-secondary`, text `text-lg text-primary-600 max-w-md mx-auto mb-6`, then a primary create button.
 

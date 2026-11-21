@@ -43,18 +43,18 @@
 
             @foreach ($garages as $garage)
                 <tr>
-                    <td class="font-bold text-primary-900">{{ $garage->code }}</td>
-                    <td class="text-primary-700">{{ $garage->type->label() }}</td>
-                    <td class="text-right"><x-rupiah :amount="$garage->daily_price" /></td>
-                    <td class="text-right"><x-rupiah :amount="$garage->monthlyPrice()" /></td>
-                    <td class="text-right text-primary-700">
+                    <td data-label="" class="font-bold text-primary-900">{{ $garage->code }}</td>
+                    <td data-label="Tipe" class="text-primary-700">{{ $garage->type->label() }}</td>
+                    <td data-label="Harga Harian" class="text-right"><x-rupiah :amount="$garage->daily_price" /></td>
+                    <td data-label="Harga Bulanan" class="text-right"><x-rupiah :amount="$garage->monthlyPrice()" /></td>
+                    <td data-label="Isi Listrik / kWh" class="text-right text-primary-700">
                         @if ($garage->kwh_price !== null)
                             <x-rupiah :amount="$garage->kwh_price" />
                         @else
                             <span class="text-primary-500">—</span>
                         @endif
                     </td>
-                    <td>
+                    <td data-label="Status Hari Ini">
                         <x-status :tone="$garage->is_used ? 'danger' : 'success'">
                             {{ $garage->is_used ? 'Dipakai' : 'Tersedia' }}
                         </x-status>

@@ -1,11 +1,6 @@
 @php
     use App\Enums\UserStatus;
 
-    $statusTones = [
-        UserStatus::Pending->value => 'warning',
-        UserStatus::Approved->value => 'success',
-        UserStatus::Rejected->value => 'danger',
-    ];
     $chipClass = 'px-3.5 py-1.5 rounded-lg text-sm font-semibold border transition-colors';
     $activeChip = $chipClass.' bg-primary text-white border-primary';
     $idleChip = $chipClass.' bg-white text-primary-800 border-primary-200 hover:bg-primary-100';
@@ -29,12 +24,10 @@
     @else
         <x-table>
             <x-slot:head>
-                <th scope="col">Nama</th>
+                <th scope="col">Penyewa</th>
                 <th scope="col">NIK</th>
                 <th scope="col">Telepon</th>
-                <th scope="col">Email</th>
                 <th scope="col">Tanggal Daftar</th>
-                <th scope="col">Status</th>
                 @if ($selectedStatus === UserStatus::Pending)
                     <th scope="col" class="text-right">Aksi</th>
                 @endif
@@ -42,16 +35,15 @@
 
             @foreach ($tenants as $tenant)
                 <tr>
-                    <td class="font-bold text-primary-900">{{ $tenant->name }}</td>
-                    <td class="font-mono tracking-wide text-primary-800">{{ $tenant->nik }}</td>
-                    <td class="text-primary-700">{{ $tenant->phone }}</td>
-                    <td class="text-primary-700">{{ $tenant->email }}</td>
-                    <td class="text-primary-700">{{ $tenant->created_at->translatedFormat('d M Y') }}</td>
-                    <td>
-                        <x-status :tone="$statusTones[$tenant->status->value]">{{ $tenant->status->label() }}</x-status>
+                    <td data-label="">
+                        <span class="block font-bold text-primary-900">{{ $tenant->name }}</span>
+                        <span class="block text-sm text-primary-600 wrap-anywhere">{{ $tenant->email }}</span>
                     </td>
+                    <td data-label="NIK" class="font-mono tracking-wide text-primary-800 whitespace-nowrap">{{ $tenant->nik }}</td>
+                    <td data-label="Telepon" class="text-primary-700 whitespace-nowrap">{{ $tenant->phone }}</td>
+                    <td data-label="Tanggal Daftar" class="text-primary-700 whitespace-nowrap">{{ $tenant->created_at->translatedFormat('d M Y') }}</td>
                     @if ($selectedStatus === UserStatus::Pending)
-                        <td>
+                        <td data-label="">
                             <div class="flex items-center justify-end gap-2">
                                 <form method="POST" action="{{ route('admin.tenants.update', $tenant) }}">
                                     @csrf

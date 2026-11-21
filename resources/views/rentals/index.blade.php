@@ -24,14 +24,15 @@
             @foreach ($rentals as $rental)
                 @php $periodStatus = $rental->periodStatusOn($today); @endphp
                 <tr>
-                    <td>
+                    <td data-label="">
                         <span class="block font-bold text-primary-900">{{ $rental->garage->code }}</span>
                         <span class="block text-sm text-primary-600">{{ $rental->garage->type->label() }}</span>
                     </td>
-                    <td class="text-primary-700">{{ $rental->vehicle->displayName() }}</td>
-                    <td>
+                    <td data-label="Kendaraan" class="text-primary-700">{{ $rental->vehicle->displayName() }}</td>
+                    <td data-label="Periode">
                         <span class="block text-primary-900">
-                            {{ $rental->start_date->translatedFormat('d M Y') }} – {{ $rental->end_date->translatedFormat('d M Y') }}
+                            <span class="whitespace-nowrap">{{ $rental->start_date->translatedFormat('d M Y') }}</span> –
+                            <span class="whitespace-nowrap">{{ $rental->end_date->translatedFormat('d M Y') }}</span>
                         </span>
                         <span class="block text-sm text-primary-600">
                             {{ $rental->rental_type->label() }} · {{ $rental->durationInDays() }} hari
@@ -40,7 +41,7 @@
                             @endif
                         </span>
                     </td>
-                    <td class="text-right">
+                    <td data-label="Total" class="text-right">
                         <x-rupiah :amount="$rental->total_cost" class="block font-semibold" />
                         @if ($rental->extensions_count > 0)
                             <span class="block text-sm text-primary-600">
@@ -48,8 +49,8 @@
                             </span>
                         @endif
                     </td>
-                    <td><x-status :tone="$periodStatus->tone()">{{ $periodStatus->label() }}</x-status></td>
-                    <td>
+                    <td data-label="Status"><x-status :tone="$periodStatus->tone()">{{ $periodStatus->label() }}</x-status></td>
+                    <td data-label="Bukti">
                         <a href="{{ $rental->paymentProofUrl() }}" target="_blank" rel="noopener"
                            class="text-sm font-semibold text-secondary hover:text-primary-900 underline underline-offset-4">Lihat</a>
                     </td>
