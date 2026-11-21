@@ -21,7 +21,7 @@ return new class extends Migration
             $table->char('nik', User::NIK_LENGTH)->unique();
             $table->string('name', User::NAME_MAX_LENGTH);
             $table->string('phone', User::PHONE_MAX_LENGTH);
-            $table->string('email')->unique();
+            $table->string('email', User::EMAIL_MAX_LENGTH)->unique();
             $table->string('password');
             $table->string('role', self::ENUM_COLUMN_LENGTH)->default(UserRole::Tenant->value);
             $table->string('status', self::ENUM_COLUMN_LENGTH)->default(UserStatus::Pending->value);

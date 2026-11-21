@@ -64,12 +64,12 @@ Done when: all unit tests green.
 
 Owners: laravel-backend (controllers, middleware, seeders, tests) -> laravel-frontend (views).
 
-- [ ] `AuthController` create/store/destroy (pattern from DSC-Home-Assignment, rewritten: enum roles, no `Route::has` fallbacks). Login rejects pending / rejected tenants with their own message and logs them out
-- [ ] `RegisterController` create/store: NIK 16 digits unique, name, phone, email unique, password confirmed; creates `tenant` + `pending`, redirects to login with "waiting for verification"
-- [ ] `EnsureUserHasRole` middleware + alias; `HomeController` redirects admin -> garages, tenant -> my rentals
-- [ ] `AdminSeeder` (`updateOrCreate` by `config('admin.email')`), `DatabaseSeeder` with demo garages, tenants, vehicles, rentals via factories
-- [ ] Views: `x-layout` (sidebar menu per role, flash area), `x-button`, `x-link-button`, `x-input`, `x-select`, `x-alert`; pages `auth/login`, `auth/register`
-- [ ] Feature tests: register valid / invalid / NIK 15 & 17 digits / duplicate email & NIK; login approved / pending / rejected / wrong password; logout; tenant blocked from `/admin/*` (403), guest redirected to login
+- [x] `AuthController` create/store/destroy (pattern from DSC-Home-Assignment, rewritten: enum roles, no `Route::has` fallbacks). Login rejects pending / rejected tenants with their own message and logs them out
+- [x] `RegisterController` create/store: NIK 16 digits unique, name, phone, email unique, password confirmed; creates `tenant` + `pending`, redirects to login with "waiting for verification"
+- [x] `EnsureUserHasRole` middleware + alias; `HomeController` shows a welcome page for now (the garage list and my-rentals pages don't exist yet); Batches 3 and 5 add the navbar links and switch it to a role redirect
+- [x] `AdminSeeder` (`updateOrCreate` by `config('admin.email')`), `DatabaseSeeder` with demo garages, tenants, vehicles, rentals via factories
+- [x] Views: `x-layout` (sidebar menu per role, flash area), `x-button`, `x-link-button`, `x-input`, `x-select`, `x-alert`; pages `auth/login`, `auth/register`
+- [x] Feature tests: register valid / invalid / NIK 15 & 17 digits / duplicate email & NIK; login approved / pending / rejected / wrong password; logout; tenant blocked from `/admin/*` (403), guest redirected to login
 Done when: tests green, admin can log in from seeded `.env` data.
 
 ## Batch 3 - Admin: garages (batch create + list)

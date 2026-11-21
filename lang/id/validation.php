@@ -108,6 +108,7 @@ return [
         'phone' => 'nomor telepon',
         'email' => 'email',
         'password' => 'kata sandi',
+        'password_confirmation' => 'konfirmasi kata sandi',
         'type' => 'tipe',
         'garage_type' => 'tipe garasi',
         'garage_id' => 'garasi',
