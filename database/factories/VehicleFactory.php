@@ -6,9 +6,11 @@ use App\Enums\VehicleType;
 use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Arr;
 
 /**
- * Builds vehicles owned by a tenant; a petrol car by default.
+ * Builds vehicles owned by a tenant; a petrol car by default. Each vehicle is created as the
+ * child class of its type (Car, ElectricCar, ...), exactly like vehicles loaded from the database.
  *
  * @extends Factory<Vehicle>
  */
@@ -32,6 +34,41 @@ class VehicleFactory extends Factory
             'brand_model' => fake()->randomElement(['Toyota Avanza', 'Honda Brio', 'Suzuki Ertiga']),
             'battery_capacity_kwh' => null,
         ];
+    }
+
+    /**
+     * Build the child class for the type instead of a plain Vehicle, so a factory electric car
+     * really is an ElectricCar (with its charging rule).
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public function newModel(array $attributes = []): Vehicle
+    {
+        $type = $attributes['type'] ?? VehicleType::Car;
+        $type = $type instanceof VehicleType ? $type : VehicleType::from($type);
+
+        return Vehicle::forType($type)->fill(Arr::except($attributes, 'type'));
+    }
+
+    /**
+     * The state matching a vehicle type, e.g. ofType(VehicleType::ElectricCar).
+     */
+    public function ofType(VehicleType $type): static
+    {
+        return match ($type) {
+            VehicleType::Bicycle => $this->bicycle(),
+            VehicleType::Motorcycle => $this->motorcycle(),
+            VehicleType::Car => $this->car(),
+            VehicleType::ElectricCar => $this->electricCar(),
+        };
+    }
+
+    /**
+     * A petrol car: plate, no battery.
+     */
+    public function car(): static
+    {
+        return $this->state(fn () => ['type' => VehicleType::Car, 'battery_capacity_kwh' => null]);
     }
 
     /**

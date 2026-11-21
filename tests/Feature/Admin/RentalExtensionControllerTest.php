@@ -143,7 +143,7 @@ class RentalExtensionControllerTest extends TestCase
 
     public function test_preview_when_vehicle_is_booked_in_another_garage_returns_validation_error(): void
     {
-        Rental::factory()->for($this->rental->vehicle)->for($this->rental->user)->daily(2)->startingOn('2026-11-27')->create();
+        Rental::factory()->for($this->rental->vehicle, 'vehicle')->for($this->rental->user)->daily(2)->startingOn('2026-11-27')->create();
 
         $this->actingAs($this->admin)->get(route('admin.rentals.extensions.preview', [
             $this->rental, 'extension_type' => RentalType::Daily->value, 'new_end_date' => '2026-11-30',

@@ -219,7 +219,7 @@ class RentalControllerTest extends TestCase
 
     public function test_preview_for_vehicle_already_parked_in_period_returns_validation_error(): void
     {
-        Rental::factory()->for($this->car)->for($this->tenant)->daily(3)->startingOn(self::TODAY)->create();
+        Rental::factory()->for($this->car, 'vehicle')->for($this->tenant)->daily(3)->startingOn(self::TODAY)->create();
 
         $this->actingAs($this->tenant)
             ->get(route('rentals.preview', $this->details()))
@@ -465,7 +465,7 @@ class RentalControllerTest extends TestCase
         // Arrange: the car gets booked elsewhere between preview and save
         $garage = Garage::factory()->car()->create();
         $previewUrl = route('rentals.preview', $this->details());
-        Rental::factory()->for($this->car)->for($this->tenant)->startingOn(self::TODAY)->create();
+        Rental::factory()->for($this->car, 'vehicle')->for($this->tenant)->startingOn(self::TODAY)->create();
 
         // Act
         $storeResponse = $this->actingAs($this->tenant)->from($previewUrl)->post(route('rentals.store'), $this->storeData($garage));
@@ -525,9 +525,9 @@ class RentalControllerTest extends TestCase
         $active = Garage::factory()->car()->create(['code' => 'C001']);
         $upcoming = Garage::factory()->car()->create(['code' => 'C002']);
         $foreign = Garage::factory()->car()->create(['code' => 'C003']);
-        Rental::factory()->for($this->car)->for($this->tenant)->for($active)->startingOn(self::TODAY)->create();
+        Rental::factory()->for($this->car, 'vehicle')->for($this->tenant)->for($active)->startingOn(self::TODAY)->create();
         $otherCar = Vehicle::factory()->for($this->tenant)->create();
-        Rental::factory()->for($otherCar)->for($this->tenant)->for($upcoming)->startingOn('2026-12-05')->create();
+        Rental::factory()->for($otherCar, 'vehicle')->for($this->tenant)->for($upcoming)->startingOn('2026-12-05')->create();
         Rental::factory()->for($foreign)->create();
 
         // Act

@@ -116,7 +116,7 @@ class RentalTest extends TestCase
 
     public function test_charging_kwh_for_petrol_car_is_zero(): void
     {
-        $car = new Vehicle(['type' => VehicleType::Car]);
+        $car = Vehicle::forType(VehicleType::Car);
 
         $this->assertSame(0.0, Rental::calculateChargingKwh($car, $this->garage(GarageType::Electric), null));
     }
@@ -181,7 +181,7 @@ class RentalTest extends TestCase
 
     public function test_draft_monthly_has_no_days_and_costs_25_daily_prices(): void
     {
-        $car = new Vehicle(['type' => VehicleType::Car]);
+        $car = Vehicle::forType(VehicleType::Car);
 
         $draft = Rental::draft($this->garage(GarageType::Car), $car, RentalType::Monthly, CarbonImmutable::parse('2027-02-10'), 12, null);
 
@@ -192,7 +192,7 @@ class RentalTest extends TestCase
 
     public function test_draft_for_petrol_car_keeps_no_battery_level(): void
     {
-        $car = new Vehicle(['type' => VehicleType::Car]);
+        $car = Vehicle::forType(VehicleType::Car);
 
         $draft = Rental::draft($this->garage(GarageType::Car), $car, RentalType::Daily, CarbonImmutable::parse('2026-11-21'), 1, 50);
 
@@ -244,7 +244,7 @@ class RentalTest extends TestCase
 
     private function electricCar(float $capacityKwh): Vehicle
     {
-        return new Vehicle(['type' => VehicleType::ElectricCar, 'battery_capacity_kwh' => $capacityKwh]);
+        return Vehicle::forType(VehicleType::ElectricCar)->fill(['battery_capacity_kwh' => $capacityKwh]);
     }
 
     private function garage(GarageType $type): Garage

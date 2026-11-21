@@ -60,6 +60,10 @@ Owner: laravel-backend. Test first for every model helper.
 - [x] Unit tests (positive / negative / boundary): end dates (Feb, leap year, month end), max days per month, costs, charging (EV in E vs C garage, full battery = 0), code numbering (first = 001, continues per type), overlap edges (touching dates overlap because they are inclusive), vehicle-garage compatibility
 Done when: all unit tests green.
 
+## Batch 1b - Vehicle class hierarchy (OOP)
+
+- [x] Done after Batch 7, see `docs/plans/oop-plan.md`: `Vehicle` parent implementing `Parkable`, children `Bicycle`, `Motorcycle`, `Car`, `ElectricCar` (single-table inheritance on `vehicles.type`); `VehicleType` keeps only cases and labels
+
 ## Batch 2 - Layout, auth, roles, seeding
 
 Owners: laravel-backend (controllers, middleware, seeders, tests) -> laravel-frontend (views).

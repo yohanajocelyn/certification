@@ -28,7 +28,7 @@
                 <dt class="{{ $termClass }}">Tipe Sewa</dt>
                 <dd class="{{ $valueClass }}">{{ $rentalType->label() }} · {{ $durationDays }} hari</dd>
             </div>
-            @if ($vehicle->type->hasBattery())
+            @if ($vehicle->hasBattery())
                 <div>
                     <dt class="{{ $termClass }}">Sisa Baterai</dt>
                     <dd class="{{ $valueClass }}">{{ $details['current_battery_kwh'] + 0 }} / {{ $vehicle->battery_capacity_kwh + 0 }} kWh</dd>

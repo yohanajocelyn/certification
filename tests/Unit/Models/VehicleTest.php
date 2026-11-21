@@ -44,7 +44,7 @@ class VehicleTest extends TestCase
     public function test_is_parked_between_is_true_when_a_rental_overlaps(): void
     {
         $vehicle = Vehicle::factory()->create();
-        Rental::factory()->for($vehicle)->daily(5)->startingOn('2026-11-21')->create();
+        Rental::factory()->for($vehicle, 'vehicle')->daily(5)->startingOn('2026-11-21')->create();
 
         $this->assertTrue($vehicle->isParkedBetween(CarbonImmutable::parse('2026-11-25'), CarbonImmutable::parse('2026-11-30')));
     }
@@ -52,7 +52,7 @@ class VehicleTest extends TestCase
     public function test_is_parked_between_is_false_when_no_rental_overlaps(): void
     {
         $vehicle = Vehicle::factory()->create();
-        Rental::factory()->for($vehicle)->daily(5)->startingOn('2026-11-21')->create();
+        Rental::factory()->for($vehicle, 'vehicle')->daily(5)->startingOn('2026-11-21')->create();
 
         $this->assertFalse($vehicle->isParkedBetween(CarbonImmutable::parse('2026-11-26'), CarbonImmutable::parse('2026-11-30')));
     }
@@ -60,7 +60,7 @@ class VehicleTest extends TestCase
     public function test_is_parked_between_ignores_the_given_rental(): void
     {
         $vehicle = Vehicle::factory()->create();
-        $rental = Rental::factory()->for($vehicle)->daily(5)->startingOn('2026-11-21')->create();
+        $rental = Rental::factory()->for($vehicle, 'vehicle')->daily(5)->startingOn('2026-11-21')->create();
 
         $isParked = $vehicle->isParkedBetween(CarbonImmutable::parse('2026-11-25'), CarbonImmutable::parse('2026-11-30'), $rental);
 

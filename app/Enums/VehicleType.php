@@ -3,7 +3,8 @@
 namespace App\Enums;
 
 /**
- * The kinds of vehicle a tenant can park, and which garages each one fits.
+ * The stored vehicle types and their names. How each type behaves (garages, plate, battery,
+ * charging) lives in its class under App\Models\Vehicles; see Vehicle::SUBCLASSES.
  */
 enum VehicleType: string
 {
@@ -11,44 +12,6 @@ enum VehicleType: string
     case Motorcycle = 'motorcycle';
     case Car = 'car';
     case ElectricCar = 'electric_car';
-
-    /**
-     * Garage types this vehicle may be parked in.
-     *
-     * @return list<GarageType>
-     */
-    public function allowedGarageTypes(): array
-    {
-        return match ($this) {
-            self::Bicycle, self::Motorcycle => [GarageType::Bike],
-            self::Car => [GarageType::Car],
-            self::ElectricCar => [GarageType::Car, GarageType::Electric],
-        };
-    }
-
-    /**
-     * Whether this vehicle may be parked in the given garage type.
-     */
-    public function canUseGarage(GarageType $garageType): bool
-    {
-        return in_array($garageType, $this->allowedGarageTypes(), true);
-    }
-
-    /**
-     * Whether a plate number is required (every vehicle except a bicycle).
-     */
-    public function requiresPlate(): bool
-    {
-        return $this !== self::Bicycle;
-    }
-
-    /**
-     * Whether battery capacity and current battery level must be entered.
-     */
-    public function hasBattery(): bool
-    {
-        return $this === self::ElectricCar;
-    }
 
     /**
      * Indonesian name shown in the UI.

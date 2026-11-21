@@ -131,7 +131,7 @@ class Rental extends Model
         $chargingCost = self::calculateChargingCost($chargingKwh, $kwhPrice);
 
         $rental = new self([
-            'current_battery_kwh' => $vehicle->type->hasBattery() ? $currentBatteryKwh : null,
+            'current_battery_kwh' => $vehicle->hasBattery() ? $currentBatteryKwh : null,
             'rental_type' => $type,
             'days' => $type === RentalType::Daily ? $days : null,
             'start_date' => CarbonImmutable::instance($start)->startOfDay(),
@@ -197,19 +197,14 @@ class Rental extends Model
     }
 
     /**
-     * kWh needed to charge the vehicle to full. Only electric cars in an electric garage are charged.
+     * kWh charged during the rental: only garages that charge do it, and only vehicles with a battery
+     * need it (each vehicle class answers through its own chargingKwh()).
      *
      * @param  float|null  $currentBatteryKwh  battery level entered by the tenant
      */
     public static function calculateChargingKwh(Vehicle $vehicle, Garage $garage, ?float $currentBatteryKwh): float
     {
-        if (! $vehicle->type->hasBattery() || ! $garage->type->hasCharging()) {
-            return 0.0;
-        }
-
-        $missingKwh = (float) $vehicle->battery_capacity_kwh - (float) $currentBatteryKwh;
-
-        return round(max(0.0, $missingKwh), Vehicle::KWH_SCALE);
+        return $garage->type->hasCharging() ? $vehicle->chargingKwh($currentBatteryKwh) : 0.0;
     }
 
     /**

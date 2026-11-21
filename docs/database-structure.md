@@ -43,6 +43,8 @@ No stored status column. "Used" / "available" is worked out from the rentals for
 
 Vehicles cannot be edited, so rentals reference them directly with no copied vehicle details.
 
+Single-table inheritance: every vehicle type lives in this one table. `type` decides the class each row is loaded as (`Vehicle::SUBCLASSES`): `bicycle` → `Bicycle`, `motorcycle` → `Motorcycle`, `car` → `Car`, `electric_car` → `ElectricCar`, all children of `App\Models\Vehicle`. Columns a type does not use stay NULL (`plate_number` for bicycles, `battery_capacity_kwh` for everything but electric cars).
+
 **rentals**
 
 | Column | Type | Rules |
@@ -113,10 +115,10 @@ All rental dates are inclusive: a rental covers every day from `start_date` to `
 | Garage free for a period = no rental overlapping it: `existing.start ≤ new.end AND new.start ≤ existing.end` | `Garage::scopeAvailableBetween($start, $end)` |
 | One vehicle per garage, and one garage per vehicle at a time | garage overlap check + `Vehicle::isParkedBetween($start, $end)` |
 | On a new rental the tenant picks one of their own vehicles or adds a new one (a new vehicle is saved to `vehicles`) | `RentalController` validation: `vehicle_id` must belong to the tenant |
-| Bicycle, motorcycle → bike garage. Car → car garage. Electric car → car or electric garage | `VehicleType::allowedGarageTypes()` |
-| Plate required except bicycle | `VehicleType::requiresPlate()` |
-| Battery capacity and current battery required for electric car (any garage) | `VehicleType::hasBattery()` |
-| Charging = (capacity − current) kWh × kwh_price, only for an electric car in an electric garage | `Rental::calculateChargingKwh()` / `calculateChargingCost()` |
+| Bicycle, motorcycle → bike garage. Car → car garage. Electric car → car or electric garage | `allowedGarageTypes()` overridden in each `Vehicle` child; `Vehicle::canParkIn()` |
+| Plate required except bicycle | `Vehicle::requiresPlate()` (true), overridden by `Bicycle` |
+| Battery capacity and current battery required for electric car (any garage) | `Vehicle::hasBattery()` (false), overridden by `ElectricCar` |
+| Charging = (capacity − current) kWh × kwh_price, only for an electric car in an electric garage | `Vehicle::chargingKwh()` (0) overridden by `ElectricCar`; `Rental::calculateChargingKwh()` asks it only for garages that charge |
 | Garage code = type prefix + 3-digit per-type increment | `GarageType::prefix()` + `Garage::nextCodeNumber(GarageType)` |
 | Max 999 garages per batch, and per type (3 digits) | `Garage::MAX_BATCH_SIZE = 999`, `Garage::MAX_CODE_NUMBER = 999` |
 | Daily extension: admin picks a later end date, no day limit; cost = extra days × daily_price | `RentalExtension::calculateAdditionalCost()` |

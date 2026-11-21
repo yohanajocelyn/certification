@@ -56,15 +56,15 @@ class RentalController extends Controller
         $vehicles = $request->user()->vehicles()->orderBy('brand_model')->get();
         $typesWhere = fn (callable $rule) => array_values(array_map(
             fn (VehicleType $type) => $type->value,
-            array_filter(VehicleType::cases(), $rule),
+            array_filter(VehicleType::cases(), fn (VehicleType $type) => $rule(Vehicle::forType($type))),
         ));
 
         return view('rentals.create', [
             'vehicles' => $vehicles,
             'vehicleTypes' => VehicleType::cases(),
-            'plateVehicleTypes' => $typesWhere(fn (VehicleType $type) => $type->requiresPlate()),
-            'batteryVehicleTypes' => $typesWhere(fn (VehicleType $type) => $type->hasBattery()),
-            'electricVehicleIds' => $vehicles->filter(fn (Vehicle $vehicle) => $vehicle->type->hasBattery())->pluck('id')->all(),
+            'plateVehicleTypes' => $typesWhere(fn (Vehicle $vehicle) => $vehicle->requiresPlate()),
+            'batteryVehicleTypes' => $typesWhere(fn (Vehicle $vehicle) => $vehicle->hasBattery()),
+            'electricVehicleIds' => $vehicles->filter(fn (Vehicle $vehicle) => $vehicle->hasBattery())->pluck('id')->all(),
             'rentalTypes' => RentalType::cases(),
             'today' => CarbonImmutable::today(),
             'startDate' => $this->requestedStartDate($request),
@@ -89,7 +89,7 @@ class RentalController extends Controller
         $end = $this->endDate($details);
 
         $offers = [];
-        foreach ($vehicle->type->allowedGarageTypes() as $garageType) {
+        foreach ($vehicle->allowedGarageTypes() as $garageType) {
             $offers[$garageType->value] = Garage::query()
                 ->where('type', $garageType)
                 ->availableBetween($start, $end)
@@ -117,7 +117,7 @@ class RentalController extends Controller
     {
         $tenant = $request->user();
         [$details, $vehicle] = $this->validateRentalDetails($request);
-        $allowedGarageTypes = array_map(fn (GarageType $type) => $type->value, $vehicle->type->allowedGarageTypes());
+        $allowedGarageTypes = array_map(fn (GarageType $type) => $type->value, $vehicle->allowedGarageTypes());
 
         $choice = $request->validate([
             'garage_type' => ['required', Rule::in($allowedGarageTypes)],
@@ -164,10 +164,11 @@ class RentalController extends Controller
         $ownVehicles = $tenant->vehicles()->get()->keyBy('id');
         $isNewVehicle = $request->input('vehicle_id') === self::NEW_VEHICLE;
         $newVehicleType = $isNewVehicle ? VehicleType::tryFrom((string) $request->input('vehicle_type')) : null;
+        // A new vehicle's rules come from its class before it exists: Vehicle::forType(...)->requiresPlate().
+        $newVehicle = $newVehicleType ? Vehicle::forType($newVehicleType) : null;
         $existingVehicle = $isNewVehicle ? null : $ownVehicles->get($request->input('vehicle_id'));
-        $vehicleType = $newVehicleType ?? $existingVehicle?->type;
-        $hasBattery = $vehicleType?->hasBattery() ?? false;
-        $newWithPlate = $isNewVehicle && ($newVehicleType?->requiresPlate() ?? true);
+        $hasBattery = ($newVehicle ?? $existingVehicle)?->hasBattery() ?? false;
+        $newWithPlate = $isNewVehicle && ($newVehicle?->requiresPlate() ?? true);
         $newWithBattery = $isNewVehicle && $hasBattery;
         $isDaily = $request->input('rental_type') === RentalType::Daily->value;
         $kwhRules = ['numeric', 'decimal:0,'.Vehicle::KWH_SCALE];
@@ -273,8 +274,7 @@ class RentalController extends Controller
             return $tenant->vehicles()->findOrFail($details['vehicle_id']);
         }
 
-        return new Vehicle([
-            'type' => $details['vehicle_type'],
+        return Vehicle::forType(VehicleType::from($details['vehicle_type']))->fill([
             'plate_number' => $details['plate_number'] ?? null,
             'brand_model' => $details['brand_model'],
             'battery_capacity_kwh' => $details['battery_capacity_kwh'] ?? null,

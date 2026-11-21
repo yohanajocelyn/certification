@@ -41,7 +41,7 @@ class DemoSeederTest extends TestCase
         $this->assertNotEmpty($rentals);
         foreach ($rentals as $rental) {
             $this->assertSame($rental->user_id, $rental->vehicle->user_id);
-            $this->assertTrue($rental->vehicle->type->canUseGarage($rental->garage->type));
+            $this->assertTrue($rental->vehicle->canParkIn($rental->garage->type));
         }
         $this->assertGreaterThan(0, Garage::count());
     }
