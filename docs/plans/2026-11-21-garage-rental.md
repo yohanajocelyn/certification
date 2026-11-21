@@ -41,23 +41,23 @@ Owner: laravel-architect, then laravel-backend.
 - [x] `config/app.php` timezone `env('APP_TIMEZONE', 'UTC')`; `.env.example`: `APP_TIMEZONE=Asia/Jakarta`, `APP_LOCALE=id`, MySQL `DB_*`
 - [x] `config/admin.php` reading `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NIK`, `ADMIN_PHONE`; placeholders in `.env.example` (seeder reads `config('admin.*')`, never `env()`)
 - [x] `lang/id/validation.php` for the rules and attribute names this app uses (Indonesian UI, English code)
-- [x] Confirm `phpunit.xml` uses sqlite `:memory:` (already true)
+- [x] `phpunit.xml` uses the separate MySQL database `garage_rental_testing` (CLAUDE.md §11 changed by the developer from SQLite to MySQL)
 Done when: `php artisan test` green, `php artisan config:show admin` shows the keys.
 
 ## Batch 1 - Domain core: enums, migrations, models, factories
 
 Owner: laravel-backend. Test first for every model helper.
 
-- [ ] Enums `app/Enums/`: `UserRole`, `UserStatus`, `GarageType` (`prefix()`, `label()`, `hasCharging()`), `VehicleType` (`allowedGarageTypes()`, `requiresPlate()`, `hasBattery()`, `label()`), `RentalType` (`label()`)
-- [ ] Migrations: alter `users` (nik, phone, role, status), `garages`, `vehicles`, `rentals` (+ 2 indexes), `rental_extensions`, exactly as `docs/database-structure.md`
-- [ ] Models with constants, `$fillable`, `casts()` (enums, dates, decimals), typed relations:
+- [x] Enums `app/Enums/`: `UserRole`, `UserStatus`, `GarageType` (`prefix()`, `label()`, `hasCharging()`), `VehicleType` (`allowedGarageTypes()`, `requiresPlate()`, `hasBattery()`, `label()`), `RentalType` (`label()`)
+- [x] Migrations: alter `users` (nik, phone, role, status), `garages`, `vehicles`, `rentals` (+ 2 indexes), `rental_extensions`, exactly as `docs/database-structure.md`
+- [x] Models with constants, `$fillable`, `casts()` (enums, dates, decimals), typed relations:
   - `User`: `isAdmin()`, `isApproved()`, `vehicles()`, `rentals()`
   - `Garage`: `MAX_BATCH_SIZE`, `MAX_CODE_NUMBER`, `nextCodeNumber()`, `formatCode()`, `scopeUsedOn()`, `scopeAvailableBetween()`, `isUsedOn()`, `monthlyPrice()`
   - `Vehicle`: `isParkedBetween()`
   - `Rental`: `MONTHLY_PRICE_MULTIPLIER`, `calculateEndDate()`, `maxDailyDays()`, `calculateRentalCost()`, `calculateChargingKwh()`, `calculateChargingCost()`, `scopeActiveOn()`, `scopeOverlapping()`
   - `RentalExtension`: `calculateMonthlyDays()`, `calculateAdditionalCost()`
-- [ ] Factories for all five models (states: `admin()`, `pending()`, `electric()`, `daily()`, `monthly()`...)
-- [ ] Unit tests (positive / negative / boundary): end dates (Feb, leap year, month end), max days per month, costs, charging (EV in E vs C garage, full battery = 0), code numbering (first = 001, continues per type), overlap edges (touching dates overlap because they are inclusive), vehicle-garage compatibility
+- [x] Factories for all five models (states: `admin()`, `pending()`, `electric()`, `daily()`, `monthly()`...)
+- [x] Unit tests (positive / negative / boundary): end dates (Feb, leap year, month end), max days per month, costs, charging (EV in E vs C garage, full battery = 0), code numbering (first = 001, continues per type), overlap edges (touching dates overlap because they are inclusive), vehicle-garage compatibility
 Done when: all unit tests green.
 
 ## Batch 2 - Layout, auth, roles, seeding
@@ -105,7 +105,7 @@ Done when: tests green, admin can log in from seeded `.env` data.
 ## Batch 7 - Admin: reports
 
 - [ ] `Admin\ReportController`: monthly (year), daily (year + month), per garage type (period), per tenant (period). Each shows rental count and revenue = rental + charging + extensions. Rentals counted by `start_date`, extensions by their `created_at`
-- [ ] Aggregate in PHP collections after a date-range query, so the same code works on MySQL and the SQLite test DB (no `MONTH()` / `strftime`)
+- [ ] Aggregate with the query builder (`whereYear` / `whereMonth`, grouping by date parts); tests and app both run on MySQL
 - [ ] Views: `admin/reports/*` with filter forms and `x-table`, totals row, empty state
 - [ ] Feature tests: correct buckets and sums, extension revenue lands in its own month, empty period renders zeros, invalid year/month fails validation
 

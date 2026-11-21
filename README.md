@@ -19,7 +19,13 @@ php artisan serve
 php artisan test
 ```
 
-Tests run on an in-memory SQLite database and never touch MySQL.
+Tests run on a separate MySQL database, `garage_rental_testing` (set in `phpunit.xml`), which is wiped on every run. Create it once before running the tests:
+
+```sql
+CREATE DATABASE garage_rental_testing CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+The app's own database (in `.env`) is never touched by the tests.
 
 ## External libraries
 

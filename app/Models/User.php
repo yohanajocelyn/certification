@@ -2,31 +2,83 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
+use App\Enums\UserStatus;
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
+/**
+ * An account: either an admin or a tenant who rents garages.
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public const NIK_LENGTH = 16;
+
+    public const NAME_MAX_LENGTH = 100;
+
+    public const PHONE_MAX_LENGTH = 20;
+
+    protected $fillable = ['nik', 'name', 'phone', 'email', 'password', 'role', 'status'];
+
+    protected $hidden = ['password', 'remember_token'];
+
     /**
-     * Get the attributes that should be cast.
+     * New accounts are pending tenants until an admin verifies them.
      *
+     * @var array<string, string>
+     */
+    protected $attributes = [
+        'role' => UserRole::Tenant->value,
+        'status' => UserStatus::Pending->value,
+    ];
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
+            'status' => UserStatus::class,
         ];
+    }
+
+    /**
+     * Vehicles registered by this tenant.
+     */
+    public function vehicles(): HasMany
+    {
+        return $this->hasMany(Vehicle::class);
+    }
+
+    /**
+     * Garage rentals made by this tenant.
+     */
+    public function rentals(): HasMany
+    {
+        return $this->hasMany(Rental::class);
+    }
+
+    /**
+     * Whether this account manages the app.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::Admin;
+    }
+
+    /**
+     * Whether an admin has accepted this account, so it may log in.
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === UserStatus::Approved;
     }
 }

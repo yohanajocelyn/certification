@@ -1,11 +1,16 @@
 <?php
 
+use App\Enums\UserRole;
+use App\Enums\UserStatus;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    private const ENUM_COLUMN_LENGTH = 20;
+
     /**
      * Run the migrations.
      */
@@ -13,10 +18,13 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->char('nik', User::NIK_LENGTH)->unique();
+            $table->string('name', User::NAME_MAX_LENGTH);
+            $table->string('phone', User::PHONE_MAX_LENGTH);
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('role', self::ENUM_COLUMN_LENGTH)->default(UserRole::Tenant->value);
+            $table->string('status', self::ENUM_COLUMN_LENGTH)->default(UserStatus::Pending->value);
             $table->rememberToken();
             $table->timestamps();
         });

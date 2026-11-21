@@ -1,0 +1,180 @@
+<?php
+
+namespace Tests\Unit\Models;
+
+use App\Enums\GarageType;
+use App\Enums\RentalType;
+use App\Enums\VehicleType;
+use App\Models\Garage;
+use App\Models\Rental;
+use App\Models\Vehicle;
+use Carbon\CarbonImmutable;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use InvalidArgumentException;
+use Tests\TestCase;
+
+class RentalTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private const DAILY_PRICE = 10_000.0;
+
+    private const KWH_PRICE = 2_500.0;
+
+    public function test_calculate_end_date_daily_counts_start_day_as_first_day(): void
+    {
+        $end = Rental::calculateEndDate(RentalType::Daily, CarbonImmutable::parse('2026-11-21'), 5);
+
+        $this->assertSame('2026-11-25', $end->toDateString());
+    }
+
+    public function test_calculate_end_date_daily_one_day_ends_on_start_day(): void
+    {
+        $end = Rental::calculateEndDate(RentalType::Daily, CarbonImmutable::parse('2026-11-21'), 1);
+
+        $this->assertSame('2026-11-21', $end->toDateString());
+    }
+
+    public function test_calculate_end_date_daily_without_days_throws_exception(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Rental::calculateEndDate(RentalType::Daily, CarbonImmutable::parse('2026-11-21'));
+    }
+
+    public function test_calculate_end_date_monthly_in_31_day_month_lasts_31_days(): void
+    {
+        $end = Rental::calculateEndDate(RentalType::Monthly, CarbonImmutable::parse('2027-01-10'));
+
+        $this->assertSame('2027-02-09', $end->toDateString());
+    }
+
+    public function test_calculate_end_date_monthly_in_february_lasts_28_days(): void
+    {
+        $end = Rental::calculateEndDate(RentalType::Monthly, CarbonImmutable::parse('2027-02-10'));
+
+        $this->assertSame('2027-03-09', $end->toDateString());
+    }
+
+    public function test_calculate_end_date_monthly_in_leap_february_lasts_29_days(): void
+    {
+        $end = Rental::calculateEndDate(RentalType::Monthly, CarbonImmutable::parse('2028-02-01'));
+
+        $this->assertSame('2028-02-29', $end->toDateString());
+    }
+
+    public function test_calculate_end_date_monthly_from_month_end_uses_start_month_length(): void
+    {
+        $end = Rental::calculateEndDate(RentalType::Monthly, CarbonImmutable::parse('2027-01-31'));
+
+        $this->assertSame('2027-03-02', $end->toDateString());
+    }
+
+    public function test_max_daily_days_is_days_in_start_month_minus_one(): void
+    {
+        $this->assertSame(29, Rental::maxDailyDays(CarbonImmutable::parse('2026-11-21')));
+        $this->assertSame(30, Rental::maxDailyDays(CarbonImmutable::parse('2027-01-05')));
+    }
+
+    public function test_max_daily_days_in_february_depends_on_leap_year(): void
+    {
+        $this->assertSame(27, Rental::maxDailyDays(CarbonImmutable::parse('2027-02-01')));
+        $this->assertSame(28, Rental::maxDailyDays(CarbonImmutable::parse('2028-02-01')));
+    }
+
+    public function test_calculate_rental_cost_daily_multiplies_days_by_daily_price(): void
+    {
+        $this->assertSame(50_000.0, Rental::calculateRentalCost(RentalType::Daily, self::DAILY_PRICE, 5));
+    }
+
+    public function test_calculate_rental_cost_monthly_is_25_times_daily_price(): void
+    {
+        $this->assertSame(250_000.0, Rental::calculateRentalCost(RentalType::Monthly, self::DAILY_PRICE));
+    }
+
+    public function test_charging_kwh_for_electric_car_in_electric_garage_fills_battery(): void
+    {
+        $kwh = Rental::calculateChargingKwh($this->electricCar(60), $this->garage(GarageType::Electric), 20);
+
+        $this->assertSame(40.0, $kwh);
+    }
+
+    public function test_charging_kwh_for_electric_car_in_car_garage_is_zero(): void
+    {
+        $kwh = Rental::calculateChargingKwh($this->electricCar(60), $this->garage(GarageType::Car), 20);
+
+        $this->assertSame(0.0, $kwh);
+    }
+
+    public function test_charging_kwh_for_full_battery_is_zero(): void
+    {
+        $kwh = Rental::calculateChargingKwh($this->electricCar(60), $this->garage(GarageType::Electric), 60);
+
+        $this->assertSame(0.0, $kwh);
+    }
+
+    public function test_charging_kwh_for_petrol_car_is_zero(): void
+    {
+        $car = new Vehicle(['type' => VehicleType::Car]);
+
+        $this->assertSame(0.0, Rental::calculateChargingKwh($car, $this->garage(GarageType::Electric), null));
+    }
+
+    public function test_charging_cost_multiplies_kwh_by_kwh_price(): void
+    {
+        $this->assertSame(100_000.0, Rental::calculateChargingCost(40, self::KWH_PRICE));
+    }
+
+    public function test_active_on_includes_first_and_last_rented_day(): void
+    {
+        // Arrange: 21 Nov to 25 Nov
+        Rental::factory()->daily(5)->startingOn('2026-11-21')->create();
+
+        // Act + Assert
+        $this->assertSame(1, Rental::activeOn(CarbonImmutable::parse('2026-11-21'))->count());
+        $this->assertSame(1, Rental::activeOn(CarbonImmutable::parse('2026-11-25'))->count());
+    }
+
+    public function test_active_on_excludes_days_outside_the_rental(): void
+    {
+        Rental::factory()->daily(5)->startingOn('2026-11-21')->create();
+
+        $this->assertSame(0, Rental::activeOn(CarbonImmutable::parse('2026-11-20'))->count());
+        $this->assertSame(0, Rental::activeOn(CarbonImmutable::parse('2026-11-26'))->count());
+    }
+
+    public function test_overlapping_counts_shared_last_day_as_overlap(): void
+    {
+        Rental::factory()->daily(5)->startingOn('2026-11-21')->create();
+
+        $overlaps = Rental::overlapping(CarbonImmutable::parse('2026-11-25'), CarbonImmutable::parse('2026-11-30'));
+
+        $this->assertSame(1, $overlaps->count());
+    }
+
+    public function test_overlapping_excludes_period_starting_day_after_end(): void
+    {
+        Rental::factory()->daily(5)->startingOn('2026-11-21')->create();
+
+        $overlaps = Rental::overlapping(CarbonImmutable::parse('2026-11-26'), CarbonImmutable::parse('2026-11-30'));
+
+        $this->assertSame(0, $overlaps->count());
+    }
+
+    public function test_factory_rental_belongs_to_vehicle_owner(): void
+    {
+        $rental = Rental::factory()->create();
+
+        $this->assertTrue($rental->user->is($rental->vehicle->user));
+    }
+
+    private function electricCar(float $capacityKwh): Vehicle
+    {
+        return new Vehicle(['type' => VehicleType::ElectricCar, 'battery_capacity_kwh' => $capacityKwh]);
+    }
+
+    private function garage(GarageType $type): Garage
+    {
+        return new Garage(['type' => $type, 'daily_price' => self::DAILY_PRICE, 'kwh_price' => self::KWH_PRICE]);
+    }
+}
