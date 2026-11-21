@@ -117,7 +117,7 @@ mobile: row 1 = brand + user/logout, row 2 = menu links (scroll sideways)
 | `row-danger` (small) | `px-3.5 py-1.5 text-sm font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg shadow-2xs` |
 
 **`x-input`**: `w-full border border-primary-300 rounded-xl shadow-sm bg-white/80 backdrop-blur-sm px-4 py-3 text-primary-900 placeholder-primary-400 hover:bg-white focus:bg-white focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all duration-300`.
-Use the same look for `x-select` and `x-textarea`. The component should render label + input + `@error` message (`text-sm text-red-600 mt-1.5`) together, with a `required` prop that adds `<span class="text-rose-500 ml-0.5">*</span>`.
+Use the same look for `x-select` and `x-textarea`. `x-select` adds `appearance-none pl-4 pr-11` and its own `chevron-down` icon at `right-4`: the browser's arrow sits inside the right padding and makes the sides look uneven. The component should render label + input + `@error` message (`text-sm text-red-600 mt-1.5`) together, with a `required` prop that adds `<span class="text-rose-500 ml-0.5">*</span>`.
 
 **Choice cards** for short fixed choices (2-4 options: rental type, garage type); a list that grows with the data (the tenant's vehicles) uses `x-select` instead:
 `label` = `flex items-center justify-between p-3 min-h-[48px] rounded-xl border border-primary-300/80 bg-white/70 cursor-pointer hover:bg-white has-checked:border-secondary has-checked:bg-primary-100/50 has-checked:ring-2 has-checked:ring-secondary/40`, coloured status dot on the left, radio on the right.
