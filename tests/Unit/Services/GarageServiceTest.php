@@ -81,25 +81,6 @@ class GarageServiceTest extends TestCase
         }
     }
 
-    public function test_update_prices_changes_daily_and_kwh_price(): void
-    {
-        $garage = Garage::factory()->electric()->create(['daily_price' => 30_000, 'kwh_price' => 2_500]);
-
-        $this->service->updatePrices($garage, 35_000, 3_000);
-
-        $this->assertEquals(35_000, $garage->fresh()->daily_price);
-        $this->assertEquals(3_000, $garage->fresh()->kwh_price);
-    }
-
-    public function test_update_prices_never_sets_kwh_price_on_a_garage_that_does_not_charge(): void
-    {
-        $garage = Garage::factory()->car()->create();
-
-        $this->service->updatePrices($garage, 30_000, 3_000);
-
-        $this->assertNull($garage->fresh()->kwh_price);
-    }
-
     public function test_paginate_filters_by_type_and_flags_garages_used_today(): void
     {
         $used = Garage::factory()->car()->create(['code' => 'C001']);

@@ -26,8 +26,6 @@ return new class extends Migration
             $table->unsignedSmallInteger('days')->nullable();
             $table->date('start_date');
             $table->date('end_date');
-            $table->decimal('daily_price', Garage::PRICE_PRECISION, Garage::PRICE_SCALE);
-            $table->decimal('kwh_price', Garage::PRICE_PRECISION, Garage::PRICE_SCALE)->nullable();
             $table->decimal('rental_cost', Garage::PRICE_PRECISION, Garage::PRICE_SCALE);
             $table->decimal('charging_kwh', Vehicle::KWH_PRECISION, Vehicle::KWH_SCALE)->default(0);
             $table->decimal('charging_cost', Garage::PRICE_PRECISION, Garage::PRICE_SCALE)->default(0);

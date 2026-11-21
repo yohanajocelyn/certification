@@ -90,7 +90,8 @@ class RentalExtension extends Model
             'days' => $days,
             'old_end_date' => $oldEndDate,
             'new_end_date' => $oldEndDate->addDays($days),
-            'additional_cost' => self::calculateAdditionalCost($type, (float) $rental->daily_price, $days, $months),
+            // Garage prices never change after creation, so the rental's garage price is the booked price.
+            'additional_cost' => self::calculateAdditionalCost($type, (float) $rental->garage->daily_price, $days, $months),
         ]);
         $extension->rental()->associate($rental);
 

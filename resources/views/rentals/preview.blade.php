@@ -86,7 +86,7 @@
                                     <x-choice-card name="garage_id" :value="$draft->garage->id" :label="$draft->garage->code"
                                                    :checked="(string) old('garage_id') === (string) $draft->garage->id" required>
                                         <span class="block text-sm text-primary-600 mt-1">
-                                            <x-rupiah :amount="$draft->daily_price" /> / hari
+                                            <x-rupiah :amount="$draft->garage->daily_price" /> / hari
                                         </span>
                                         <span class="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-sm text-primary-700">
                                             <span>Sewa</span>

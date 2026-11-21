@@ -3,6 +3,7 @@
 namespace Tests\Unit\Models;
 
 use App\Enums\RentalType;
+use App\Models\Garage;
 use App\Models\Rental;
 use App\Models\RentalExtension;
 use Carbon\CarbonImmutable;
@@ -48,7 +49,7 @@ class RentalExtensionTest extends TestCase
 
     public function test_draft_for_daily_extension_counts_days_and_cost_from_new_end_date(): void
     {
-        $rental = Rental::factory()->daily(5)->startingOn('2026-11-21')->make(['daily_price' => 10_000]);
+        $rental = Rental::factory()->for($this->garageAt(10_000))->daily(5)->startingOn('2026-11-21')->make();
 
         $extension = RentalExtension::draftFor($rental, RentalType::Daily, CarbonImmutable::parse('2026-11-30'), null);
 
@@ -63,7 +64,7 @@ class RentalExtensionTest extends TestCase
     public function test_draft_for_monthly_extension_uses_end_month_length_for_every_month(): void
     {
         // Ends 20 Jan 2027: 2 months = 31 + 31 days -> 23 Mar 2027
-        $rental = Rental::factory()->daily(20)->startingOn('2027-01-01')->make(['daily_price' => 10_000]);
+        $rental = Rental::factory()->for($this->garageAt(10_000))->daily(20)->startingOn('2027-01-01')->make();
 
         $extension = RentalExtension::draftFor($rental, RentalType::Monthly, null, 2);
 
@@ -103,5 +104,13 @@ class RentalExtensionTest extends TestCase
 
         $this->assertTrue($extension->rental->is($rental));
         $this->assertTrue($rental->extensions->first()->is($extension));
+    }
+
+    /**
+     * A car garage with the given daily price; rentals use their garage's price.
+     */
+    private function garageAt(float $dailyPrice): Garage
+    {
+        return Garage::factory()->car()->create(['daily_price' => $dailyPrice]);
     }
 }

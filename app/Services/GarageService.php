@@ -12,7 +12,7 @@ use InvalidArgumentException;
 use LengthException;
 
 /**
- * Garage use cases: listing, batch creation with sequential codes, and price changes.
+ * Garage use cases: listing and batch creation with sequential codes. Prices never change after creation.
  */
 class GarageService
 {
@@ -86,20 +86,5 @@ class GarageService
 
             return $codes;
         });
-    }
-
-    /**
-     * Change a garage's prices. Type and code never change; existing rentals keep their booked price.
-     *
-     * @param  float|null  $kwhPrice  ignored for garages that do not charge
-     */
-    public function updatePrices(Garage $garage, float $dailyPrice, ?float $kwhPrice): Garage
-    {
-        $garage->update([
-            'daily_price' => $dailyPrice,
-            'kwh_price' => $garage->type->hasCharging() ? $kwhPrice : null,
-        ]);
-
-        return $garage;
     }
 }

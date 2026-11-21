@@ -42,9 +42,9 @@
                 <dd class="mt-1 text-lg font-black text-primary-900"><x-rupiah :amount="$extension->additional_cost" /></dd>
                 <span class="block text-sm font-medium text-primary-600">
                     @if ($isMonthly)
-                        {{ $extension->months }} × <x-rupiah :amount="(float) $rental->daily_price * Rental::MONTHLY_PRICE_MULTIPLIER" />
+                        {{ $extension->months }} × <x-rupiah :amount="$rental->garage->monthlyPrice()" />
                     @else
-                        {{ $extension->days }} × <x-rupiah :amount="$rental->daily_price" />
+                        {{ $extension->days }} × <x-rupiah :amount="$rental->garage->daily_price" />
                     @endif
                 </span>
             </div>

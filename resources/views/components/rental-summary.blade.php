@@ -32,10 +32,10 @@
     </div>
     <div>
         <dt class="{{ $termClass }}">Harga Harian</dt>
-        <dd class="{{ $valueClass }}"><x-rupiah :amount="$rental->daily_price" /></dd>
+        <dd class="{{ $valueClass }}"><x-rupiah :amount="$rental->garage->daily_price" /></dd>
     </div>
     <div>
         <dt class="{{ $termClass }}">Harga Bulanan</dt>
-        <dd class="{{ $valueClass }}"><x-rupiah :amount="(float) $rental->daily_price * \App\Models\Rental::MONTHLY_PRICE_MULTIPLIER" /></dd>
+        <dd class="{{ $valueClass }}"><x-rupiah :amount="$rental->garage->monthlyPrice()" /></dd>
     </div>
 </dl>

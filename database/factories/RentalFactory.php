@@ -39,11 +39,9 @@ class RentalFactory extends Factory
                 CarbonImmutable::parse($attributes['start_date']),
                 $attributes['days'],
             ),
-            'daily_price' => fn (array $attributes) => Garage::findOrFail($attributes['garage_id'])->daily_price,
-            'kwh_price' => fn (array $attributes) => Garage::findOrFail($attributes['garage_id'])->kwh_price,
             'rental_cost' => fn (array $attributes) => Rental::calculateRentalCost(
                 $this->rentalType($attributes['rental_type']),
-                (float) $attributes['daily_price'],
+                (float) Garage::findOrFail($attributes['garage_id'])->daily_price,
                 $attributes['days'],
             ),
             'charging_kwh' => 0,

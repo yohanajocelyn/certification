@@ -33,7 +33,7 @@ class RentalExtensionFactory extends Factory
             'new_end_date' => fn (array $attributes) => CarbonImmutable::parse($attributes['old_end_date'])->addDays($attributes['days']),
             'additional_cost' => fn (array $attributes) => RentalExtension::calculateAdditionalCost(
                 RentalType::Daily,
-                (float) Rental::findOrFail($attributes['rental_id'])->daily_price,
+                (float) Rental::findOrFail($attributes['rental_id'])->garage->daily_price,
                 $attributes['days'],
             ),
             'payment_proof' => 'payment-proofs/example.jpg',

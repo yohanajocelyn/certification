@@ -238,6 +238,13 @@ class RentalTest extends TestCase
         $this->assertSame(2, $count);
     }
 
+    public function test_rentals_table_keeps_no_copy_of_the_garage_prices(): void
+    {
+        // Garage prices never change after creation, so the rental reads them from its garage.
+        $this->assertFalse(Schema::hasColumn('rentals', 'daily_price'));
+        $this->assertFalse(Schema::hasColumn('rentals', 'kwh_price'));
+    }
+
     public function test_rentals_table_has_no_user_id_column(): void
     {
         $this->assertFalse(Schema::hasColumn('rentals', 'user_id'));
