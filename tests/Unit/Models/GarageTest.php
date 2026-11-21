@@ -17,7 +17,7 @@ class GarageTest extends TestCase
         $garage = Garage::factory()->create();
         Rental::factory()->for($garage)->daily(5)->startingOn('2026-11-21')->create();
 
-        $this->assertTrue($this->isUsedOn($garage, '2026-11-23'));
+        $this->assertTrue($this->usageFlagOn($garage, '2026-11-23'));
     }
 
     public function test_with_usage_on_is_not_used_before_a_future_rental_starts(): void
@@ -26,7 +26,7 @@ class GarageTest extends TestCase
         $garage = Garage::factory()->create();
         Rental::factory()->for($garage)->monthly()->startingOn('2026-12-01')->create();
 
-        $this->assertFalse($this->isUsedOn($garage, '2026-11-21'));
+        $this->assertFalse($this->usageFlagOn($garage, '2026-11-21'));
     }
 
     public function test_with_usage_on_is_not_used_after_the_rental_ended(): void
@@ -34,13 +34,13 @@ class GarageTest extends TestCase
         $garage = Garage::factory()->create();
         Rental::factory()->for($garage)->daily(5)->startingOn('2026-11-21')->create();
 
-        $this->assertFalse($this->isUsedOn($garage, '2026-11-26'));
+        $this->assertFalse($this->usageFlagOn($garage, '2026-11-26'));
     }
 
     /**
      * The garage's `is_used` flag on the date, read the way the garage list reads it.
      */
-    private function isUsedOn(Garage $garage, string $date): bool
+    private function usageFlagOn(Garage $garage, string $date): bool
     {
         return Garage::withUsageOn(CarbonImmutable::parse($date))->findOrFail($garage->id)->is_used;
     }
