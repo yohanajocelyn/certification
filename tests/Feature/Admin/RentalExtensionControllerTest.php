@@ -168,7 +168,7 @@ class RentalExtensionControllerTest extends TestCase
         $this->assertEquals(50_000, $extension->additional_cost);
         Storage::disk(Rental::PAYMENT_PROOF_DISK)->assertExists($extension->payment_proof);
         $this->assertSame('2026-11-30', $this->rental->fresh()->end_date->toDateString());
-        $this->assertTrue($this->garage->isUsedOn(CarbonImmutable::parse('2026-11-30')));
+        $this->assertTrue(Garage::withUsageOn(CarbonImmutable::parse('2026-11-30'))->findOrFail($this->garage->id)->is_used);
     }
 
     public function test_store_monthly_saves_months_and_days(): void

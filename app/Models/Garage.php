@@ -95,16 +95,6 @@ class Garage extends Model
     }
 
     /**
-     * Garages that have a rental covering the given date.
-     *
-     * @param  Builder<Garage>  $query
-     */
-    public function scopeUsedOn(Builder $query, CarbonInterface $date): void
-    {
-        $query->whereHas('rentals', fn (Builder $rentals) => $rentals->activeOn($date));
-    }
-
-    /**
      * Garages with no rental overlapping the whole period (dates inclusive).
      *
      * @param  Builder<Garage>  $query
@@ -116,20 +106,13 @@ class Garage extends Model
 
     /**
      * Add an `is_used` flag per garage for the given date, in one query (no N+1).
+     * Used means a rental covers the date; a rental that starts later does not count.
      *
      * @param  Builder<Garage>  $query
      */
     public function scopeWithUsageOn(Builder $query, CarbonInterface $date): void
     {
         $query->withExists(['rentals as is_used' => fn (Builder $rentals) => $rentals->activeOn($date)]);
-    }
-
-    /**
-     * Whether a rental covers the given date. A rental that starts later does not count.
-     */
-    public function isUsedOn(CarbonInterface $date): bool
-    {
-        return $this->rentals()->activeOn($date)->exists();
     }
 
     /**

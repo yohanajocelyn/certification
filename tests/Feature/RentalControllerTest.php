@@ -327,7 +327,7 @@ class RentalControllerTest extends TestCase
         $this->assertSame('2026-11-25', $rental->end_date->toDateString());
         $this->assertEquals(50_000, $rental->total_cost);
         Storage::disk(Rental::PAYMENT_PROOF_DISK)->assertExists($rental->payment_proof);
-        $this->assertTrue($garage->isUsedOn(CarbonImmutable::today()));
+        $this->assertTrue(Garage::withUsageOn(CarbonImmutable::today())->findOrFail($garage->id)->is_used);
     }
 
     public function test_store_with_future_start_does_not_mark_garage_used_today(): void
@@ -337,7 +337,7 @@ class RentalControllerTest extends TestCase
         $this->actingAs($this->tenant)->post(route('rentals.store'), $this->storeData($garage, ['start_date' => '2026-12-01']));
 
         $this->assertDatabaseCount('rentals', 1);
-        $this->assertFalse($garage->isUsedOn(CarbonImmutable::today()));
+        $this->assertFalse(Garage::withUsageOn(CarbonImmutable::today())->findOrFail($garage->id)->is_used);
     }
 
     public function test_store_monthly_saves_no_days_and_25_daily_prices(): void
