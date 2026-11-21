@@ -74,10 +74,11 @@ Done when: tests green, admin can log in from seeded `.env` data.
 
 ## Batch 3 - Admin: garages (batch create + list)
 
-- [ ] `Admin\GarageController` index (paginated, filter by type, status for today from `isUsedOn(today)`), create, store
-- [ ] Store: validate type, quantity 1..remaining for that type (max 999), daily_price > 0, kwh_price required for electric and prohibited otherwise; generate codes inside `DB::transaction` with a lock so two batches never reuse a number
-- [ ] Views: `admin/garages/index` (`x-table`, empty state), `admin/garages/create` (kWh field shown only for electric via small script)
-- [ ] Feature tests: S001.. first batch, continues from C010 -> C011, quantity 999 ok / 1000 fails / exceeding remaining fails, electric without kWh fails, non-electric with kWh fails, status shows "used" only while a rental covers today (future rental -> still available)
+- [x] `Admin\GarageController` index (paginated, filter by type, status for today from `isUsedOn(today)`), create, store
+- [x] Store: validate type, quantity 1..remaining for that type (max 999), daily_price > 0, kwh_price required for electric and prohibited otherwise; generate codes inside `DB::transaction` with a lock so two batches never reuse a number
+- [x] Views: `admin/garages/index` (`x-table`, empty state), `admin/garages/create` (kWh field shown only for electric via small script)
+- [x] Feature tests: S001.. first batch, continues from C010 -> C011, quantity 999 ok / 1000 fails / exceeding remaining fails, electric without kWh fails, non-electric with kWh fails, status shows "used" only while a rental covers today (future rental -> still available)
+- [x] Admins now land on the garage list after login; navbar has the "Garasi" link; DemoSeeder uses `Garage::createBatch()`
 
 ## Batch 4 - Admin: tenant verification
 

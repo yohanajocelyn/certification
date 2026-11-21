@@ -97,7 +97,12 @@ return [
     'unique' => ':attribute sudah terdaftar.',
     'uploaded' => ':attribute gagal diunggah.',
 
-    'custom' => [],
+    'custom' => [
+        'kwh_price' => [
+            'required' => 'Harga isi listrik per kWh wajib diisi untuk Garasi Mobil Listrik.',
+            'prohibited' => 'Harga isi listrik per kWh hanya diisi untuk Garasi Mobil Listrik.',
+        ],
+    ],
 
     /*
     | Field names shown in messages instead of the raw input name.

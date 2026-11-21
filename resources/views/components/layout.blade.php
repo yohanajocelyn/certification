@@ -23,6 +23,13 @@
                         {{ config('app.name') }}
                     </a>
 
+                    @if (auth()->user()->isAdmin())
+                        <nav aria-label="Menu utama"
+                             class="order-last md:order-none w-full md:w-auto flex items-center gap-6 md:gap-8 overflow-x-auto whitespace-nowrap md:flex-1">
+                            <x-nav-link :href="route('admin.garages.index')" :active="request()->routeIs('admin.garages.*')">Garasi</x-nav-link>
+                        </nav>
+                    @endif
+
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-9 h-9 rounded-full bg-primary-200/70 border border-primary-300/60 flex items-center justify-center shrink-0">
                             <x-heroicon-s-user class="w-5 h-5 text-primary-700" />

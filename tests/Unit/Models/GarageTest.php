@@ -7,6 +7,8 @@ use App\Models\Garage;
 use App\Models\Rental;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use InvalidArgumentException;
+use LengthException;
 use Tests\TestCase;
 
 class GarageTest extends TestCase
@@ -87,6 +89,66 @@ class GarageTest extends TestCase
         // Assert
         $this->assertCount(1, $available);
         $this->assertTrue($available->first()->is($free));
+    }
+
+    public function test_remaining_code_numbers_counts_codes_left_up_to_999(): void
+    {
+        Garage::factory()->car()->create(['code' => 'C010']);
+
+        $this->assertSame(989, Garage::remainingCodeNumbers(GarageType::Car));
+        $this->assertSame(Garage::MAX_CODE_NUMBER, Garage::remainingCodeNumbers(GarageType::Bike));
+    }
+
+    public function test_create_batch_returns_new_codes_in_order(): void
+    {
+        Garage::factory()->electric()->create(['code' => 'E002']);
+
+        $codes = Garage::createBatch(GarageType::Electric, 3, 30_000, 2_500);
+
+        $this->assertSame(['E003', 'E004', 'E005'], $codes);
+        $this->assertSame(3, Garage::where('kwh_price', 2_500)->whereIn('code', $codes)->count());
+    }
+
+    public function test_create_batch_drops_kwh_price_for_non_electric_type(): void
+    {
+        Garage::createBatch(GarageType::Car, 1, 25_000, 2_500);
+
+        $this->assertNull(Garage::firstWhere('code', 'C001')->kwh_price);
+    }
+
+    public function test_create_batch_with_zero_quantity_throws_and_creates_nothing(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        try {
+            Garage::createBatch(GarageType::Car, 0, 25_000, null);
+        } finally {
+            $this->assertDatabaseCount('garages', 0);
+        }
+    }
+
+    public function test_create_batch_past_code_999_throws_and_creates_nothing(): void
+    {
+        Garage::factory()->car()->create(['code' => 'C998']);
+        $this->expectException(LengthException::class);
+
+        try {
+            Garage::createBatch(GarageType::Car, 2, 25_000, null);
+        } finally {
+            $this->assertDatabaseCount('garages', 1);
+        }
+    }
+
+    public function test_with_usage_on_flags_each_garage_in_one_query(): void
+    {
+        $used = Garage::factory()->create();
+        $free = Garage::factory()->create();
+        Rental::factory()->for($used)->startingOn('2026-11-21')->create();
+
+        $garages = Garage::withUsageOn(CarbonImmutable::parse('2026-11-21'))->get()->keyBy('id');
+
+        $this->assertTrue($garages[$used->id]->is_used);
+        $this->assertFalse($garages[$free->id]->is_used);
     }
 
     public function test_monthly_price_is_25_times_daily_price(): void

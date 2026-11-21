@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\UserRole;
+use App\Http\Controllers\Admin\GarageController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HomeController;
@@ -15,4 +17,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/', HomeController::class)->name('home');
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
+
+    Route::middleware('role:'.UserRole::Admin->value)->prefix('admin')->name('admin.')->group(function () {
+        Route::resource('garages', GarageController::class)->only(['index', 'create', 'store']);
+    });
 });

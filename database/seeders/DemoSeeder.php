@@ -21,6 +21,14 @@ class DemoSeeder extends Seeder
         GarageType::Electric->value => 4,
     ];
 
+    private const DAILY_PRICES = [
+        GarageType::Bike->value => 5_000.0,
+        GarageType::Car->value => 25_000.0,
+        GarageType::Electric->value => 35_000.0,
+    ];
+
+    private const KWH_PRICE = 2_500.0;
+
     /**
      * Seed tenants in every status, garages with sequential codes, and a few rentals.
      */
@@ -35,7 +43,7 @@ class DemoSeeder extends Seeder
     }
 
     /**
-     * Create garages S001.., C001.., E001.. as an admin batch would.
+     * Create garages S001.., C001.., E001.. through the same batch method the admin uses.
      *
      * @return array<string, list<Garage>> garages keyed by type value
      */
@@ -45,16 +53,10 @@ class DemoSeeder extends Seeder
 
         foreach (self::GARAGES_PER_TYPE as $typeValue => $count) {
             $type = GarageType::from($typeValue);
-            $factory = match ($type) {
-                GarageType::Bike => Garage::factory()->bike(),
-                GarageType::Car => Garage::factory()->car(),
-                GarageType::Electric => Garage::factory()->electric(),
-            };
+            $kwhPrice = $type->hasCharging() ? self::KWH_PRICE : null;
 
-            $garages[$typeValue] = $factory->count($count)
-                ->sequence(fn ($sequence) => ['code' => Garage::formatCode($type, $sequence->index + 1)])
-                ->create()
-                ->all();
+            $codes = Garage::createBatch($type, $count, self::DAILY_PRICES[$typeValue], $kwhPrice);
+            $garages[$typeValue] = Garage::whereIn('code', $codes)->orderBy('code')->get()->all();
         }
 
         return $garages;

@@ -26,10 +26,10 @@ class HomeTest extends TestCase
         $response->assertSee('Penyewa');
     }
 
-    public function test_home_shows_admin_role_for_admin(): void
+    public function test_home_redirects_admin_to_garage_list(): void
     {
         $admin = User::factory()->admin()->create();
 
-        $this->actingAs($admin)->get(route('home'))->assertOk()->assertSee('Admin');
+        $this->actingAs($admin)->get(route('home'))->assertRedirect(route('admin.garages.index'));
     }
 }
