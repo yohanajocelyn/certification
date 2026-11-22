@@ -50,7 +50,7 @@ class Vehicle extends Model implements Parkable
     protected $fillable = ['plate_number', 'brand_model', 'battery_capacity_kwh'];
 
     /**
-     * Children store their own type and see only rows of that type (ElectricCar::all()).
+     * Children store their own type, so a new ElectricCar is saved with type electric_car.
      */
     public function __construct(array $attributes = [])
     {

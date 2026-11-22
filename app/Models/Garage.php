@@ -61,7 +61,7 @@ class Garage extends Model
     }
 
     /**
-     * How many more garages of this type fit in the 3-digit code range.
+     * How many more garages of this type fit before config('rules.garage.max_code_number') (999).
      */
     public static function remainingCodeNumbers(GarageType $type): int
     {

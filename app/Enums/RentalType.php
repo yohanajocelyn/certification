@@ -3,7 +3,8 @@
 namespace App\Enums;
 
 /**
- * How a rental or an extension is charged: per day or per month.
+ * How a rental is charged: per day or per month. (Extensions have no type: they are split into
+ * whole months and leftover days.)
  */
 enum RentalType: string
 {

@@ -92,8 +92,8 @@ class Rental extends Model
 
     /**
      * An unsaved rental with its end date and every cost worked out, used both to show
-     * the tenant the total before paying and to save the rental. Only the tenant and the
-     * payment proof are left to set.
+     * the tenant the total before paying and to save the rental. The garage and the vehicle
+     * (which links the rental to its tenant) are attached; only the payment proof is left to set.
      *
      * @param  int|null  $days  number of days, required for daily rentals
      * @param  float|null  $currentBatteryKwh  battery level entered by the tenant (electric cars)

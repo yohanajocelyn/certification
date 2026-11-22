@@ -49,12 +49,13 @@ class GarageService
     /**
      * Create a batch of garages of one type with the next free codes (C011, C012, ...).
      *
-     * @param  int  $quantity  1 to config('rules.garage.max_batch_size'), and no more than the codes left
+     * @param  int  $quantity  at least config('rules.garage.min_batch_size') and no more than the codes left
+     *                         (the controller also caps it at config('rules.garage.max_batch_size'))
      * @param  float|null  $kwhPrice  charging price; stored only for garages that charge
      * @return Collection<int, string> the new codes, in order
      *
      * @throws InvalidArgumentException when the quantity is below config('rules.garage.min_batch_size')
-     * @throws LengthException when the batch would go past code number 999
+     * @throws LengthException when the batch would go past config('rules.garage.max_code_number') (999)
      */
     public function createBatch(GarageType $type, int $quantity, float $dailyPrice, ?float $kwhPrice): Collection
     {
