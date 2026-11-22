@@ -21,13 +21,11 @@
             <x-input name="email" type="email" label="Email" required autocomplete="email"
                      maxlength="{{ config('rules.user.email_max_length') }}" placeholder="anda@contoh.com" />
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <x-input name="password" type="password" label="Kata Sandi" required autocomplete="new-password"
-                         minlength="{{ config('rules.user.password_min_length') }}" />
+            <x-input name="password" type="password" label="Kata Sandi" required autocomplete="new-password"
+                     minlength="{{ config('rules.user.password_min_length') }}" />
 
-                <x-input name="password_confirmation" type="password" label="Ulangi Kata Sandi" required
-                         autocomplete="new-password" />
-            </div>
+            <x-input name="password_confirmation" type="password" label="Ulangi Kata Sandi" required
+                     autocomplete="new-password" />
 
             <x-button type="submit" class="w-full">
                 <x-heroicon-o-user-plus class="w-4 h-4" />

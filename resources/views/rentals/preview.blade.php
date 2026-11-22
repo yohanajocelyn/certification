@@ -18,7 +18,7 @@
 
         <h1 class="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight mb-6">Pilih Garasi</h1>
 
-        <dl class="grid grid-cols-2 md:grid-cols-4 gap-5 p-5 sm:p-6 mb-10 rounded-2xl border border-primary-200 bg-white/70 shadow-2xs">
+        <dl class="grid grid-cols-2 md:flex md:justify-between gap-5 md:gap-8 p-5 sm:p-6 mb-10 rounded-2xl border border-primary-200 bg-white/70 shadow-2xs">
             <div class="col-span-2">
                 <dt class="{{ $termClass }}">Kendaraan</dt>
                 <dd class="{{ $valueClass }}">{{ $vehicle->displayName() }}</dd>

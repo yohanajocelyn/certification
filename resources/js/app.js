@@ -141,3 +141,77 @@ document.querySelectorAll('[data-rental-days]').forEach((daysInput) => syncRenta
         }
     });
 });
+
+/*
+ * The browser's own warnings (required, minlength, min, max, ...) follow the browser language.
+ * Replace them with Indonesian text. Display only: the server checks again with lang/id/validation.php.
+ */
+function formatIsoDate(isoDate) {
+    const [year, month, day] = isoDate.split('-').map(Number);
+
+    return new Date(Date.UTC(year, month - 1, day))
+        .toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+}
+
+function limitText(field, limit) {
+    return field.type === 'date' ? formatIsoDate(limit) : limit;
+}
+
+function missingValueMessage(field) {
+    if (field.type === 'file') {
+        return 'Pilih file terlebih dahulu.';
+    }
+
+    const isChoice = field.tagName === 'SELECT' || field.type === 'radio' || field.type === 'checkbox';
+
+    return isChoice ? 'Pilih salah satu pilihan.' : 'Kolom ini wajib diisi.';
+}
+
+function stepMessage(field) {
+    const isWholeNumber = field.step === '' || field.step === '1';
+
+    return isWholeNumber ? 'Masukkan bilangan bulat.' : `Masukkan angka dengan kelipatan ${field.step}.`;
+}
+
+function browserValidationMessage(field) {
+    const { validity } = field;
+
+    if (validity.valueMissing) {
+        return missingValueMessage(field);
+    }
+    if (validity.typeMismatch) {
+        return field.type === 'email' ? 'Masukkan alamat email yang valid.' : 'Format isian tidak valid.';
+    }
+    if (validity.tooShort) {
+        return `Minimal ${field.minLength} karakter (sekarang ${field.value.length}).`;
+    }
+    if (validity.tooLong) {
+        return `Maksimal ${field.maxLength} karakter.`;
+    }
+    if (validity.rangeUnderflow) {
+        return field.type === 'date' ? `Tanggal paling awal ${limitText(field, field.min)}.` : `Nilai minimal ${field.min}.`;
+    }
+    if (validity.rangeOverflow) {
+        return field.type === 'date' ? `Tanggal paling akhir ${limitText(field, field.max)}.` : `Nilai maksimal ${field.max}.`;
+    }
+    if (validity.stepMismatch) {
+        return stepMessage(field);
+    }
+
+    return validity.patternMismatch || validity.badInput ? 'Format isian tidak valid.' : '';
+}
+
+// "invalid" does not bubble, so listen in the capture phase.
+document.addEventListener('invalid', (event) => {
+    const field = event.target;
+
+    field.setCustomValidity('');
+    field.setCustomValidity(browserValidationMessage(field));
+}, true);
+
+// Clear the messages on every edit so the browser checks the fields again (a radio group shares one message).
+['input', 'change'].forEach((eventName) => {
+    document.addEventListener(eventName, (event) => {
+        event.target.form?.querySelectorAll('input, select, textarea').forEach((field) => field.setCustomValidity(''));
+    });
+});
