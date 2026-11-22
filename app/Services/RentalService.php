@@ -157,12 +157,13 @@ class RentalService
     }
 
     /**
-     * An unsaved extension with the days added, the new end date and the remaining cost.
+     * An unsaved extension with the days added, split into whole months and leftover days, and the
+     * remaining cost.
      *
-     * @param  array<string, mixed>  $input  validated: extension_type, and new_end_date (daily) or months (monthly)
+     * @param  array<string, mixed>  $input  validated: new_end_date
      *
      * @throws RentalNotExtendableException when the rental does not cover today
-     * @throws ValidationException when the added days clash with another booking (new_end_date or months)
+     * @throws ValidationException when the added days clash with another booking (new_end_date)
      */
     public function quoteExtension(Rental $rental, array $input): RentalExtension
     {
@@ -170,7 +171,7 @@ class RentalService
         $rental->load(['garage', 'vehicle.user']);
 
         $extension = $this->draftExtension($rental, $input);
-        $this->ensureExtraDaysAreFree($rental, $extension, $this->extensionField($input));
+        $this->ensureExtraDaysAreFree($rental, $extension);
 
         return $extension;
     }
@@ -179,17 +180,16 @@ class RentalService
      * Save the extension and move the rental's end date. The rental is locked and the extension
      * rebuilt from it, because another admin may have just extended the same rental.
      *
-     * @param  array<string, mixed>  $input  validated: extension_type, and new_end_date (daily) or months (monthly)
+     * @param  array<string, mixed>  $input  validated: new_end_date
      *
      * @throws RentalNotExtendableException when the rental does not cover today
-     * @throws ValidationException when the extension no longer fits (new_end_date or months)
+     * @throws ValidationException when the extension no longer fits (new_end_date)
      */
     public function extend(Rental $rental, array $input, UploadedFile $paymentProof): RentalExtension
     {
         $this->ensureExtendable($rental);
-        $field = $this->extensionField($input);
 
-        return DB::transaction(function () use ($rental, $input, $paymentProof, $field) {
+        return DB::transaction(function () use ($rental, $input, $paymentProof) {
             $lockedRental = Rental::query()->lockForUpdate()->findOrFail($rental->id);
             Garage::query()->lockForUpdate()->findOrFail($lockedRental->garage_id);
 
@@ -197,11 +197,11 @@ class RentalService
 
             if ($extension->days < 1) {
                 throw ValidationException::withMessages([
-                    $field => 'Sewa ini baru saja diperpanjang. Muat ulang halaman dan pilih tanggal lagi.',
+                    'new_end_date' => 'Sewa ini baru saja diperpanjang. Muat ulang halaman dan pilih tanggal lagi.',
                 ]);
             }
 
-            $this->ensureExtraDaysAreFree($lockedRental, $extension, $field);
+            $this->ensureExtraDaysAreFree($lockedRental, $extension);
 
             $extension->payment_proof = $paymentProof->store(Rental::PAYMENT_PROOF_DIRECTORY, Rental::PAYMENT_PROOF_DISK);
             $extension->save();
@@ -292,11 +292,9 @@ class RentalService
      * The added days must not clash with the next booking of the garage or with another
      * garage the vehicle is booked in.
      *
-     * @param  string  $field  input that receives the error message
-     *
-     * @throws ValidationException
+     * @throws ValidationException on new_end_date
      */
-    private function ensureExtraDaysAreFree(Rental $rental, RentalExtension $extension, string $field): void
+    private function ensureExtraDaysAreFree(Rental $rental, RentalExtension $extension): void
     {
         $firstExtraDay = $extension->firstExtraDay();
         $nextBooking = $rental->garage->rentals()
@@ -309,14 +307,14 @@ class RentalService
             $latestEnd = $nextBooking->start_date->subDay()->translatedFormat('d M Y');
 
             throw ValidationException::withMessages([
-                $field => "Garasi {$rental->garage->code} sudah dipesan mulai {$nextBooking->start_date->translatedFormat('d M Y')}. "
+                'new_end_date' => "Garasi {$rental->garage->code} sudah dipesan mulai {$nextBooking->start_date->translatedFormat('d M Y')}. "
                     ."Perpanjangan paling lama sampai {$latestEnd}.",
             ]);
         }
 
         if ($rental->vehicle->isParkedBetween($firstExtraDay, $extension->new_end_date, $rental)) {
             throw ValidationException::withMessages([
-                $field => 'Kendaraan ini sudah dipesan di garasi lain pada tanggal perpanjangan.',
+                'new_end_date' => 'Kendaraan ini sudah dipesan di garasi lain pada tanggal perpanjangan.',
             ]);
         }
     }
@@ -328,26 +326,10 @@ class RentalService
      */
     private function draftExtension(Rental $rental, array $input): RentalExtension
     {
-        $newEndDate = isset($input['new_end_date'])
-            ? CarbonImmutable::createFromFormat('!'.self::DATE_FORMAT, $input['new_end_date'])
-            : null;
-
         return RentalExtension::draftFor(
             $rental,
-            RentalType::from($input['extension_type']),
-            $newEndDate,
-            isset($input['months']) ? (int) $input['months'] : null,
+            CarbonImmutable::createFromFormat('!'.self::DATE_FORMAT, $input['new_end_date']),
         );
-    }
-
-    /**
-     * The field the admin filled in: the new end date (daily) or the months (monthly).
-     *
-     * @param  array<string, mixed>  $input
-     */
-    private function extensionField(array $input): string
-    {
-        return $input['extension_type'] === RentalType::Monthly->value ? 'months' : 'new_end_date';
     }
 
     /**

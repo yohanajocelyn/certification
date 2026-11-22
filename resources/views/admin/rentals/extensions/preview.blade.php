@@ -1,7 +1,4 @@
 @php
-    use App\Enums\RentalType;
-
-    $isMonthly = $extension->extension_type === RentalType::Monthly;
     $termClass = 'text-sm font-semibold text-primary-600 uppercase tracking-wide';
     $valueClass = 'mt-1 text-base font-bold text-primary-900';
 @endphp
@@ -31,20 +28,17 @@
                 <dt class="{{ $termClass }}">Tambahan</dt>
                 <dd class="{{ $valueClass }}">
                     {{ $extension->days }} hari
-                    @if ($isMonthly)
-                        <span class="block text-sm font-medium text-primary-600">{{ $extension->months }} bulan × {{ $extension->old_end_date->daysInMonth }} hari</span>
-                    @endif
+                    <span class="block text-sm font-medium text-primary-600">
+                        {{ $extension->months }} bulan × {{ $extension->monthLength() }} hari + {{ $extension->leftoverDays() }} hari
+                    </span>
                 </dd>
             </div>
             <div>
                 <dt class="{{ $termClass }}">Sisa Biaya</dt>
                 <dd class="mt-1 text-lg font-black text-primary-900"><x-rupiah :amount="$extension->additional_cost" /></dd>
                 <span class="block text-sm font-medium text-primary-600">
-                    @if ($isMonthly)
-                        {{ $extension->months }} × <x-rupiah :amount="$rental->garage->monthlyPrice()" />
-                    @else
-                        {{ $extension->days }} × <x-rupiah :amount="$rental->garage->daily_price" />
-                    @endif
+                    {{ $extension->months }} × <x-rupiah :amount="$rental->garage->monthlyPrice()" />
+                    + {{ $extension->leftoverDays() }} × <x-rupiah :amount="$rental->garage->daily_price" />
                 </span>
             </div>
         </dl>

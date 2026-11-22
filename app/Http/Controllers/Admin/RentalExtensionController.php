@@ -2,27 +2,25 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\RentalType;
 use App\Exceptions\RentalNotExtendableException;
 use App\Http\Controllers\Controller;
 use App\Models\Rental;
 use App\Services\RentalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
- * Admin extension of a running rental in two steps: choose the new end date (daily) or a number
- * of months (monthly), then check the remaining cost and upload the payment proof.
+ * Admin extension of a running rental in two steps: choose the new end date, then check the
+ * remaining cost (whole months + leftover days) and upload the payment proof.
  */
 class RentalExtensionController extends Controller
 {
     public function __construct(private readonly RentalService $rentals) {}
 
     /**
-     * Step 1: choose how to extend, with the rental's details and earlier extensions.
+     * Step 1: choose the new end date, with the rental's details and earlier extensions.
      */
     public function create(Request $request, Rental $rental): View|RedirectResponse
     {
@@ -34,18 +32,17 @@ class RentalExtensionController extends Controller
 
         return view('admin.rentals.extensions.create', [
             'rental' => $rental,
-            'rentalTypes' => RentalType::cases(),
             'defaults' => $request->query(),
         ]);
     }
 
     /**
-     * Step 2: show the new end date, the days added and the remaining cost to pay.
+     * Step 2: show the new end date, the months and days added and the remaining cost to pay.
      */
     public function preview(Request $request, Rental $rental): View|RedirectResponse
     {
         try {
-            $input = $request->validate($this->validationRules($request, $rental));
+            $input = $request->validate($this->validationRules($rental));
             $extension = $this->rentals->quoteExtension($rental, $input);
         } catch (RentalNotExtendableException $exception) {
             return $this->backToList($exception);
@@ -66,7 +63,7 @@ class RentalExtensionController extends Controller
      */
     public function store(Request $request, Rental $rental): RedirectResponse
     {
-        $input = $request->validate($this->validationRules($request, $rental));
+        $input = $request->validate($this->validationRules($rental));
         $proof = $request->validate([
             'payment_proof' => ['required', 'image', 'mimes:'.implode(',', Rental::PAYMENT_PROOF_MIMES), 'max:'.config('rules.rental.payment_proof_max_kb')],
         ])['payment_proof'];
@@ -84,25 +81,19 @@ class RentalExtensionController extends Controller
     }
 
     /**
-     * Daily: a later end date (no day limit). Monthly: a number of months.
+     * A new end date after the current one (no day limit beyond the column size).
      *
      * @return array<string, mixed>
      */
-    private function validationRules(Request $request, Rental $rental): array
+    private function validationRules(Rental $rental): array
     {
-        $isMonthly = $request->input('extension_type') === RentalType::Monthly->value;
         $oldEndDate = $rental->end_date;
 
         return [
-            'extension_type' => ['required', Rule::enum(RentalType::class)],
             'new_end_date' => [
-                Rule::excludeIf($isMonthly), 'required', 'date_format:'.RentalService::DATE_FORMAT,
+                'required', 'date_format:'.RentalService::DATE_FORMAT,
                 'after:'.$oldEndDate->toDateString(),
                 'before_or_equal:'.$oldEndDate->addDays(config('rules.rental_extension.max_days'))->toDateString(),
-            ],
-            'months' => [
-                Rule::excludeIf(! $isMonthly), 'required', 'integer',
-                'min:'.config('rules.rental_extension.min_months'), 'max:'.config('rules.rental_extension.max_months'),
             ],
         ];
     }

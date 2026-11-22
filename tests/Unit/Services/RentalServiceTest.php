@@ -86,14 +86,14 @@ class RentalServiceTest extends TestCase
         $rental = $this->runningRental();
         Rental::factory()->for($rental->garage)->daily(2)->startingOn('2026-11-28')->create();
 
-        $this->assertValidationErrorOn('new_end_date', fn () => $this->service->quoteExtension($rental, $this->dailyExtension('2026-11-28')));
+        $this->assertValidationErrorOn('new_end_date', fn () => $this->service->quoteExtension($rental, $this->extensionTo('2026-11-28')));
     }
 
     public function test_extend_saves_the_extension_and_moves_the_rental_end_date(): void
     {
         $rental = $this->runningRental();
 
-        $extension = $this->service->extend($rental, $this->dailyExtension('2026-11-30'), $this->proof());
+        $extension = $this->service->extend($rental, $this->extensionTo('2026-11-30'), $this->proof());
 
         $this->assertTrue($extension->exists);
         $this->assertSame('2026-11-30', $rental->fresh()->end_date->toDateString());
@@ -105,7 +105,7 @@ class RentalServiceTest extends TestCase
         $finished = Rental::factory()->daily(2)->startingOn('2026-11-01')->create();
 
         try {
-            $this->service->extend($finished, $this->dailyExtension('2026-11-30'), $this->proof());
+            $this->service->extend($finished, $this->extensionTo('2026-11-30'), $this->proof());
             $this->fail('A finished rental was extended.');
         } catch (RentalNotExtendableException) {
             $this->assertSame(0, RentalExtension::count());
@@ -133,9 +133,9 @@ class RentalServiceTest extends TestCase
     /**
      * @return array<string, string>
      */
-    private function dailyExtension(string $newEndDate): array
+    private function extensionTo(string $newEndDate): array
     {
-        return ['extension_type' => RentalType::Daily->value, 'new_end_date' => $newEndDate];
+        return ['new_end_date' => $newEndDate];
     }
 
     /**

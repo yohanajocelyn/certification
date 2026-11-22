@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    private const ENUM_COLUMN_LENGTH = 20;
-
     /**
      * Run the migrations.
      */
@@ -17,8 +15,9 @@ return new class extends Migration
             $table->id();
             // An extension has no meaning without its rental.
             $table->foreignId('rental_id')->constrained()->cascadeOnDelete();
-            $table->string('extension_type', self::ENUM_COLUMN_LENGTH);
-            $table->unsignedSmallInteger('months')->nullable();
+            // Whole months of the added days; the rest are charged per day.
+            $table->unsignedSmallInteger('months');
+            // All days added after old_end_date.
             $table->unsignedSmallInteger('days');
             $table->date('old_end_date');
             $table->date('new_end_date');

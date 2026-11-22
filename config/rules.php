@@ -17,8 +17,6 @@
 $codeNumberDigits = 3;
 $kwhPrecision = 6;
 $kwhScale = 2;
-$maxExtensionDays = 65_535;
-$longestMonthDays = 31;
 
 return [
 
@@ -60,11 +58,8 @@ return [
     ],
 
     'rental_extension' => [
-        'min_months' => 1,
         // Column limit of `days` (unsigned smallint), not a business limit: extensions have no day limit.
-        'max_days' => $maxExtensionDays,
-        // Most months that always fit in max_days, even when every month counts 31 days.
-        'max_months' => intdiv($maxExtensionDays, $longestMonthDays),
+        'max_days' => 65_535,
     ],
 
 ];

@@ -1,7 +1,4 @@
 @php
-    use App\Enums\RentalType;
-
-    $selectedType = old('extension_type', $defaults['extension_type'] ?? RentalType::Daily->value);
     $firstExtraDay = $rental->end_date->addDay();
     $monthDays = $rental->end_date->daysInMonth;
 @endphp
@@ -37,7 +34,8 @@
                                 <span class="whitespace-nowrap">{{ $pastExtension->new_end_date->translatedFormat('d M Y') }}</span>
                             </td>
                             <td data-label="Tambahan" class="text-primary-700">
-                                {{ $pastExtension->extension_type->label() }} · {{ $pastExtension->days }} hari
+                                {{ $pastExtension->days }} hari
+                                <span class="block text-sm text-primary-600">{{ $pastExtension->months }} bulan + {{ $pastExtension->leftoverDays() }} hari</span>
                             </td>
                             <td data-label="Biaya" class="text-right"><x-rupiah :amount="$pastExtension->additional_cost" /></td>
                             <td data-label="Bukti">
@@ -51,32 +49,13 @@
         @endif
 
         <form method="GET" action="{{ route('admin.rentals.extensions.preview', $rental) }}" class="space-y-6">
-            <fieldset>
-                <legend class="block font-semibold text-base text-primary-800 mb-2">
-                    Tipe Perpanjangan <span class="text-rose-500 ml-0.5" aria-hidden="true">*</span>
-                </legend>
-                <div class="grid grid-cols-2 gap-3 md:max-w-md">
-                    @foreach ($rentalTypes as $rentalType)
-                        <x-choice-card name="extension_type" :value="$rentalType->value" :label="$rentalType->label()"
-                                       :checked="$selectedType === $rentalType->value" required />
-                    @endforeach
-                </div>
-                @error('extension_type')
-                    <p class="text-sm text-red-600 mt-1.5">{{ $message }}</p>
-                @enderror
-            </fieldset>
-
-            <x-show-when field="extension_type" :values="[RentalType::Daily->value]" :current="$selectedType" class="md:max-w-xs">
+            <div class="md:max-w-xs">
                 <x-input name="new_end_date" type="date" label="Tanggal Selesai Baru" required
                          min="{{ $firstExtraDay->toDateString() }}" :value="$defaults['new_end_date'] ?? $firstExtraDay->toDateString()" />
-            </x-show-when>
-
-            <x-show-when field="extension_type" :values="[RentalType::Monthly->value]" :current="$selectedType" class="md:max-w-xs">
-                <x-input name="months" type="number" label="Jumlah Bulan" required step="1"
-                         min="{{ config('rules.rental_extension.min_months') }}" max="{{ config('rules.rental_extension.max_months') }}"
-                         :value="$defaults['months'] ?? config('rules.rental_extension.min_months')" />
-                <p class="text-sm text-primary-600 mt-1.5">1 bulan = {{ $monthDays }} hari</p>
-            </x-show-when>
+                <p class="text-sm text-primary-600 mt-1.5">
+                    Dihitung otomatis: tiap {{ $monthDays }} hari = 1 bulan, sisa hari dihitung harian.
+                </p>
+            </div>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-primary-200/60">
                 <x-link-button :href="route('admin.rentals.index')" variant="secondary">Batal</x-link-button>
