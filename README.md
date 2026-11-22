@@ -113,6 +113,7 @@ A garage rental website. Admins create garages in batches (bike, car and electri
 | Tailwind CSS | 4.x | MIT | Utility-first styling for a consistent UI without custom CSS files | https://tailwindcss.com/docs |
 | Vite (laravel-vite-plugin) | 8.x | MIT | Builds and serves CSS/JS assets | https://laravel.com/docs/vite |
 | PHPUnit | 12.x | BSD-3-Clause | Unit tests | https://docs.phpunit.de |
+| phpDocumentor | 3.10 | MIT | Generates HTML API documentation from the PHPDoc comments in `app/` (run as `phpDocumentor.phar`, not a Composer package) | https://docs.phpdoc.org |
 | blade-ui-kit/blade-heroicons | 2.7 | MIT | Heroicons as Blade components (`<x-heroicon-o-plus />`) for consistent, accessible SVG icons without writing raw SVG | https://github.com/blade-ui-kit/blade-heroicons |
 
 Font: Instrument Sans (SIL Open Font License 1.1), downloaded at build time by laravel-vite-plugin's fonts feature and served from the app.
